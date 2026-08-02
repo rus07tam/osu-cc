@@ -1,0 +1,111 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  DOTNET_VERSION: "8.0.x"
+
+jobs:
+  build:
+    name: Build (linux-x64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build hook, plugins and packages (Release)
+        run: dotnet build osucc.build.proj -c Release --nologo
+
+      - name: Format check
+        run: dotnet format osucc.sln --verify-no-changes --no-restore
+
+      - name: Publish standalone launcher (linux-x64)
+        run: dotnet publish osucc.App/osucc.App.csproj -c Release /p:PublishProfile=linux-x64 --nologo
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-packages
+          path: artifacts/nuget/*.nupkg
+          if-no-files-found: error
+
+      - name: Upload plugin archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-zips
+          path: plugins/*/bin/Release/net8.0/*.zip
+          if-no-files-found: error
+
+      - name: Upload launcher (linux-x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: osucc-linux-x64
+          path: artifacts/publish/linux-x64/
+
+  build-windows:
+    name: Build (win-x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Create local feed dir
+        shell: bash
+        run: mkdir -p artifacts/nuget
+
+      - name: Publish standalone launcher (win-x64)
+        run: dotnet publish osucc.App/osucc.App.csproj -c Release /p:PublishProfile=win-x64 --nologo
+
+      - name: Upload launcher (win-x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: osucc-win-x64
+          path: artifacts/publish/win-x64/
+
+  publish:
+    name: Publish to NuGet + GitHub Release
+    needs: [build, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/ci
+
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: rus07tam
+
+      - name: Push to nuget.org
+        run: dotnet nuget push 'artifacts/ci/dotnet-packages/*.nupkg' --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/ci/dotnet-packages/*.nupkg
+            artifacts/ci/plugin-zips/*.zip
+            artifacts/ci/osucc-linux-x64/osucc
+            artifacts/ci/osucc-win-x64/osucc.exe

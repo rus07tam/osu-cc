@@ -1,0 +1,72 @@
+<Project DefaultTargets="Build">
+
+  <!--
+    Single MSBuild entry point for `osucc build`: packs the distributable packages (osucc.Host /
+    osucc.Build, the osucc dotnet tool and the osucc.Templates package) into the repo-local feed,
+    clears stale global-cache copies so the plugin restores resolve the freshly packed nupkgs, then
+    builds the hook and all plugins in one MSBuild process (parallel, one restore graph).
+    `osucc build` is just `dotnet build` on this file; the old per-project loop in osucc.App is gone.
+  -->
+
+  <PropertyGroup>
+    <OsuCcRoot>$(MSBuildThisFileDirectory)</OsuCcRoot>
+    <LocalFeed>$(OsuCcRoot)artifacts/nuget</LocalFeed>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Everything that gets packed into the local feed: the plugin API + build helpers, the
+         dotnet-tool launcher and the dotnet new template package. -->
+    <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
+    <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
+    <PackageProject Include="$(OsuCcRoot)osucc.App/osucc.App.csproj" />
+    <PackageProject Include="$(OsuCcRoot)templates/osucc.Templates/osucc.Templates.csproj" />
+
+    <PluginProject Include="$(OsuCcRoot)plugins/*/*.csproj" />
+    <BuildProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
+    <BuildProject Include="@(PluginProject)" />
+  </ItemGroup>
+
+  <Target Name="PackPackages">
+    <Message Text="Packing osucc.Host / osucc.Build / osucc (tool) / osucc.Templates into $(LocalFeed)..." Importance="high" />
+    <!-- The local feed is a NuGet source (NuGet.config); restore fails with NU1301 on a fresh
+         checkout until the directory exists, so create it before the parallel Restore;Pack. -->
+    <MakeDir Directories="$(LocalFeed)" />
+    <MSBuild Projects="@(PackageProject)" Targets="Restore;Pack"
+             Properties="Configuration=$(Configuration);PackageOutputPath=$(LocalFeed)" />
+  </Target>
+
+  <Target Name="ClearPackageCache">
+    <!-- NuGet caches by version; without this the plugin restores would keep the stale osucc.Host /
+         osucc.Build from a previous run. Only these two folders are touched, never the rest of the
+         global cache. -->
+    <PropertyGroup>
+      <_NuGetPackages>$([System.Environment]::GetEnvironmentVariable('NUGET_PACKAGES'))</_NuGetPackages>
+      <_NuGetPackages Condition="'$(_NuGetPackages)' == '' and '$([System.OperatingSystem]::IsWindows())' == 'true'">$([System.Environment]::GetEnvironmentVariable('USERPROFILE'))\.nuget\packages</_NuGetPackages>
+      <_NuGetPackages Condition="'$(_NuGetPackages)' == ''">$([System.Environment]::GetEnvironmentVariable('HOME'))/.nuget/packages</_NuGetPackages>
+    </PropertyGroup>
+    <Message Text="Clearing stale cache: $(_NuGetPackages)/osucc.{host,build}" Importance="low" />
+    <RemoveDir Directories="$(_NuGetPackages)/osucc.host" Condition="Exists('$(_NuGetPackages)/osucc.host')" />
+    <RemoveDir Directories="$(_NuGetPackages)/osucc.build" Condition="Exists('$(_NuGetPackages)/osucc.build')" />
+  </Target>
+
+  <Target Name="RestoreAll">
+    <MSBuild Projects="@(BuildProject)" Targets="Restore" BuildInParallel="true"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="PackPackages;ClearPackageCache;RestoreAll">
+    <Error Condition="'@(PluginProject)' == ''" Text="No plugin projects found under $(OsuCcRoot)plugins/." />
+    <Message Text="Building hook + @(PluginProject->'%(Filename)', ', ') ($(Configuration))..." Importance="high" />
+    <!-- No explicit Targets list: an MSBuild-task build with an explicit Targets attribute suppresses
+         the projects' AfterTargets hooks, so PackagePluginArchive (AfterTargets="Build") would never
+         run and the deploy would ship stale plugin archives. Building each project's default targets
+         keeps the hook active. The OsuCcPluginBuildSession property forces a fresh project evaluation
+         (after RestoreAll has re-extracted the freshly packed osucc.Build package), because the
+         evaluation produced during restore was cached before the package existed and thus skipped the
+         Exists-guarded osucc.Build.targets import. -->
+    <MSBuild Projects="@(BuildProject)" BuildInParallel="true"
+             Properties="Configuration=$(Configuration);OsuCcPluginBuildSession=1" />
+  </Target>
+
+</Project>

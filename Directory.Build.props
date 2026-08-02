@@ -1,0 +1,12 @@
+<Project>
+
+  <!--
+    Repo root hook: the shared osu-cc code-style and plugin-packaging logic lives in the
+    osucc.Build package (build/osucc.Build). Plugins consume it via PackageReference; the rest
+    of the monorepo picks up the code-style props through this import. Single source of truth,
+    no drift with external plugin repos.
+  -->
+
+  <Import Project="$(MSBuildThisFileDirectory)build/osucc.Build/osucc.Build.props" />
+
+</Project>

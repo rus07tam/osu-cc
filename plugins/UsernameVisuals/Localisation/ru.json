@@ -1,0 +1,16 @@
+{
+  "username-visuals:name": "Визуализация имён",
+  "username-visuals:description": "Визуализация имён игроков плюс переопределение отображения своего имени (свой текст / скрытие).",
+  "username-visuals:GradientEnabledCaption": "Визуализация имён",
+  "username-visuals:GradientEnabledHint": "Отображать имена игроков с горизонтальным градиентом везде.",
+  "username-visuals:SelfPaletteCaption": "Моё имя",
+  "username-visuals:SelfPaletteHint": "Цвета градиента для вашего собственного имени.",
+  "username-visuals:OthersPaletteCaption": "Остальные",
+  "username-visuals:OthersPaletteHint": "Цвета градиента для имён других игроков.",
+  "username-visuals:ReplaceEnabledCaption": "Заменить моё имя",
+  "username-visuals:ReplaceEnabledHint": "Показывать свой текст вместо вашего имени везде.",
+  "username-visuals:DisplayNameCaption": "Отображаемое имя",
+  "username-visuals:DisplayNamePlaceholder": "Игрок",
+  "username-visuals:HideEnabledCaption": "Скрыть моё имя",
+  "username-visuals:HideEnabledHint": "Заменяет ваше имя белым блоком (имеет приоритет над своим текстом)."
+}

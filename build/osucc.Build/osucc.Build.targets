@@ -1,0 +1,31 @@
+<Project>
+
+  <!--
+    Shared build logic for osu-cc plugin projects, shipped in the osucc.Build NuGet package.
+    Projects opt in by setting <IsPlugin>true</IsPlugin>: only the plugin's own dll (+ icon.png)
+    is deployed, packed into <AssemblyName>.zip under the output directory.
+  -->
+
+  <PropertyGroup Condition="'$(IsPlugin)' == 'true'">
+    <!-- Only the plugin's own dll is deployed; osu.* / osucc / 0Harmony resolve from the host. -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <Target Name="PackagePluginArchive" AfterTargets="Build" Condition="'$(IsPlugin)' == 'true'">
+    <PropertyGroup>
+      <_Staging>$(BaseOutputPath)package\$(Configuration)</_Staging>
+      <_Archive>$(OutDir)$(AssemblyName).zip</_Archive>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
+      <_PackageFiles Include="$(OutDir)icon.png" Condition="Exists('$(OutDir)icon.png')" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(_Staging)" />
+    <Copy SourceFiles="@(_PackageFiles)" DestinationFolder="$(_Staging)" />
+    <ZipDirectory SourceDirectory="$(_Staging)" DestinationFile="$(_Archive)" Overwrite="True" />
+    <RemoveDir Directories="$(_Staging)" />
+  </Target>
+
+</Project>

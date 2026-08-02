@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>osucc</AssemblyName>
+    <RootNamespace>osucc</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageId>osucc.Host</PackageId>
+    <Version>$(OsuCcVersion)</Version>
+    <Authors>osu-cc</Authors>
+    <Description>Host API and startup-hook assembly for osu-cc: the plugin-facing surface (IOsuCcPlugin, IOsuCcPluginHost, ...) plugins compile against. The runtime hook is this same assembly loaded by the game.</Description>
+    <PackageTags>osu osucc plugin host</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" />
+    <PackageReference Include="ppy.osu.Game" />
+    <PackageReference Include="SharpCompress" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
+  </ItemGroup>
+
+</Project>

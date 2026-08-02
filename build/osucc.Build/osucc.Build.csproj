@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    NuGet package carrying the shared MSBuild logic for building osu-cc plugins: the code-style
+    props and the zip-packaging target (PackagePluginArchive). The monorepo and external plugin
+    repos consume it the same way (<PackageReference osucc.Build PrivateAssets="all" /> +
+    <IsPlugin>true</IsPlugin>), so there is a single source of truth for how a plugin becomes a
+    deployable archive.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>osucc.Build</PackageId>
+    <Version>$(OsuCcVersion)</Version>
+    <Authors>osu-cc</Authors>
+    <Description>Shared MSBuild props/targets for building osu-cc plugins into deployable .zip archives.</Description>
+    <PackageTags>osu osucc msbuild plugin</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <DevelopmentDependency>true</DevelopmentDependency>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="osucc.Build.props" Pack="true" PackagePath="build/" />
+    <None Include="osucc.Build.targets" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+
+</Project>

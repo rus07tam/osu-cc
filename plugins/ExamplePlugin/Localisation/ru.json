@@ -1,0 +1,15 @@
+{
+  "example:name": "Пример плагина",
+  "example:description": "Демонстрирует API плагинов osu!cc: кнопка тулбара, уведомления, целебрации, настройки, патч Harmony, lifecycle-хуки и миграция данных.",
+  "example:TooltipMain": "Пример плагина",
+  "example:TooltipSub": "Показывает целебрацию",
+  "example:CelebrationTitle": "ПРИМЕР ПЛАГИНА",
+  "example:CelebrationSubtitle": "целебрации работают из плагинов",
+  "example:CelebrationsDisabled": "целебрации отключены в настройках плагина",
+  "example:Attached": "Пример плагина подключён",
+  "example:Installed": "Пример плагина установлен",
+  "example:Uninstalled": "Пример плагина удалён",
+  "example:Updated": "Пример плагина обновлён: {0} -> {1}",
+  "example:CelebrateCaption": "Праздновать из кнопки тулбара",
+  "example:CelebrateHint": "Показывать ли полноэкранную целебрацию при нажатии кнопки примера на тулбаре."
+}

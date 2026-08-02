@@ -1,0 +1,16 @@
+<Project>
+
+  <!--
+    Shared code-style/analyser configuration for osu-cc projects (osucc, plugins, osucc.App).
+    Imported by the repo root (Directory.Build.props) and shipped as part of the osucc.Build
+    NuGet package, so external plugin repos get identical behaviour. Uses only built-in .NET
+    analyzers; violations are reported as warnings, never errors.
+  -->
+
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+{
+  "username-visuals:name": "Візуалізація імен",
+  "username-visuals:description": "Візуалізація імен гравців плюс перевизначення відображення власного імені (свій текст / приховування).",
+  "username-visuals:GradientEnabledCaption": "Візуалізація імен",
+  "username-visuals:GradientEnabledHint": "Відображати імена гравців із горизонтальним градієнтом усюди.",
+  "username-visuals:SelfPaletteCaption": "Моє ім'я",
+  "username-visuals:SelfPaletteHint": "Кольори градієнта для вашого власного імені.",
+  "username-visuals:OthersPaletteCaption": "Інші",
+  "username-visuals:OthersPaletteHint": "Кольори градієнта для імен інших гравців.",
+  "username-visuals:ReplaceEnabledCaption": "Замінити моє ім'я",
+  "username-visuals:ReplaceEnabledHint": "Показувати свій текст замість вашого імені усюди.",
+  "username-visuals:DisplayNameCaption": "Відображуване ім'я",
+  "username-visuals:DisplayNamePlaceholder": "Гравець",
+  "username-visuals:HideEnabledCaption": "Сховати моє ім'я",
+  "username-visuals:HideEnabledHint": "Замінює ваше ім'я білим блоком (має пріоритет над своїм текстом)."
+}

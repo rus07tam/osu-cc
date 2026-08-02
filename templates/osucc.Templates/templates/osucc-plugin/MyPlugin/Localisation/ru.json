@@ -1,0 +1,9 @@
+{
+  "my-plugin:name": "Мой плагин",
+  "my-plugin:description": "Плагин osu-cc, сгенерированный через dotnet new osucc-plugin.",
+  "my-plugin:TooltipMain": "Мой плагин",
+  "my-plugin:TooltipSub": "Отправляет уведомление",
+  "my-plugin:HelloNotification": "Привет от MyPlugin!",
+  "my-plugin:EnabledCaption": "Включён",
+  "my-plugin:EnabledHint": "Активен ли плагин."
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "osu-cc",
+  "classifications": ["osu", "osu-cc", "plugin"],
+  "identity": "osuCc.Plugin.Template",
+  "name": "osu-cc Plugin",
+  "shortName": "osucc-plugin",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "MyPlugin",
+  "preferNameDirectory": true,
+  "description": "A standalone osu-cc plugin: toolbar button, settings subsection, notifications. Builds to a deployable .zip.",
+  "symbols": {
+    "hostVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "replaces": "OSUCC_HOST_VERSION",
+      "defaultValue": "1.0.0",
+      "description": "Version of the osucc.Host package to reference."
+    },
+    "buildVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "replaces": "OSUCC_BUILD_VERSION",
+      "defaultValue": "1.0.0",
+      "description": "Version of the osucc.Build package to reference."
+    }
+  }
+}

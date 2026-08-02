@@ -1,0 +1,20 @@
+{
+  "osucc-debug:name": "Дебаг-оверлей",
+  "osucc-debug:description": "Дебаг-оверлей: кастомные тестовые оверлеи и уведомления.",
+  "osucc-debug:OverlayTitle": "osu!cc debug",
+  "osucc-debug:OverlayDescription": "Кастомные тестовые оверлеи и уведомления",
+  "osucc-debug:TooltipMain": "osu!cc debug",
+  "osucc-debug:TooltipSub": "Кастомные тестовые оверлеи и уведомления",
+  "osucc-debug:NotificationsPanelTitle": "Уведомления",
+  "osucc-debug:CelebrationsPanelTitle": "Целебрации",
+  "osucc-debug:NotificationMessageLabel": "Текст уведомления",
+  "osucc-debug:NotificationKindLabel": "Тип уведомления",
+  "osucc-debug:PostNotificationButton": "Отправить уведомление",
+  "osucc-debug:TitleLabel": "Заголовок",
+  "osucc-debug:SubtitleLabel": "Подзаголовок",
+  "osucc-debug:AccentColourLabel": "Акцентный цвет",
+  "osucc-debug:BackgroundDimLabel": "Затемнение фона",
+  "osucc-debug:TotalDurationLabel": "Полная длительность (мс)",
+  "osucc-debug:ParticleDurationLabel": "Длительность частиц (мс)",
+  "osucc-debug:ShowCelebrationButton": "Показать целебрацию"
+}

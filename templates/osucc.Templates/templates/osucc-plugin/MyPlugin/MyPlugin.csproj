@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPlugin>true</IsPlugin>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="osucc.Host" Version="OSUCC_HOST_VERSION" />
+    <PackageReference Include="osucc.Build" Version="OSUCC_BUILD_VERSION" PrivateAssets="all" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+    <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
+  </ItemGroup>
+
+</Project>

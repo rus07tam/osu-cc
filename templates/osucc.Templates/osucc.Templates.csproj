@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Template package for `dotnet new osucc-plugin`: instantiates a standalone plugin repo that
+    consumes osucc.Host/osucc.Build from NuGet, identical to the monorepo plugins. Only the
+    template content ships in the nupkg (no build output, no dependencies).
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageType>Template</PackageType>
+    <PackageId>osucc.Templates</PackageId>
+    <Version>$(OsuCcVersion)</Version>
+    <Authors>osu-cc</Authors>
+    <Description>Templates for osu-cc plugins: `dotnet new osucc-plugin` creates a standalone plugin project that builds to a deployable .zip.</Description>
+    <PackageTags>osu osucc plugin template</PackageTags>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <!-- Dotfiles (.template.config, .editorconfig, .gitignore) are part of the template content. -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <!-- No lib folder, so drop the dependency group the net8.0 TFM would otherwise emit. -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SubdivideNations</AssemblyName>
+    <RootNamespace>SubdivideNations</RootNamespace>
+    <IsPlugin>true</IsPlugin>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="osucc.Host" />
+    <PackageReference Include="osucc.Build" PrivateAssets="all" />
+    <PackageReference Include="ppy.osu.Game" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Regions.json" />
+    <EmbeddedResource Include="Localisation/*.json" />
+    <Content Include="icon.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

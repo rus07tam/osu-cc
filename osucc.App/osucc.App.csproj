@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>osucc</AssemblyName>
+    <RootNamespace>osucc.App</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>osucc</ToolCommandName>
+    <PackageId>osucc</PackageId>
+    <Version>$(OsuCcVersion)</Version>
+    <PackageType>DotnetTool</PackageType>
+    <Authors>osu-cc</Authors>
+    <Description>osu-cc launcher: builds the hook and plugins from a repo checkout, deploys them into the osu-cc data root and launches osu! with DOTNET_STARTUP_HOOKS. Installable as a dotnet tool (osucc status/deploy/run --no-build work without a checkout).</Description>
+    <PackageTags>osu osucc launcher hook</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotMake.CommandLine" />
+  </ItemGroup>
+
+</Project>

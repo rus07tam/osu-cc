@@ -1,0 +1,39 @@
+using osu.Framework.Localisation;
+using osucc.Localisation;
+
+namespace ExamplePlugin
+{
+    public static class ExamplePluginStrings
+    {
+        private const string prefix = "example";
+
+        private static string getKey(string name) => $"{prefix}:{name}";
+
+        public static LocalisableString Name => OsuCcLocalisation.Get($"{prefix}:name", "Example Plugin");
+
+        public static LocalisableString Description => OsuCcLocalisation.Get($"{prefix}:description", "Demonstrates the osu!cc plugin API: toolbar button, notifications, celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.");
+
+        public static LocalisableString TooltipMain => OsuCcLocalisation.Get(getKey(nameof(TooltipMain)), "Example plugin");
+
+        public static LocalisableString TooltipSub => OsuCcLocalisation.Get(getKey(nameof(TooltipSub)), "Shows a celebration");
+
+        public static LocalisableString CelebrationTitle => OsuCcLocalisation.Get(getKey(nameof(CelebrationTitle)), "EXAMPLE PLUGIN");
+
+        public static LocalisableString CelebrationSubtitle => OsuCcLocalisation.Get(getKey(nameof(CelebrationSubtitle)), "celebrations work from plugins");
+
+        public static LocalisableString CelebrationsDisabled => OsuCcLocalisation.Get(getKey(nameof(CelebrationsDisabled)), "celebrations are disabled in the plugin settings");
+
+        public static LocalisableString Attached => OsuCcLocalisation.Get(getKey(nameof(Attached)), "Example plugin attached");
+
+        public static LocalisableString Installed => OsuCcLocalisation.Get(getKey(nameof(Installed)), "Example plugin installed");
+
+        public static LocalisableString Uninstalled => OsuCcLocalisation.Get(getKey(nameof(Uninstalled)), "Example plugin uninstalled");
+
+        public static LocalisableString Updated(string previous, string version)
+            => OsuCcLocalisation.Get(getKey(nameof(Updated)), "Example plugin updated {0} -> {1}", previous, version);
+
+        public static LocalisableString CelebrateCaption => OsuCcLocalisation.Get(getKey(nameof(CelebrateCaption)), "Celebrate from toolbar button");
+
+        public static LocalisableString CelebrateHint => OsuCcLocalisation.Get(getKey(nameof(CelebrateHint)), "Whether the example toolbar button shows a full-screen celebration.");
+    }
+}
