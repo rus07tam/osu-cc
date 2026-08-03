@@ -15,7 +15,7 @@ osucc/          DLL стартап-хука (classlib, net8.0)
   UI/                оверлеи, секция настроек, мод-UI
   Plugin/            менеджер плагинов и host API
 osucc.App/      лаунчер CLI (build / deploy / run / start / clean / status)
-plugins/        встроенные плагины (ExamplePlugin, osuccDebug)
+plugins/        встроенные плагины (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           скриншоты (assets/), доки по языкам (en/, ru/)
 ```
 

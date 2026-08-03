@@ -17,7 +17,7 @@
 - **Запросы и PR на плагины**: особенно интеграции с уже существующими
   osu!-инструментами (как `plugins/SubdivideNations`, вдохновлённый
   `osu-subdivide-nations`).
-- **Расширение API**: PR, которые развивают плагин-API,
+- **Расширение API**: PR, которые развивают плагин-API (`IOsuCcPluginHost`),
   чтобы плагины могли делать больше без harmony патчей.
 - **PR в ядро**: всё остальное, что улучшает клиент.
 
@@ -66,4 +66,4 @@ dotnet build osucc.App/osucc.App.csproj -c Debug
 dotnet osucc.App/bin/Debug/net8.0/osucc.dll start   # build + deploy + run
 ```
 
-Все команды и опции лаунчера есть в [README](../../README.md).
+Все команды и опции лаунчера есть в [README](README.md).

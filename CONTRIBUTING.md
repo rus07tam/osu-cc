@@ -5,8 +5,8 @@ report or a well-scoped PR goes a long way.
 
 Please also read:
 
-- [docs/en/DEVELOPMENT.md](docs/en/DEVELOPMENT.md): repo layout, plugin authoring, debugging
-- [docs/en/SECURITY.md](docs/en/SECURITY.md): account safety and detection-footprint policy
+- [DEVELOPMENT.md](docs/en/DEVELOPMENT.md): repo layout, plugin authoring, debugging
+- [SECURITY.md](docs/en/SECURITY.md): account safety and detection-footprint policy
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
 ## What we welcome
@@ -57,7 +57,7 @@ and ask before writing code.
 A plugin is a classlib with a type marked `[OsuCcPlugin]`. New plugins live in
 `plugins/<Name>/` and ship as a zip archive with an `icon.png`. Prefer the host
 API (`IOsuCcPluginHost`) over your own Harmony patches whenever possible.
-Everything you need is in [docs/en/DEVELOPMENT.md](docs/en/DEVELOPMENT.md).
+Everything you need is in [DEVELOPMENT.md](docs/en/DEVELOPMENT.md).
 
 ## Getting started
 

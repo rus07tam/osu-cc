@@ -15,7 +15,7 @@ osucc/          the startup hook DLL (classlib, net8.0)
   UI/                overlays, settings section, mod UI
   Plugin/            plugin manager and the host API
 osucc.App/      the launcher CLI (build / deploy / run / start / clean / status)
-plugins/        the built-in plugins (ExamplePlugin, osuccDebug)
+plugins/        the built-in plugins (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           screenshots (assets/), per-language docs (en/, ru/)
 ```
 
