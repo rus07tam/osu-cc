@@ -6,7 +6,7 @@
   "osucc-debug:TooltipMain": "osu!cc debug",
   "osucc-debug:TooltipSub": "Кастомные тестовые оверлеи и уведомления",
   "osucc-debug:NotificationsPanelTitle": "Уведомления",
-  "osucc-debug:CelebrationsPanelTitle": "Целебрации",
+  "osucc-debug:CelebrationsPanelTitle": "Празднования",
   "osucc-debug:NotificationMessageLabel": "Текст уведомления",
   "osucc-debug:NotificationKindLabel": "Тип уведомления",
   "osucc-debug:PostNotificationButton": "Отправить уведомление",
@@ -16,5 +16,5 @@
   "osucc-debug:BackgroundDimLabel": "Затемнение фона",
   "osucc-debug:TotalDurationLabel": "Полная длительность (мс)",
   "osucc-debug:ParticleDurationLabel": "Длительность частиц (мс)",
-  "osucc-debug:ShowCelebrationButton": "Показать целебрацию"
+  "osucc-debug:ShowCelebrationButton": "Показать празднование"
 }
