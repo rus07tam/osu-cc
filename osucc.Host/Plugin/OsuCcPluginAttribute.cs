@@ -9,7 +9,7 @@ namespace osucc.Plugin
         /// <see cref="IOsuCcPlugin"/> / <see cref="IOsuCcPluginHost"/>; plugins declaring a
         /// different <see cref="ApiVersion"/> are skipped with a warning.
         /// </summary>
-        public const int CurrentApiVersion = 1;
+        public const int CurrentApiVersion = 2;
 
         /// <summary>Stable, unique identifier (also used as the plugin's storage folder name).</summary>
         public string Id { get; }

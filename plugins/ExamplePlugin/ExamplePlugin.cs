@@ -76,22 +76,22 @@ namespace ExamplePlugin
             }
         }
 
-        public override void OnInstall(IOsuCcPluginHost host)
+        public override void OnInstall()
         {
-            host.Log("installed");
-            host.Notify(ExamplePluginStrings.Installed, ClientNotifications.NotificationKind.Success);
+            Host.Log("installed");
+            Host.Notify(ExamplePluginStrings.Installed, ClientNotifications.NotificationKind.Success);
         }
 
-        public override void OnUpdate(IOsuCcPluginHost host, string previousVersion)
+        public override void OnUpdate(string previousVersion)
         {
-            host.Log($"updated from {previousVersion} to {PluginVersion}");
-            host.Notify(ExamplePluginStrings.Updated(previousVersion, PluginVersion), ClientNotifications.NotificationKind.Info);
+            Host.Log($"updated from {previousVersion} to {PluginVersion}");
+            Host.Notify(ExamplePluginStrings.Updated(previousVersion, PluginVersion), ClientNotifications.NotificationKind.Info);
         }
 
-        public override void OnUninstall(IOsuCcPluginHost host)
+        public override void OnUninstall()
         {
-            host.Log("uninstalled");
-            host.Notify(ExamplePluginStrings.Uninstalled, ClientNotifications.NotificationKind.Info);
+            Host.Log("uninstalled");
+            Host.Notify(ExamplePluginStrings.Uninstalled, ClientNotifications.NotificationKind.Info);
         }
 
         public override int SchemaVersion => 2;
@@ -111,17 +111,15 @@ namespace ExamplePlugin
         {
             public int ToVersion => 2;
 
-            public void Apply(IOsuCcPluginHost host)
+            public void Apply(PluginSettings settings, Action<string> log)
             {
-                var settings = host.GetSettings();
-
                 string? persisted = settings.ReadPersisted("celebrate");
                 bool celebrate = persisted == null || bool.TryParse(persisted, out bool parsed) && parsed;
 
                 settings.Bind("celebration", celebrate).Value = celebrate;
                 settings.Remove("celebrate");
 
-                host.Log("schema v2: renamed setting 'celebrate' -> 'celebration'");
+                log("schema v2: renamed setting 'celebrate' -> 'celebration'");
             }
         }
     }

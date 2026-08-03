@@ -52,10 +52,10 @@ namespace osucc.Plugin
 
         public void Celebrate(Celebration celebration) => ClientCelebrations.Show(celebration);
 
-        public void AddToolbarButton(Func<ToolbarButton> factory, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null)
-            => PluginManager.RegisterToolbarButton(factory, placement, layoutPosition);
+        public IDisposable AddToolbarButton(Func<ToolbarButton> button, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null)
+            => PluginManager.RegisterToolbarButton(button, placement, layoutPosition);
 
-        public void AddSettingsSubsection(Func<SettingsSubsection> factory) => PluginManager.RegisterSettingsSubsection(entry.Id, factory);
+        public IDisposable AddSettingsSubsection(Func<SettingsSubsection> factory) => PluginManager.RegisterSettingsSubsection(entry.Id, factory);
 
         public PluginSettings GetSettings()
             => settings ??= new PluginSettings(() => resolveStorage());
@@ -108,33 +108,62 @@ namespace osucc.Plugin
             }
         }
 
-        public void RegisterBlockingOverlay(OverlayContainer overlay)
-        {
-            var scheduler = Reflection.GetScheduler(ClientApi.Game);
-
-            if (scheduler == null)
-            {
-                TimingLog.Error($"PluginHost.RegisterBlockingOverlay ('{entry.Name}'): no scheduler available");
-                return;
-            }
-
-            // The overlay content layer only exists after OsuGame.load; retry until it accepts the registration.
-            scheduler.Add(() => tryRegisterOverlay(overlay, scheduler));
-        }
+        public IDisposable RegisterBlockingOverlay(OverlayContainer overlay) => new BlockingOverlayRegistration(overlay);
 
         public void ExportApi(object api) => PluginManager.ExportPluginApi(entry.Id, api);
 
         public T? GetApi<T>(string pluginId) where T : class => PluginManager.GetPluginApi<T>(pluginId);
 
-        private void tryRegisterOverlay(OverlayContainer overlay, Scheduler scheduler)
+        /// <summary>
+        /// Registers a blocking overlay, re-trying on the update thread until the game's overlay
+        /// content layer exists. Disposing the handle stops the retry loop and, if the overlay got
+        /// registered, unregisters it through the returned token.
+        /// </summary>
+        private sealed class BlockingOverlayRegistration : IDisposable
         {
-            if (Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay) != null)
+            private readonly OverlayContainer overlay;
+            private readonly Scheduler? scheduler;
+            private IDisposable? token;
+            private bool disposed;
+
+            public BlockingOverlayRegistration(OverlayContainer overlay)
             {
-                TimingLog.Info($"PluginHost: blocking overlay registered for '{entry.Name}'");
-                return;
+                this.overlay = overlay;
+                scheduler = Reflection.GetScheduler(ClientApi.Game);
+
+                if (scheduler == null)
+                {
+                    TimingLog.Error("PluginHost: no scheduler available to register blocking overlay");
+                    return;
+                }
+
+                scheduler.Add(retryTopMostOverlay);
             }
 
-            scheduler.Add(() => tryRegisterOverlay(overlay, scheduler));
+            private void retryTopMostOverlay()
+            {
+                if (disposed)
+                    return;
+
+                token = Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay);
+
+                if (token != null)
+                {
+                    TimingLog.Info("PluginHost: blocking overlay registered");
+                    return;
+                }
+
+                scheduler?.Add(retryTopMostOverlay);
+            }
+
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+
+                disposed = true;
+                token?.Dispose();
+            }
         }
 
         /// <summary>Re-reads persisted settings from disk once the game storage is available.</summary>

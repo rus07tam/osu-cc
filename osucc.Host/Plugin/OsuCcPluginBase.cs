@@ -26,15 +26,15 @@ namespace osucc.Plugin
         {
         }
 
-        public virtual void OnInstall(IOsuCcPluginHost host)
+        public virtual void OnInstall()
         {
         }
 
-        public virtual void OnUninstall(IOsuCcPluginHost host)
+        public virtual void OnUninstall()
         {
         }
 
-        public virtual void OnUpdate(IOsuCcPluginHost host, string previousVersion)
+        public virtual void OnUpdate(string previousVersion)
         {
         }
 

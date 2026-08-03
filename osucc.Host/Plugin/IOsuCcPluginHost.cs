@@ -35,12 +35,13 @@ namespace osucc.Plugin
         /// Registers a toolbar button with explicit placement. Negative <paramref name="layoutPosition"/>
         /// places the button earlier (first = <c>-1f</c>), positive later; <c>null</c> appends at the end.
         /// For right-edge buttons, override <c>TooltipAnchor =&gt; Anchor.TopRight</c> so the tooltip opens
-        /// toward the screen centre instead of off the right edge.
+        /// toward the screen centre instead of off the right edge. Disposing the returned handle
+        /// revokes the registration.
         /// </summary>
-        void AddToolbarButton(Func<ToolbarButton> factory, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null);
+        IDisposable AddToolbarButton(Func<ToolbarButton> button, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null);
 
-        /// <summary>Registers a settings subsection shown inside the "Specials" settings section, after the built-in subsections.</summary>
-        void AddSettingsSubsection(Func<SettingsSubsection> factory);
+        /// <summary>Registers a settings subsection shown inside the "Specials" settings section, after the built-in subsections. Disposing the returned handle revokes it.</summary>
+        IDisposable AddSettingsSubsection(Func<SettingsSubsection> factory);
 
         /// <summary>
         /// The plugin's ini-backed key-value settings store. Defaults can be registered during
@@ -63,9 +64,10 @@ namespace osucc.Plugin
         /// <summary>
         /// Registers a full-screen blocking overlay with the game's overlay manager. The overlay must not
         /// have a parent. Registration is retried on the update thread until the game's overlay content
-        /// layer exists, so it is safe to call before <c>OsuGame.load</c> has finished.
+        /// layer exists, so it is safe to call before <c>OsuGame.load</c> has finished. Disposing the
+        /// returned handle stops retries and unregisters the overlay if it was registered.
         /// </summary>
-        void RegisterBlockingOverlay(OverlayContainer overlay);
+        IDisposable RegisterBlockingOverlay(OverlayContainer overlay);
 
         /// <summary>
         /// Exports an object as this plugin's public API. Other plugins fetch it by this plugin's id

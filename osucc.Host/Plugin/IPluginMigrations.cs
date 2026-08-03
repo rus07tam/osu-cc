@@ -13,8 +13,8 @@ namespace osucc.Plugin
         /// <summary>The schema version this step produces when applied.</summary>
         int ToVersion { get; }
 
-        /// <summary>Applies the step; read/write plugin data through the host (GetSettings / GetStorage / Log).</summary>
-        void Apply(IOsuCcPluginHost host);
+        /// <summary>Applies the step against the plugin's settings store; log progress through <paramref name="log"/>.</summary>
+        void Apply(PluginSettings settings, Action<string> log);
     }
 
     /// <summary>

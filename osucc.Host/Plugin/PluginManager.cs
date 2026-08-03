@@ -443,11 +443,11 @@ namespace osucc.Plugin
             lock (lockObject)
                 entry = plugins.FirstOrDefault(p => p.Id == id);
 
-            if (entry?.Plugin is IPluginLifecycle lifecycle && entry.Host != null)
+            if (entry?.Plugin is IPluginLifecycle lifecycle)
             {
                 try
                 {
-                    lifecycle.OnUninstall(entry.Host);
+                    lifecycle.OnUninstall();
                 }
                 catch (Exception ex)
                 {
@@ -581,7 +581,7 @@ namespace osucc.Plugin
 
                 try
                 {
-                    step.Apply(entry.Host);
+                    step.Apply(entry.Host.GetSettings(), message => TimingLog.Info($"[plugin:{entry.Name}] {message}"));
                     PluginStateStore.SetSchemaVersion(entry.Id, step.ToVersion);
                     TimingLog.Info($"PluginManager: '{entry.Name}' applied data migration -> schema v{step.ToVersion}");
                 }
@@ -609,7 +609,7 @@ namespace osucc.Plugin
                 if (freshInstall)
                 {
                     if (entry.Plugin is IPluginLifecycle install)
-                        install.OnInstall(entry.Host!);
+                        install.OnInstall();
 
                     PluginStateStore.SetVersion(entry.Id, currentVersion);
                     TimingLog.Info($"PluginManager: '{entry.Name}' installed (v{currentVersion})");
@@ -621,7 +621,7 @@ namespace osucc.Plugin
                     if (previousVersion != null && !versionsEqual(previousVersion, currentVersion))
                     {
                         if (entry.Plugin is IPluginLifecycle update)
-                            update.OnUpdate(entry.Host!, previousVersion);
+                            update.OnUpdate(previousVersion);
 
                         PluginStateStore.SetVersion(entry.Id, currentVersion);
                         TimingLog.Info($"PluginManager: '{entry.Name}' updated {previousVersion} -> {currentVersion}");
@@ -643,16 +643,70 @@ namespace osucc.Plugin
             return string.Equals(a, b, StringComparison.Ordinal);
         }
 
-        internal static void RegisterToolbarButton(Func<ToolbarButton> factory, ToolbarButtonPlacement placement, float? layoutPosition)
+        internal static IDisposable RegisterToolbarButton(Func<ToolbarButton> factory, ToolbarButtonPlacement placement, float? layoutPosition)
         {
+            var registration = new ToolbarButtonRegistration(factory, placement, layoutPosition);
+
             lock (lockObject)
-                toolbarButtonRegistrations.Add(new ToolbarButtonRegistration(factory, placement, layoutPosition));
+                toolbarButtonRegistrations.Add(registration);
+
+            return new ToolbarButtonLifecycleHandle(registration);
         }
 
-        internal static void RegisterSettingsSubsection(string pluginId, Func<SettingsSubsection> factory)
+        internal static IDisposable RegisterSettingsSubsection(string pluginId, Func<SettingsSubsection> factory)
         {
             lock (lockObject)
                 settingsSubsectionFactories[pluginId] = factory;
+
+            return new SettingsSubsectionLifecycleHandle(pluginId, factory);
+        }
+
+        /// <summary>Revokes a toolbar button registration when disposed.</summary>
+        private sealed class ToolbarButtonLifecycleHandle : IDisposable
+        {
+            private readonly ToolbarButtonRegistration registration;
+            private bool disposed;
+
+            public ToolbarButtonLifecycleHandle(ToolbarButtonRegistration registration)
+                => this.registration = registration;
+
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+
+                disposed = true;
+
+                lock (lockObject)
+                    toolbarButtonRegistrations.Remove(registration);
+            }
+        }
+
+        /// <summary>Revokes a settings subsection registration when disposed.</summary>
+        private sealed class SettingsSubsectionLifecycleHandle : IDisposable
+        {
+            private readonly string pluginId;
+            private readonly Func<SettingsSubsection> factory;
+            private bool disposed;
+
+            public SettingsSubsectionLifecycleHandle(string pluginId, Func<SettingsSubsection> factory)
+                => (this.pluginId, this.factory) = (pluginId, factory);
+
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+
+                disposed = true;
+
+                lock (lockObject)
+                {
+                    // Only remove the key if it still points at our factory, so a re-registration
+                    // after this handle was created is not torn down by it.
+                    if (settingsSubsectionFactories.TryGetValue(pluginId, out var current) && ReferenceEquals(current, factory))
+                        settingsSubsectionFactories.Remove(pluginId);
+                }
+            }
         }
 
         /// <summary>Registers an exported API object under the given plugin id (see <see cref="IOsuCcPluginHost.ExportApi"/>).</summary>
