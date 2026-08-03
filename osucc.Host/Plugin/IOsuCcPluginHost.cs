@@ -66,5 +66,21 @@ namespace osucc.Plugin
         /// layer exists, so it is safe to call before <c>OsuGame.load</c> has finished.
         /// </summary>
         void RegisterBlockingOverlay(OverlayContainer overlay);
+
+        /// <summary>
+        /// Exports an object as this plugin's public API. Other plugins fetch it by this plugin's id
+        /// via <see cref="GetApi{T}"/>. Re-exporting a new instance of the same concrete type replaces
+        /// the previous export. Export during <see cref="IOsuCcPlugin.Load"/> so it is ready for other
+        /// plugins' <see cref="IOsuCcPlugin.Load"/> / <see cref="IOsuCcPlugin.AttachToGame"/>.
+        /// </summary>
+        void ExportApi(object api);
+
+        /// <summary>
+        /// Fetches an API object exported by the plugin with the given id (see <see cref="ExportApi"/>).
+        /// Returns <c>null</c> when the plugin is not loaded or exported nothing assignable to
+        /// <typeparamref name="T"/>. Safe to call from <see cref="IOsuCcPlugin.Load"/> when the exporting
+        /// plugin's priority guarantees it loaded first; always safe from <see cref="IOsuCcPlugin.AttachToGame"/>.
+        /// </summary>
+        T? GetApi<T>(string pluginId) where T : class;
     }
 }

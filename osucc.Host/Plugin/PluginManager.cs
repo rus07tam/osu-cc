@@ -24,6 +24,16 @@ namespace osucc.Plugin
         private static readonly List<ToolbarButtonRegistration> toolbarButtonRegistrations = new();
         private static readonly List<Func<SettingsSubsection>> settingsSubsectionFactories = new();
 
+        /// <summary>
+        /// Every discovered plugin in the dependency-resolved load order (a dependency loads
+        /// before its dependents; priority is only the tie-breaker). Kept separate from
+        /// <see cref="plugins"/> (display order, sorted by priority); used for attach order.
+        /// </summary>
+        private static PluginEntry[] loadOrder = Array.Empty<PluginEntry>();
+
+        // Plugin-id -> exported API objects. A plugin may export several distinct contract types.
+        private static readonly Dictionary<string, List<object>> pluginApis = new();
+
         private static bool loadAttempted;
         private static bool attached;
 
@@ -184,13 +194,15 @@ namespace osucc.Plugin
                 }
             }
 
-            // Load in priority order (persisted override wins over the attribute).
-            foreach (var candidate in candidates
-                     .OrderBy(c => c.EffectivePriority)
-                     .ThenBy(c => c.Attribute.Name, StringComparer.Ordinal))
-            {
+            // Load in dependency-resolved order: a declared dependency always loads first,
+            // otherwise the priority order (persisted override wins over the attribute) holds.
+            var resolution = PluginDependencyResolver.Resolve(candidates);
+
+            foreach (string warning in resolution.Warnings)
+                TimingLog.Info(warning);
+
+            foreach (var candidate in resolution.Order)
                 instantiatePlugin(candidate);
-            }
 
             // Staging is transient; move every plugin payload into its id-folder now that
             // the ids are known, so the next launch loads straight from plugins/{id}/.
@@ -198,6 +210,10 @@ namespace osucc.Plugin
 
             lock (lockObject)
             {
+                // Snapshot the dependency-resolved order before the list is re-sorted by
+                // priority for display; AttachAllToGame follows this snapshot.
+                loadOrder = plugins.ToArray();
+
                 plugins.Sort((a, b) =>
                 {
                     int byPriority = a.Priority.CompareTo(b.Priority);
@@ -257,8 +273,10 @@ namespace osucc.Plugin
                 Version = attribute.Version,
                 IconResource = attribute.IconResource,
                 Priority = PluginStateStore.GetPriority(attribute.Id) ?? attribute.Priority,
+                ApiVersion = attribute.ApiVersion,
                 Directory = directory,
                 IconPath = iconPath,
+                Dependencies = attribute.DependsOn,
             };
 
         /// <summary>
@@ -482,7 +500,7 @@ namespace osucc.Plugin
                 attached = true;
             }
 
-            foreach (var entry in Plugins)
+            foreach (var entry in loadOrder)
             {
                 if (!entry.Loaded || entry.Plugin == null)
                     continue;
@@ -628,6 +646,38 @@ namespace osucc.Plugin
                 settingsSubsectionFactories.Add(factory);
         }
 
+        /// <summary>Registers an exported API object under the given plugin id (see <see cref="IOsuCcPluginHost.ExportApi"/>).</summary>
+        internal static void ExportPluginApi(string pluginId, object api)
+        {
+            lock (lockObject)
+            {
+                if (!pluginApis.TryGetValue(pluginId, out var apis))
+                    pluginApis[pluginId] = apis = new List<object>();
+
+                // Re-exporting a new instance of the same concrete type replaces the old one.
+                apis.RemoveAll(a => a.GetType() == api.GetType());
+                apis.Add(api);
+            }
+        }
+
+        /// <summary>Fetches an API object exported by the given plugin id that is assignable to <typeparamref name="T"/> (see <see cref="IOsuCcPluginHost.GetApi{T}"/>).</summary>
+        internal static T? GetPluginApi<T>(string pluginId) where T : class
+        {
+            lock (lockObject)
+            {
+                if (pluginApis.TryGetValue(pluginId, out var apis))
+                {
+                    foreach (object api in apis)
+                    {
+                        if (api is T typed)
+                            return typed;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         private static IEnumerable<Type> getLoadableTypes(Assembly assembly)
         {
             try
@@ -643,13 +693,6 @@ namespace osucc.Plugin
 
                 return e.Types.Where(t => t != null)!;
             }
-        }
-
-        /// <summary>A discovered <c>[OsuCcPlugin]</c> type, awaiting instantiation in priority order.</summary>
-        private sealed record PluginCandidate(Type Type, OsuCcPluginAttribute Attribute, string Directory, string? IconPath)
-        {
-            /// <summary>Load/attach priority: a persisted override wins over the attribute's value.</summary>
-            public int EffectivePriority => PluginStateStore.GetPriority(Attribute.Id) ?? Attribute.Priority;
         }
     }
 }

@@ -32,6 +32,14 @@ namespace osucc.Plugin
         /// <summary>Optional name of an embedded assembly resource used as the plugin icon.</summary>
         public string? IconResource { get; set; }
 
+        /// <summary>
+        /// Stable ids of plugins this plugin depends on. Dependencies always load before the
+        /// dependent plugin; the persisted/attribute priority only breaks the tie when no
+        /// dependency forces an order. Missing or disabled dependencies are soft — the plugin
+        /// still loads (its <c>GetApi&lt;T&gt;</c> returns <c>null</c>), only a warning is logged.
+        /// </summary>
+        public string[] DependsOn { get; set; } = Array.Empty<string>();
+
         public OsuCcPluginAttribute(string id, string name, int priority = 0, int apiVersion = CurrentApiVersion)
         {
             Id = id;

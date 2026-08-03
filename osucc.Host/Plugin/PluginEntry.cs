@@ -28,6 +28,18 @@ namespace osucc.Plugin
 
         public int Priority { get; internal set; }
 
+        /// <summary>
+        /// The osu!cc API version the plugin was built against
+        /// (from <see cref="OsuCcPluginAttribute.ApiVersion"/>).
+        /// </summary>
+        public int ApiVersion { get; init; }
+
+        /// <summary>
+        /// Stable ids of plugins this plugin depends on (from <see cref="OsuCcPluginAttribute.DependsOn"/>).
+        /// Dependencies load first; a missing/disabled dependency only logs a warning.
+        /// </summary>
+        public IReadOnlyList<string> Dependencies { get; init; } = Array.Empty<string>();
+
         /// <summary>Directory the plugin DLL + assets live in. Updated when the payload moves into the id-folder.</summary>
         public string Directory { get; internal set; } = string.Empty;
 

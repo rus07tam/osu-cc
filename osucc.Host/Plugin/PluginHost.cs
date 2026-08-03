@@ -122,6 +122,10 @@ namespace osucc.Plugin
             scheduler.Add(() => tryRegisterOverlay(overlay, scheduler));
         }
 
+        public void ExportApi(object api) => PluginManager.ExportPluginApi(entry.Id, api);
+
+        public T? GetApi<T>(string pluginId) where T : class => PluginManager.GetPluginApi<T>(pluginId);
+
         private void tryRegisterOverlay(OverlayContainer overlay, Scheduler scheduler)
         {
             if (Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay) != null)
