@@ -293,12 +293,19 @@ namespace osucc.Client
 
                 if (value is IEnumerable enumerable)
                 {
-                    // Snapshot: the underlying collection may be mutated concurrently by another
-                    // API request thread while we walk it.
-                    foreach (object? item in enumerable.Cast<object>().ToArray())
+                    // Best-effort snapshot: the underlying collection may be mutated concurrently
+                    // by another API request thread, which throws during enumeration; skip it then.
+                    try
                     {
-                        if (item != null)
-                            walk(item, visited, depth + 1);
+                        foreach (object? item in enumerable.Cast<object>().ToArray())
+                        {
+                            if (item != null)
+                                walk(item, visited, depth + 1);
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // collection changed while snapshotting; leave it unstamped (cosmetic)
                     }
                 }
                 else
