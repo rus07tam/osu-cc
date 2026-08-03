@@ -1,16 +1,15 @@
-using osu.Framework.Bindables;
 using osu.Framework.Localisation;
 using osu.Game;
 using osucc.Core;
 using osucc.Localisation;
 using osucc.Plugin;
-using osucc.UI.Plugins;
 
 namespace osucc.Client
 {
     /// <summary>
     /// The client's public surface: holds the live game instance and config, and bridges the
-    /// (reflective) patches with the (typed) UI/API layers.
+    /// (reflective) patches with the (typed) UI/API layers. The one-time wiring lives in
+    /// <see cref="ClientBootstrap"/>.
     /// </summary>
     public static class ClientApi
     {
@@ -20,98 +19,16 @@ namespace osucc.Client
 
         public static SpecialsConfigManager? Config { get; private set; }
 
-        // ConfigManager.GetBindable returns weak copies; hold strong references or the
-        // BindValueChanged subscriptions die after the first (immediate) fire.
-        private static Bindable<bool>? brandingBindable;
-        private static Bindable<bool>? showSystemModsBindable;
-        private static Bindable<bool>? firstRunSetupCompleteBindable;
-
         public static string? OriginalGameName { get; private set; }
 
         /// <summary>Remembers the game's real name before branding overwrites it.</summary>
         public static void CaptureOriginalGameName(string? name) => OriginalGameName ??= name;
 
-        /// <summary>
-        /// Called from the <c>OsuGameBase.load</c> postfix, once the instance, storage and
-        /// dependency injection are available. Wires up config, branding and the startup
-        /// notification component.
-        /// </summary>
-        public static void AttachToGame(OsuGameBase game)
-        {
-            if (Game != null)
-                return;
+        /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
+        internal static void SetGame(OsuGameBase game) => Game = game;
 
-            Game = game;
-            TimingLog.Info($"ClientApi attached to {game.GetType().FullName}");
-
-            var storage = Reflection.GetStorage(game);
-
-            if (storage == null)
-            {
-                ClientState.AddError("game Storage not available");
-                return;
-            }
-
-            Config = new SpecialsConfigManager(storage.GetStorageForDirectory("osu-cc"));
-            Config.Load();
-            TimingLog.Info($"SpecialsConfigManager loaded (branding default: {Config.GetBindable<bool>(SpecialsSetting.Branding).Value})");
-
-            applySentryReportingPreference();
-
-            ClientSupporter.Attach(Config);
-            ClientFavourites.Attach(Config);
-            ClientProfileDownloads.Attach(Config);
-
-            // Live-binding: toggling the checkbox in the Specials section flips the window title.
-            brandingBindable = Config.GetBindable<bool>(SpecialsSetting.Branding);
-            brandingBindable.BindValueChanged(v => applyBranding(v.NewValue), true);
-
-            // Live-binding: toggling "Show System mods" adds/removes the column on open overlays immediately.
-            showSystemModsBindable = Config.GetBindable<bool>(SpecialsSetting.ShowSystemMods);
-            showSystemModsBindable.BindValueChanged(_ => ClientMods.RefreshOverlays(), true);
-
-            firstRunSetupCompleteBindable = Config.GetBindable<bool>(SpecialsSetting.FirstRunSetupComplete);
-
-            game.Add(new InitNotificationsComponent());
-            game.Add(new FirstRunSetupComponent());
-            game.Add(new PluginsOverlayComponent());
-
-            // Storage and DI are available: attach every loaded plugin (its settings reload
-            // from disk first, then AttachToGame runs on the update thread).
-            PluginManager.AttachAllToGame();
-        }
-
-        private static void applyBranding(bool enabled)
-        {
-            if (Game == null)
-                return;
-
-            Reflection.SetName(Game, enabled ? BrandingName : OriginalGameName ?? BrandingName);
-            TimingLog.Info($"Branding applied: enabled={enabled}");
-        }
-
-        /// <summary>
-        /// Applies the <see cref="SpecialsSetting.SentryErrorReporting"/> preference via osu's own
-        /// kill-switch env var (<c>OSU_DISABLE_ERROR_REPORTING</c>). Must run before
-        /// <c>OsuGame.load</c> constructs <c>SentryLogger</c>; since the logger reads the env var
-        /// once at construction, the preference takes effect on the next launch.
-        /// </summary>
-        private static void applySentryReportingPreference()
-        {
-            bool enabled = Config?.GetBindable<bool>(SpecialsSetting.SentryErrorReporting).Value ?? false;
-
-            if (enabled)
-            {
-                // Removing the variable (null) re-enables the game's default behaviour.
-                Environment.SetEnvironmentVariable("OSU_DISABLE_ERROR_REPORTING", null);
-                TimingLog.Info("Sentry error reporting ENABLED (OSU_DISABLE_ERROR_REPORTING cleared)");
-            }
-            else
-            {
-                Environment.SetEnvironmentVariable("OSU_DISABLE_ERROR_REPORTING", "1");
-                TimingLog.Info("Sentry error reporting DISABLED (OSU_DISABLE_ERROR_REPORTING=1)");
-            }
-        }
+        /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
+        internal static void SetConfig(SpecialsConfigManager config) => Config = config;
 
         /// <summary>Posted by the scheduler once startup is complete.</summary>
         public static void ReportInit()

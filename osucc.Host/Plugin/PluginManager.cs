@@ -495,7 +495,7 @@ namespace osucc.Plugin
         }
 
         /// <summary>
-        /// Called from <see cref="osucc.Client.ClientApi.AttachToGame"/> once the game instance,
+        /// Called from <see cref="osucc.Client.ClientBootstrap.AttachToGame"/> once the game instance,
         /// storage and dependencies are available. Reloads persisted settings from disk and calls
         /// <see cref="IOsuCcPlugin.AttachToGame"/> on every loaded plugin (update thread).
         /// </summary>

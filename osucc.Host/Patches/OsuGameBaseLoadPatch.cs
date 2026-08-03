@@ -10,7 +10,7 @@ namespace osucc.Patches
     /// Wires the client into the game once it is constructed and loading. Targets the private
     /// <c>[BackgroundDependencyLoader]</c> <c>load(...)</c> on <c>OsuGameBase</c> — the first
     /// point where the game instance, storage and dependency injection are all available. The
-    /// postfix hands the instance to <see cref="ClientApi"/>.
+    /// postfix hands the instance to <see cref="ClientBootstrap"/>.
     /// </summary>
     public static class OsuGameBaseLoadPatch
     {
@@ -34,7 +34,7 @@ namespace osucc.Patches
         {
             try
             {
-                ClientApi.AttachToGame(__instance);
+                ClientBootstrap.AttachToGame(__instance);
             }
             catch (Exception ex)
             {
