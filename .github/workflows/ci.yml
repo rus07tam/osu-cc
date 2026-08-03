@@ -106,6 +106,6 @@ jobs:
         with:
           files: |
             artifacts/ci/dotnet-packages/*.nupkg
-            artifacts/ci/plugin-zips/*.zip
+            artifacts/ci/plugin-zips/**/*.zip
             artifacts/ci/osucc-linux-x64/osucc
             artifacts/ci/osucc-win-x64/osucc.exe
