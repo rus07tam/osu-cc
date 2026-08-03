@@ -1,6 +1,8 @@
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Client;
 using osucc.Localisation;
@@ -62,7 +64,21 @@ namespace osucc.UI.Specials
             {
                 Text = SpecialsSettingsStrings.ManagePluginsCaption,
                 TooltipText = SpecialsSettingsStrings.ManagePluginsTooltip,
-                Action = () => PluginsOverlayComponent.Instance?.Toggle(),
+                Action = () =>
+                {
+                    // Settings lives in the leftFloating layer, above the plugins overlay's
+                    // overlayContent layer; close it so the manager opens on top.
+                    for (Drawable? current = this; current != null; current = current.Parent)
+                    {
+                        if (current is SettingsOverlay settingsOverlay)
+                        {
+                            settingsOverlay.Hide();
+                            break;
+                        }
+                    }
+
+                    PluginsOverlayComponent.Instance?.Toggle();
+                },
             });
         }
 
