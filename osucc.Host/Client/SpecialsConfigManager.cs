@@ -23,7 +23,7 @@ namespace osucc.Client
             SetDefault(SpecialsSetting.ShowSystemMods, false);
             SetDefault(SpecialsSetting.FirstRunSetupComplete, false);
             SetDefault(SpecialsSetting.CelebrateNewRecord, true);
-            SetDefault(SpecialsSetting.RandomModsButton, true);
+            SetDefault(SpecialsSetting.ShowRandomModsButton, true);
             SetDefault(SpecialsSetting.DisableSoloScoreSubmission, false);
             SetDefault(SpecialsSetting.SentryErrorReporting, false);
             SetDefault(SpecialsSetting.FakeSupporterEnabled, false);

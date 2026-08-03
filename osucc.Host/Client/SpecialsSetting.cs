@@ -18,7 +18,7 @@ namespace osucc.Client
         CelebrateNewRecord,
 
         /// <summary>Show a "Random mods" button in the mod-select overlay footer.</summary>
-        RandomModsButton,
+        ShowRandomModsButton,
 
         /// <summary>Block solo score submission to the osu! servers. Local scores are still saved.</summary>
         DisableSoloScoreSubmission,

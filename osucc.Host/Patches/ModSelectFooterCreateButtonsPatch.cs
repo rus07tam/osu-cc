@@ -37,7 +37,7 @@ namespace osucc.Patches
         {
             try
             {
-                if (!ClientMods.RandomModsButton)
+                if (!ClientMods.ShowRandomModsButton)
                     return;
 
                 var overlay = readOverlay(__instance);

@@ -38,7 +38,7 @@ namespace osucc.Client
 
         public static bool ShowSystemMods => getFlag(SpecialsSetting.ShowSystemMods);
 
-        public static bool RandomModsButton => getFlag(SpecialsSetting.RandomModsButton);
+        public static bool ShowRandomModsButton => getFlag(SpecialsSetting.ShowRandomModsButton);
 
         public static bool CelebrateNewRecord => getFlag(SpecialsSetting.CelebrateNewRecord);
 

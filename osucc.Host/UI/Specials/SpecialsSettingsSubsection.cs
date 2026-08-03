@@ -31,7 +31,7 @@ namespace osucc.UI.Specials
             addCheckbox(config, SpecialsSettingsStrings.FirstRunSetupCompleteCaption, SpecialsSettingsStrings.FirstRunSetupCompleteHint, SpecialsSetting.FirstRunSetupComplete);
             addCheckbox(config, SpecialsSettingsStrings.CelebrateNewRecordCaption, SpecialsSettingsStrings.CelebrateNewRecordHint, SpecialsSetting.CelebrateNewRecord);
             addCheckbox(config, SpecialsSettingsStrings.DisableSoloScoreSubmissionCaption, SpecialsSettingsStrings.DisableSoloScoreSubmissionHint, SpecialsSetting.DisableSoloScoreSubmission);
-            addCheckbox(config, SpecialsSettingsStrings.RandomModsButtonCaption, SpecialsSettingsStrings.RandomModsButtonHint, SpecialsSetting.RandomModsButton);
+            addCheckbox(config, SpecialsSettingsStrings.RandomModsButtonCaption, SpecialsSettingsStrings.RandomModsButtonHint, SpecialsSetting.ShowRandomModsButton);
             addCheckbox(config, SpecialsSettingsStrings.SentryErrorReportingCaption, SpecialsSettingsStrings.SentryErrorReportingHint, SpecialsSetting.SentryErrorReporting);
             addCheckbox(config, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint, SpecialsSetting.FavouriteMapHighlight);
             addCheckbox(config, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint, SpecialsSetting.ProfileFavouriteDownloadButton);
