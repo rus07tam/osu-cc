@@ -11,5 +11,7 @@
   "example:Uninstalled": "Приклад плагіна видалено",
   "example:Updated": "Приклад плагіна оновлено: {0} -> {1}",
   "example:CelebrateCaption": "Святкувати з кнопки тулбара",
-  "example:CelebrateHint": "Чи показувати повноекранне святкування під час натискання кнопки прикладу на тулбарі."
+  "example:CelebrateHint": "Чи показувати повноекранне святкування під час натискання кнопки прикладу на тулбарі.",
+  "example:UsernameVisualsIntegrationCaption": "Інтеграція з Username Visuals",
+  "example:UsernameVisualsIntegrationHint": "Реєструє демонстраційні правила кольору та ніка через API плагіна Username Visuals; тумблер вмикає й відкликає їх на льоту."
 }

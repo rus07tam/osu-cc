@@ -16,6 +16,7 @@ namespace ExamplePlugin
         public ExampleSettingsSubsection(PluginSettings settings)
         {
             this.AddCheckbox(settings, "celebrate", true, ExamplePluginStrings.CelebrateCaption, ExamplePluginStrings.CelebrateHint);
+            this.AddCheckbox(settings, "username_visuals_integration", false, ExamplePluginStrings.UsernameVisualsIntegrationCaption, ExamplePluginStrings.UsernameVisualsIntegrationHint);
         }
     }
 }

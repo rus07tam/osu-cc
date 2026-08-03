@@ -9,7 +9,11 @@ namespace ExamplePlugin
     /// settings subsection (persisted via <see cref="PluginSettings"/>), shows notifications
     /// and celebrations, installs a Harmony patch by name, and walks through the optional
     /// lifecycle hooks (<see cref="IPluginLifecycle"/>) and data migrations
-    /// (<see cref="IPluginMigrations"/>) via <see cref="OsuCcPluginBase"/>.
+    /// (<see cref="IPluginMigrations"/>) via <see cref="OsuCcPluginBase"/>. Also demonstrates
+    /// plugin-to-plugin dependencies: it declares a dependency on the built-in
+    /// <c>username-visuals</c> plugin (which exports <c>IUsernameVisualsApi</c>) and consumes
+    /// that API via <c>Host.GetApi&lt;IUsernameVisualsApi&gt;</c>. Because the dependency is
+    /// soft, a missing/disabled exporting plugin is handled by the consumer's null-check.
     /// </summary>
     [OsuCcPlugin(
         "example",
@@ -17,7 +21,8 @@ namespace ExamplePlugin
         100,
         Author = "osu-cc",
         Description = "Demonstrates the osu!cc plugin API: toolbar button, notifications, celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.",
-        Version = "1.0.0")]
+        Version = "1.0.0",
+        DependsOn = new[] { "username-visuals" })]
     public class ExamplePlugin : OsuCcPluginBase
     {
         private const string PluginVersion = "1.0.0";
@@ -27,6 +32,10 @@ namespace ExamplePlugin
         // The bindable returned by PluginSettings is the live config instance; hold it locally
         // so the value we read in AttachToGame reflects what the settings UI wrote.
         private Bindable<bool> celebrateToggle = null!;
+
+        // Keeps the username-visuals API consumer (and its rule registrations) alive for the
+        // plugin's lifetime; the consumer is created in AttachToGame, when the export exists.
+        private ExampleUsernameVisualsApiConsumer? usernameVisualsConsumer;
 
         protected override void OnLoad()
         {
@@ -53,6 +62,18 @@ namespace ExamplePlugin
             Host.Log($"attach: celebrate = {celebrateToggle.Value}");
 
             Host.Notify(ExamplePluginStrings.Attached, ClientNotifications.NotificationKind.Success);
+
+            // Consume the username-visuals API (see ExampleUsernameVisualsApiConsumer). The
+            // consumer shares the plugin settings so the "Username Visuals integration" toggle
+            // registers/revokes its demo rules live.
+            try
+            {
+                usernameVisualsConsumer = new ExampleUsernameVisualsApiConsumer(Host, settings);
+            }
+            catch (Exception ex)
+            {
+                Host.Log($"username-visuals API demo skipped: {ex.Message}");
+            }
         }
 
         public override void OnInstall(IOsuCcPluginHost host)
@@ -80,6 +101,7 @@ namespace ExamplePlugin
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
+            usernameVisualsConsumer?.Dispose();
             settings?.Dispose();
             base.Dispose();
         }

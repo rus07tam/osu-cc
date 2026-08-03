@@ -14,6 +14,10 @@
     <PackageReference Include="osucc.Build" PrivateAssets="all" />
     <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="ppy.osu.Game" />
+    <!-- Contract assembly of the built-in UsernameVisuals plugin, consumed as a demo of
+         the plugin-to-plugin API (host.GetApi<IUsernameVisualsApi>). Not packed into the
+         plugin archive: at runtime it resolves to the already-loaded plugin assembly. -->
+    <ProjectReference Include="..\UsernameVisuals\UsernameVisuals.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -35,5 +35,9 @@ namespace ExamplePlugin
         public static LocalisableString CelebrateCaption => OsuCcLocalisation.Get(getKey(nameof(CelebrateCaption)), "Celebrate from toolbar button");
 
         public static LocalisableString CelebrateHint => OsuCcLocalisation.Get(getKey(nameof(CelebrateHint)), "Whether the example toolbar button shows a full-screen celebration.");
+
+        public static LocalisableString UsernameVisualsIntegrationCaption => OsuCcLocalisation.Get(getKey(nameof(UsernameVisualsIntegrationCaption)), "Username Visuals integration");
+
+        public static LocalisableString UsernameVisualsIntegrationHint => OsuCcLocalisation.Get(getKey(nameof(UsernameVisualsIntegrationHint)), "Registers a demo colour gradient and a display-name rule through the Username Visuals plugin API; toggle to register or revoke them live.");
     }
 }

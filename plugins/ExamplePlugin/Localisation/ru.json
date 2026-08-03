@@ -2,14 +2,16 @@
   "example:name": "Пример плагина",
   "example:description": "Демонстрирует API плагинов osu!cc: кнопка тулбара, уведомления, целебрации, настройки, патч Harmony, lifecycle-хуки и миграция данных.",
   "example:TooltipMain": "Пример плагина",
-  "example:TooltipSub": "Показывает целебрацию",
+  "example:TooltipSub": "Показывает празднование",
   "example:CelebrationTitle": "ПРИМЕР ПЛАГИНА",
-  "example:CelebrationSubtitle": "целебрации работают из плагинов",
-  "example:CelebrationsDisabled": "целебрации отключены в настройках плагина",
+  "example:CelebrationSubtitle": "празднования работают из плагинов",
+  "example:CelebrationsDisabled": "празднования отключены в настройках плагина",
   "example:Attached": "Пример плагина подключён",
   "example:Installed": "Пример плагина установлен",
   "example:Uninstalled": "Пример плагина удалён",
   "example:Updated": "Пример плагина обновлён: {0} -> {1}",
   "example:CelebrateCaption": "Праздновать из кнопки тулбара",
-  "example:CelebrateHint": "Показывать ли полноэкранную целебрацию при нажатии кнопки примера на тулбаре."
+  "example:CelebrateHint": "Показывать ли полноэкранное празднование при нажатии кнопки примера на тулбаре.",
+  "example:UsernameVisualsIntegrationCaption": "Интеграция с Username Visuals",
+  "example:UsernameVisualsIntegrationHint": "Регистрирует демонстрационные правила цвета и ника через API плагина Username Visuals; тумблер включает и отзывает их на лету."
 }
