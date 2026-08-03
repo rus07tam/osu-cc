@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace osucc.Plugin
 {
@@ -24,7 +23,8 @@ namespace osucc.Plugin
         private readonly ConcurrentDictionary<string, IBindable> store = new();
 
         private readonly object saveLock = new();
-        private int lastSave;
+        private readonly Timer saveTimer;
+        private bool saveQueued;
 
         /// <summary>True while <see cref="Reload"/> is re-applying persisted values.</summary>
         private bool reloading;
@@ -33,6 +33,11 @@ namespace osucc.Plugin
         {
             this.storageProvider = storageProvider;
             this.filename = filename;
+
+            // One-shot save timer, re-armed on every value change so writes coalesce into a
+            // single save fired after the last change settles.
+            saveTimer = new Timer(_ => flushSave(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
             Reload();
         }
 
@@ -46,7 +51,7 @@ namespace osucc.Plugin
             {
                 var bindable = new Bindable<T>(defaultValue);
 
-                // Persist on every value change; the queue is deduplicated by lastSave.
+                // Persist on every value change; saves are coalesced by a single timer.
                 bindable.ValueChanged += _ => queueSave();
 
                 return bindable;
@@ -61,6 +66,34 @@ namespace osucc.Plugin
 
         /// <summary>Shortcut for <see cref="Bind{T}(string, T)"/> without keeping the bindable.</summary>
         public T Get<T>(string key) => Bind(key, default(T)!).Value;
+
+        /// <summary>
+        /// Returns the config bindable for an enum-typed key, creating it with the given default
+        /// if needed. Keys persist under their numeric value, so renaming enum members never
+        /// corrupts stored settings.
+        /// </summary>
+        public Bindable<T> Bind<TKey, T>(TKey key, T defaultValue)
+            where TKey : struct, Enum
+            => Bind(keyString(key), defaultValue);
+
+        /// <summary>Shortcut for <see cref="Bind{TKey, T}(TKey, T)"/> without keeping the bindable.</summary>
+        public T Get<TKey, T>(TKey key)
+            where TKey : struct, Enum
+            => Bind(keyString(key), default(T)!).Value;
+
+        /// <summary>Sets the value of an enum-typed key.</summary>
+        public void Set<TKey, T>(TKey key, T value)
+            where TKey : struct, Enum
+            => Bind(keyString(key), default(T)!).Value = value;
+
+        /// <summary>Resets an enum-typed key back to the given default.</summary>
+        public void Reset<TKey, T>(TKey key, T defaultValue)
+            where TKey : struct, Enum
+            => Bind(keyString(key), defaultValue).SetDefault();
+
+        private static string keyString<TKey>(TKey key)
+            where TKey : struct, Enum
+            => Convert.ToInt64(key, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Reads a value straight from the backing file, bypassing the in-memory store. Unlike
@@ -166,13 +199,28 @@ namespace osucc.Plugin
             if (reloading)
                 return;
 
-            int current = Interlocked.Increment(ref lastSave);
-
-            Task.Delay(100).ContinueWith(_ =>
+            lock (saveLock)
             {
-                if (current == lastSave)
-                    Save();
-            });
+                if (saveQueued)
+                    return;
+
+                saveQueued = true;
+                saveTimer.Change(100, Timeout.Infinite);
+            }
+        }
+
+        private void flushSave()
+        {
+            bool shouldSave;
+
+            lock (saveLock)
+            {
+                shouldSave = saveQueued;
+                saveQueued = false;
+            }
+
+            if (shouldSave)
+                Save();
         }
 
         /// <summary>Writes the current values to the backing file. No-op until a storage is available.</summary>
@@ -184,8 +232,6 @@ namespace osucc.Plugin
 
             lock (saveLock)
             {
-                Interlocked.Increment(ref lastSave);
-
                 try
                 {
                     using (var stream = storage.CreateFileSafely(filename))
@@ -207,6 +253,7 @@ namespace osucc.Plugin
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+            saveTimer.Dispose();
             Save();
         }
     }
