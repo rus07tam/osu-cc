@@ -3,7 +3,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
-using osuTK.Graphics;
 using System.Linq;
 
 namespace osucc.Plugin
@@ -72,12 +71,12 @@ namespace osucc.Plugin
         }
 
         /// <summary>Parses a comma-separated hex colour string into a palette; unparseable entries are skipped.</summary>
-        public static Color4[] ParsePalette(string? value)
+        public static Colour4[] ParsePalette(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Array.Empty<Color4>();
+                return Array.Empty<Colour4>();
 
-            var colours = new List<Color4>();
+            var colours = new List<Colour4>();
 
             foreach (string part in value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {

@@ -8,13 +8,14 @@ namespace UsernameVisuals
     /// <summary>
     /// Settings subsection injected into the "Specials" section: a master toggle plus two colour
     /// palettes (own username / everyone else), persisted as comma-separated hex strings via
-    /// <see cref="PluginSettings"/>, and an own-username display override (custom text / hide).
+    /// <see cref="PluginSettings"/>, an own-username display override (custom text / hide), and
+    /// per-user colour / display overrides for specific users.
     /// </summary>
     public partial class UsernameVisualsSettingsSubsection : SettingsSubsection
     {
         protected override LocalisableString Header => UsernameVisualsStrings.Name;
 
-        public UsernameVisualsSettingsSubsection(PluginSettings settings)
+        public UsernameVisualsSettingsSubsection(PluginSettings settings, UsernameVisualsApi api)
         {
             this.AddCheckbox(settings, "gradient_enabled", false, UsernameVisualsStrings.GradientEnabledCaption, UsernameVisualsStrings.GradientEnabledHint);
             this.AddColourPalette(settings, "self_palette", UsernameVisualsStrings.SelfPaletteCaption, UsernameVisualsStrings.SelfPaletteHint);
@@ -29,6 +30,8 @@ namespace UsernameVisuals
             }));
 
             this.AddCheckbox(settings, "own_hide_enabled", false, UsernameVisualsStrings.HideEnabledCaption, UsernameVisualsStrings.HideEnabledHint);
+
+            Add(new UsernameVisualsUserOverridesSection(api));
         }
     }
 }

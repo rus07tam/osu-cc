@@ -16,6 +16,7 @@ using osu.Game.Users;
 using osuTK;
 using osuTK.Graphics;
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -40,8 +41,7 @@ namespace UsernameVisuals
 
         /// <summary>
         /// The user whose palette this text resolves. Setting it (re)applies the palette and the
-        /// own-display mode via <see cref="UsernameVisualsResolver"/>; <c>null</c> renders as
-        /// normal text.
+        /// own-display mode via <see cref="UsernameVisualsApi"/>; <c>null</c> renders as normal text.
         /// </summary>
         public IUser? User
         {
@@ -65,7 +65,8 @@ namespace UsernameVisuals
 
         public UsernameVisualsText()
         {
-            UsernameVisualsResolver.Changed += onResolverChanged;
+            if (UsernameVisualsApi.Instance != null)
+                UsernameVisualsApi.Instance.Changed += onResolverChanged;
         }
 
         protected override void LoadComplete()
@@ -84,7 +85,10 @@ namespace UsernameVisuals
         protected override void Dispose(bool isDisposing)
         {
             localUserBindable?.UnbindAll();
-            UsernameVisualsResolver.Changed -= onResolverChanged;
+
+            if (UsernameVisualsApi.Instance != null)
+                UsernameVisualsApi.Instance.Changed -= onResolverChanged;
+
             base.Dispose(isDisposing);
         }
 
@@ -132,11 +136,12 @@ namespace UsernameVisuals
         private void applyState()
         {
             var localUser = api?.LocalUser.Value;
-            var resolved = UsernameVisualsResolver.Resolve(user, localUser);
+            var visuals = UsernameVisualsApi.Instance;
+            var resolved = visuals?.ResolveColour(user, localUser);
 
-            palette = (Color4[]?)resolved ?? Array.Empty<Color4>();
+            palette = resolved?.Select(c => (Color4)c).ToArray() ?? Array.Empty<Color4>();
 
-            applyOwnDisplay(UsernameVisualsResolver.OwnModeFor(user, localUser));
+            applyOwnDisplay(visuals?.ResolveName(user, localUser) ?? UsernameNameRule.Normal);
 
             // Tracked texts always show the local user, so also repair a stale/empty name when
             // the game's own write missed our swapped instance (e.g. a renamed field).
@@ -149,17 +154,17 @@ namespace UsernameVisuals
             Invalidate(Invalidation.DrawInfo);
         }
 
-        private void applyOwnDisplay(UsernameVisualsResolver.OwnNameMode mode)
+        private void applyOwnDisplay(UsernameNameRule rule)
         {
-            hide = mode == UsernameVisualsResolver.OwnNameMode.Hide;
+            hide = rule.Mode == UsernameNameMode.Hide;
 
             // The writes are guarded so re-applying after the game overwrote the text (or after
             // our own replace write) never churns an identical value: SpriteText.Text is not
             // virtual, so a set_Text postfix re-enters here and the guard stops the loop.
-            if (mode == UsernameVisualsResolver.OwnNameMode.Replace)
+            if (rule.Mode == UsernameNameMode.Replace)
             {
-                if (!replacing || !string.Equals(Text.ToString(), UsernameVisualsResolver.ReplaceName, StringComparison.Ordinal))
-                    Text = UsernameVisualsResolver.ReplaceName;
+                if (!replacing || !string.Equals(Text.ToString(), rule.Text, StringComparison.Ordinal))
+                    Text = rule.Text ?? string.Empty;
                 replacing = true;
             }
             else if (replacing)

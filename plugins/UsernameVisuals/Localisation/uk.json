@@ -12,5 +12,19 @@
   "username-visuals:DisplayNameCaption": "Відображуване ім'я",
   "username-visuals:DisplayNamePlaceholder": "Гравець",
   "username-visuals:HideEnabledCaption": "Сховати моє ім'я",
-  "username-visuals:HideEnabledHint": "Замінює ваше ім'я білим блоком (має пріоритет над своїм текстом)."
+  "username-visuals:HideEnabledHint": "Замінює ваше ім'я білим блоком (має пріоритет над своїм текстом).",
+  "username-visuals:UserOverridesSectionCaption": "Перевизначення для гравців",
+  "username-visuals:UserOverrideIdCaption": "ID гравця",
+  "username-visuals:UserOverrideIdPlaceholder": "osu! ID гравця",
+  "username-visuals:UserOverridePaletteCaption": "Кольори градієнта",
+  "username-visuals:UserOverridePaletteHint": "Необов'язковий градієнт для імені цього гравця.",
+  "username-visuals:UserOverrideNameCaption": "Відображуване ім'я",
+  "username-visuals:UserOverrideNamePlaceholder": "Необов'язкове ім'я",
+  "username-visuals:UserOverrideHideCaption": "Сховати ім'я",
+  "username-visuals:UserOverrideHideHint": "Замінює ім'я гравця білим блоком.",
+  "username-visuals:UserOverrideApplyButtonText": "Застосувати",
+  "username-visuals:UserOverridesListCaption": "Поточні перевизначення",
+  "username-visuals:NoUserOverrides": "Перевизначень для гравців поки немає.",
+  "username-visuals:UserOverrideEditTooltip": "Редагувати",
+  "username-visuals:UserOverrideDeleteTooltip": "Видалити"
 }

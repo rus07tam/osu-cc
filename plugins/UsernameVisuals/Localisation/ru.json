@@ -12,5 +12,19 @@
   "username-visuals:DisplayNameCaption": "Отображаемое имя",
   "username-visuals:DisplayNamePlaceholder": "Игрок",
   "username-visuals:HideEnabledCaption": "Скрыть моё имя",
-  "username-visuals:HideEnabledHint": "Заменяет ваше имя белым блоком (имеет приоритет над своим текстом)."
+  "username-visuals:HideEnabledHint": "Заменяет ваше имя белым блоком (имеет приоритет над своим текстом).",
+  "username-visuals:UserOverridesSectionCaption": "Переопределения для игроков",
+  "username-visuals:UserOverrideIdCaption": "ID игрока",
+  "username-visuals:UserOverrideIdPlaceholder": "osu! ID игрока",
+  "username-visuals:UserOverridePaletteCaption": "Цвета градиента",
+  "username-visuals:UserOverridePaletteHint": "Необязательный градиент для имени этого игрока.",
+  "username-visuals:UserOverrideNameCaption": "Отображаемое имя",
+  "username-visuals:UserOverrideNamePlaceholder": "Необязательное имя",
+  "username-visuals:UserOverrideHideCaption": "Скрыть имя",
+  "username-visuals:UserOverrideHideHint": "Заменяет имя игрока белым блоком.",
+  "username-visuals:UserOverrideApplyButtonText": "Применить",
+  "username-visuals:UserOverridesListCaption": "Текущие переопределения",
+  "username-visuals:NoUserOverrides": "Переопределений для игроков пока нет.",
+  "username-visuals:UserOverrideEditTooltip": "Редактировать",
+  "username-visuals:UserOverrideDeleteTooltip": "Удалить"
 }

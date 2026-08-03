@@ -36,5 +36,33 @@ namespace UsernameVisuals
         public static LocalisableString HideEnabledCaption => OsuCcLocalisation.Get(getKey(nameof(HideEnabledCaption)), "Hide my username");
 
         public static LocalisableString HideEnabledHint => OsuCcLocalisation.Get(getKey(nameof(HideEnabledHint)), "Replace your own username with a white block (takes precedence over the custom text).");
+
+        public static LocalisableString UserOverridesSectionCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverridesSectionCaption)), "Per-user overrides");
+
+        public static LocalisableString UserOverrideIdCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverrideIdCaption)), "User ID");
+
+        public static LocalisableString UserOverrideIdPlaceholder => OsuCcLocalisation.Get(getKey(nameof(UserOverrideIdPlaceholder)), "osu! user ID");
+
+        public static LocalisableString UserOverridePaletteCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverridePaletteCaption)), "Gradient colours");
+
+        public static LocalisableString UserOverridePaletteHint => OsuCcLocalisation.Get(getKey(nameof(UserOverridePaletteHint)), "Optional gradient for this user's username.");
+
+        public static LocalisableString UserOverrideNameCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverrideNameCaption)), "Display name");
+
+        public static LocalisableString UserOverrideNamePlaceholder => OsuCcLocalisation.Get(getKey(nameof(UserOverrideNamePlaceholder)), "Optional custom name");
+
+        public static LocalisableString UserOverrideHideCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverrideHideCaption)), "Hide username");
+
+        public static LocalisableString UserOverrideHideHint => OsuCcLocalisation.Get(getKey(nameof(UserOverrideHideHint)), "Replace this user's username with a solid block.");
+
+        public static LocalisableString UserOverrideApplyButtonText => OsuCcLocalisation.Get(getKey(nameof(UserOverrideApplyButtonText)), "Apply");
+
+        public static LocalisableString UserOverridesListCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverridesListCaption)), "Current overrides");
+
+        public static LocalisableString NoUserOverrides => OsuCcLocalisation.Get(getKey(nameof(NoUserOverrides)), "No per-user overrides yet.");
+
+        public static LocalisableString UserOverrideEditTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideEditTooltip)), "Edit");
+
+        public static LocalisableString UserOverrideDeleteTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteTooltip)), "Delete");
     }
 }
