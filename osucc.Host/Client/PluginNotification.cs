@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
-using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
+using osucc.UI.Plugins;
 using osuTK;
 using osuTK.Graphics;
 
@@ -18,7 +18,8 @@ namespace osucc.Client
     /// <summary>
     /// Notification variant that shows a FontAwesome icon or a texture (such as a plugin's folder
     /// icon) in place of the generic kind icon. FontAwesome icons are tinted by the kind colour;
-    /// textures show naturally. Supports an optional bold title line (such as the plugin name).
+    /// textures show naturally. Supports an optional bold title line rendered as a clickable
+    /// plugin-name link when the notification is posted for a plugin.
     /// </summary>
     public partial class PluginNotification : Notification
     {
@@ -42,18 +43,18 @@ namespace osucc.Client
             set
             {
                 title = value;
-                titleText.Text = value;
-                titleText.Alpha = value.ToString().Length == 0 ? 0 : 1;
+                titleLink.Text = value;
+                titleLink.Alpha = value.ToString().Length == 0 ? 0 : 1;
             }
         }
 
         protected TextFlowContainer TextFlow { get; }
 
-        private readonly OsuSpriteText titleText;
+        private readonly PluginNameLink titleLink;
 
         private readonly Box iconBackground;
 
-        public PluginNotification(IconUsage? icon, Texture? iconTexture, Color4 iconColour)
+        public PluginNotification(IconUsage? icon, Texture? iconTexture, Color4 iconColour, string pluginId)
         {
             IconContent.AddRange(new Drawable[]
             {
@@ -88,9 +89,8 @@ namespace osucc.Client
 
             Content.AddRange(new Drawable[]
             {
-                titleText = new OsuSpriteText
+                titleLink = new PluginNameLink(pluginId, string.Empty, fontSize: 14, FontWeight.Bold)
                 {
-                    Font = OsuFont.Torus.With(size: 14, weight: FontWeight.Bold),
                     Alpha = 0,
                 },
                 TextFlow = new OsuTextFlowContainer(t => t.Font = t.Font.With(size: 14, weight: FontWeight.Medium))

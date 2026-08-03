@@ -35,7 +35,7 @@ namespace osucc.Plugin
         public void Log(string message) => TimingLog.Info($"[plugin:{entry.Name}] {message}");
 
         public void Notify(LocalisableString text, ClientNotifications.NotificationKind kind)
-            => ClientNotifications.PostPlugin(text, kind, OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name), resolveIcon(), resolveIconTexture());
+            => ClientNotifications.PostPlugin(text, kind, entry.Id, OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name), resolveIcon(), resolveIconTexture());
 
         private IconUsage? resolveIcon() => (entry.Plugin as IOsuCcIconProvider)?.Icon;
 

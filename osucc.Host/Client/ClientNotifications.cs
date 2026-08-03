@@ -31,13 +31,14 @@ namespace osucc.Client
 
         /// <summary>
         /// Posts a notification carrying the calling plugin's icon (FontAwesome or texture),
-        /// with the plugin name as a title line. Falls back to the generic kind icon when none
-        /// is available. Called via <see cref="Plugin.PluginHost.Notify"/>.
+        /// with the plugin name as a clickable title line that opens the plugin manager and
+        /// focuses the plugin. Falls back to the generic kind icon when none is available.
+        /// Called via <see cref="Plugin.PluginHost.Notify"/>.
         /// </summary>
-        internal static void PostPlugin(LocalisableString text, NotificationKind kind, LocalisableString title, IconUsage? icon, Texture? iconTexture)
-            => Post(text, kind, LocalisableString.Format("[osu!cc] {0}", title), icon, iconTexture);
+        internal static void PostPlugin(LocalisableString text, NotificationKind kind, string pluginId, LocalisableString title, IconUsage? icon, Texture? iconTexture)
+            => Post(text, kind, title, icon, iconTexture, pluginId);
 
-        private static void Post(LocalisableString text, NotificationKind kind, LocalisableString? title, IconUsage? icon, Texture? iconTexture)
+        private static void Post(LocalisableString text, NotificationKind kind, LocalisableString? title, IconUsage? icon, Texture? iconTexture, string? pluginId = null)
         {
             var game = ClientApi.Game;
 
@@ -82,7 +83,7 @@ namespace osucc.Client
             }
             else
             {
-                notification = new PluginNotification(icon, iconTexture, colour)
+                notification = new PluginNotification(icon, iconTexture, colour, pluginId ?? string.Empty)
                 {
                     Text = text,
                     Title = title ?? string.Empty,
