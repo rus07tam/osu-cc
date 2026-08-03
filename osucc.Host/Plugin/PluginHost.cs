@@ -32,6 +32,17 @@ namespace osucc.Plugin
 
         public string PluginDirectory => entry.Directory;
 
+        public osu.Game.OsuGameBase? Game => ClientApi.Game;
+
+        public Scheduler? Scheduler => Reflection.GetScheduler(ClientApi.Game);
+
+        public T? GetDependency<T>() where T : class
+            => ClientApi.Game?.Dependencies?.Get(typeof(T)) as T;
+
+        public IOsuCcPluginEvents Events => events ??= new PluginEvents();
+
+        private IOsuCcPluginEvents? events;
+
         public void Log(string message) => TimingLog.Info($"[plugin:{entry.Name}] {message}");
 
         public void Notify(LocalisableString text, NotificationKind kind)

@@ -2,6 +2,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
+using osu.Framework.Threading;
+using osu.Game;
 using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
 using osucc.Celebrations;
@@ -21,6 +23,18 @@ namespace osucc.Plugin
 
         /// <summary>Directory the plugin's DLL and assets live in — its own subfolder under the osu-cc "plugins" directory.</summary>
         string PluginDirectory { get; }
+
+        /// <summary>The live game instance, or <c>null</c> before the game attaches.</summary>
+        OsuGameBase? Game { get; }
+
+        /// <summary>The game's update-thread scheduler, or <c>null</c> before the game attaches. Run drawable/UI work through this.</summary>
+        Scheduler? Scheduler { get; }
+
+        /// <summary>Resolves a service from the game's dependency container, or <c>null</c> when it is not available.</summary>
+        T? GetDependency<T>() where T : class;
+
+        /// <summary>Client lifecycle events a plugin can subscribe to.</summary>
+        IOsuCcPluginEvents Events { get; }
 
         /// <summary>Logs a line with the plugin's name prefix.</summary>
         void Log(string message);
