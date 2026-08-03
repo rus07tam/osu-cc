@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc", "osucc\osucc.csproj", "{AAC5D09E-8D35-40EF-9008-3507550F0FBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Host", "osucc.Host\osucc.Host.csproj", "{AAC5D09E-8D35-40EF-9008-3507550F0FBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osuccDebug", "plugins\osuccDebug\osuccDebug.csproj", "{24C2A565-4B44-4008-BA94-A67155F210A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.App", "osucc.App\osucc.App.csproj", "{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc", "osucc\osucc.csproj", "{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{D5247426-E866-4970-9314-D381E8B6BB7B}"
 EndProject

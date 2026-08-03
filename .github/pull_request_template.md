@@ -8,7 +8,7 @@ What this PR does and why. Link any related issues (e.g. `Closes #123`).
 
 ## Checklist
 
-- [ ] Build passes with zero warnings (`dotnet build osucc.App/osucc.App.csproj`)
+- [ ] Build passes with zero warnings (`dotnet build osucc/osucc.csproj`)
 - [ ] `dotnet format osucc.sln --verify-no-changes` is clean
 - [ ] No osu! assemblies or NuGet blobs are committed
 - [ ] Nothing writes into the osu! install directory

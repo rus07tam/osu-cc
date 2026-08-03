@@ -38,14 +38,14 @@ osu!cc это сознательно клиент **без читов** (см. �
 ## Основные правила
 
 - **Сначала обсуждение.** Открывайте issue перед большими PR, особенно теми, что
-  трогают бутстраппер ядра (`osucc/Core/`) или Harmony-патчи (`osucc/Patches/`).
+  трогают бутстраппер ядра (`osucc.Host/Core/`) или Harmony-патчи (`osucc.Host/Patches/`).
 - **Никаких бинарей в PR.** Никогда не коммитьте сборки osu! или NuGet-блобы
   (`osu.Game.dll`, `osu.Game.Resources.dll`, `osuTK`, ...). Проприетарные сборки
   никогда не модифицируются, а NuGet-копии при деплое перезаписали бы
   продакшн-сборки.
 - **Никогда не писать в каталог osu!.** Хук живёт в папке данных osu!
   (`<data>/osu-cc/hook/`), а не в каталоге установки.
-- **Сборка должна оставаться чистой.** `dotnet build osucc.App/osucc.App.csproj`
+- **Сборка должна оставаться чистой.** `dotnet build osucc/osucc.csproj`
   без warnings, и `dotnet format osucc.sln --verify-no-changes` должен проходить.
 - **Обновлять доки.** Изменения фич сопровождаются обновлением английских и
   русских доков (README, список фич, DEVELOPMENT, где уместно).
@@ -62,8 +62,8 @@ osu!cc это сознательно клиент **без читов** (см. �
 ## Быстрый старт
 
 ```shell
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start   # build + deploy + run
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start   # build + deploy + run
 ```
 
 Все команды и опции лаунчера есть в [README](README.md).

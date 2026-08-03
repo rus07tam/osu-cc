@@ -175,7 +175,7 @@ internal static class OsuCcPaths
 
     /// <summary>Path of the hook's build output for a given configuration.</summary>
     public static string ResolveHookOutput(string repoRoot, string config)
-        => Path.Combine(repoRoot, "osucc", "bin", config, "net8.0");
+        => Path.Combine(repoRoot, "osucc.Host", "bin", config, "net8.0");
 
     /// <summary>Path of the osucc.dll startup hook that gets loaded by the game.</summary>
     public static string ResolveHookDll(string hookDirectory)

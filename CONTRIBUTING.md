@@ -38,14 +38,14 @@ and ask before writing code.
 ## Ground rules
 
 - **Discuss first.** Open an issue before large PRs, especially ones touching the
-  core bootstrapper (`osucc/Core/`) or the Harmony patches (`osucc/Patches/`).
+  core bootstrapper (`osucc.Host/Core/`) or the Harmony patches (`osucc.Host/Patches/`).
 - **No binaries in PRs.** Never commit osu! assemblies or NuGet blobs
   (`osu.Game.dll`, `osu.Game.Resources.dll`, `osuTK`, ...). The proprietary blobs
   are never modified, and the NuGet copies would overwrite production assemblies
   if deployed.
 - **Never write into the osu! folder.** The hook lives in the osu! data folder
   (`<data>/osu-cc/hook/`), not in the install directory.
-- **Keep the build clean.** `dotnet build osucc.App/osucc.App.csproj` should have
+- **Keep the build clean.** `dotnet build osucc/osucc.csproj` should have
   zero warnings, and `dotnet format osucc.sln --verify-no-changes` should pass.
 - **Update the docs.** Feature changes come with updates to the English and Russian
   docs (README, the feature list, DEVELOPMENT where relevant).
@@ -62,8 +62,8 @@ Everything you need is in [DEVELOPMENT.md](docs/en/DEVELOPMENT.md).
 ## Getting started
 
 ```shell
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start   # build + deploy + run
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start   # build + deploy + run
 ```
 
 See the [README](README.md) for all launcher commands and options.

@@ -117,8 +117,8 @@ The launcher finds osu! automatically in `%LOCALAPPDATA%\osulazer\current`.
 
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc.App\osucc.App.csproj -c Debug
-dotnet osucc.App\bin\Debug\net8.0\osucc.dll start
+dotnet build osucc\osucc.csproj -c Debug
+dotnet osucc\bin\Debug\net8.0\osucc.dll start
 ```
 
 The first `osucc start` builds the hook and the plugins, deploys them and starts osu!.
@@ -132,8 +132,8 @@ somewhere unusual, point at it with `--osu-dir`.
 
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start
 ```
 
 The first `osucc start` builds the hook and the plugins, deploys them and starts osu!.

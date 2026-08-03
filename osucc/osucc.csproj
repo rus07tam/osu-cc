@@ -1,28 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>osucc</AssemblyName>
-    <RootNamespace>osucc</RootNamespace>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <PackageId>osucc.Host</PackageId>
+    <RootNamespace>osucc.App</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>osucc</ToolCommandName>
+    <PackageId>osucc</PackageId>
     <Version>$(OsuCcVersion)</Version>
+    <PackageType>DotnetTool</PackageType>
     <Authors>osu-cc</Authors>
-    <Description>Host API and startup-hook assembly for osu-cc: the plugin-facing surface (IOsuCcPlugin, IOsuCcPluginHost, ...) plugins compile against. The runtime hook is this same assembly loaded by the game.</Description>
-    <PackageTags>osu osucc plugin host</PackageTags>
-    <IsPackable>true</IsPackable>
+    <Description>osu-cc launcher: builds the hook and plugins from a repo checkout, deploys them into the osu-cc data root and launches osu! with DOTNET_STARTUP_HOOKS. Installable as a dotnet tool (osucc status/deploy/run --no-build work without a checkout).</Description>
+    <PackageTags>osu osucc launcher hook</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" />
-    <PackageReference Include="ppy.osu.Game" />
-    <PackageReference Include="SharpCompress" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Localisation/*.json" />
+    <PackageReference Include="DotMake.CommandLine" />
   </ItemGroup>
 
 </Project>

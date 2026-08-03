@@ -115,8 +115,8 @@ hook: игра выполняет наш код ещё до того, как д�
 
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc.App\osucc.App.csproj -c Debug
-dotnet osucc.App\bin\Debug\net8.0\osucc.dll start
+dotnet build osucc\osucc.csproj -c Debug
+dotnet osucc\bin\Debug\net8.0\osucc.dll start
 ```
 
 Первый `osucc start` собирает хук и плагины, деплоит их и запускает osu!.
@@ -130,8 +130,8 @@ dotnet osucc.App\bin\Debug\net8.0\osucc.dll start
 
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start
 ```
 
 Первый `osucc start` собирает хук и плагины, деплоит их и запускает osu!.

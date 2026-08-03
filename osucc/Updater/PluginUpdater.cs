@@ -26,7 +26,7 @@ internal static class PluginUpdater
 
         string tag = release.RootElement.GetProperty("tag_name").GetString() ?? string.Empty;
 
-        List<JsonElement> archives = release.RootElement.GetProperty("assets").EnumerateArray()
+        var archives = release.RootElement.GetProperty("assets").EnumerateArray()
             .Where(a => (a.GetProperty("name").GetString() ?? string.Empty).EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             .ToList();
 

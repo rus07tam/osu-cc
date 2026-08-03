@@ -78,7 +78,7 @@ publish/
 *.pubxml
 *.azurePubxml
 # ...but the launcher's PublishProfiles are build config, not generated output
-!osucc.App/Properties/PublishProfiles/*.pubxml
+!osucc/Properties/PublishProfiles/*.pubxml
 
 # NuGet Packages Directory
 ## TODO: If you have NuGet Package Restore enabled, uncomment the next line

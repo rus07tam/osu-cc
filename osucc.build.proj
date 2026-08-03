@@ -5,7 +5,7 @@
     osucc.Build, the osucc dotnet tool and the osucc.Templates package) into the repo-local feed,
     clears stale global-cache copies so the plugin restores resolve the freshly packed nupkgs, then
     builds the hook and all plugins in one MSBuild process (parallel, one restore graph).
-    `osucc build` is just `dotnet build` on this file; the old per-project loop in osucc.App is gone.
+    `osucc build` is just `dotnet build` on this file; the old per-project loop in the launcher is gone.
   -->
 
   <PropertyGroup>
@@ -17,13 +17,13 @@
   <ItemGroup>
     <!-- Everything that gets packed into the local feed: the plugin API + build helpers, the
          dotnet-tool launcher and the dotnet new template package. -->
-    <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
+    <PackageProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
     <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
-    <PackageProject Include="$(OsuCcRoot)osucc.App/osucc.App.csproj" />
+    <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
     <PackageProject Include="$(OsuCcRoot)templates/osucc.Templates/osucc.Templates.csproj" />
 
     <PluginProject Include="$(OsuCcRoot)plugins/*/*.csproj" />
-    <BuildProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
+    <BuildProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
     <BuildProject Include="@(PluginProject)" />
   </ItemGroup>
 

@@ -7,14 +7,14 @@ Notes for people hacking on this repo.
 ## Layout
 
 ```plaintext
-osucc/          the startup hook DLL (classlib, net8.0)
+osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuGet package
   StartupHook.cs     entry point the runtime calls
   Core/              bootstrapper, reflection helpers, logging
   Client/            public API + client state
   Patches/           the Harmony patches
   UI/                overlays, settings section, mod UI
   Plugin/            plugin manager and the host API
-osucc.App/      the launcher CLI (build / deploy / run / start / clean / status)
+osucc/          the launcher CLI (build / deploy / run / start / clean / status)
 plugins/        the built-in plugins (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           screenshots (assets/), per-language docs (en/, ru/)
 ```
@@ -29,7 +29,7 @@ Patch targets are resolved by assembly/type/method **name** at runtime, so a
 patch survives osu! version bumps. The UI/API code, on the other hand, compiles
 against the `ppy.osu.Game` NuGet reference. The production `osu.Game.dll` is
 usually newer than that reference, so never reference osu internals directly.
-Find them by name. Reflection helpers live in `osucc/Core/Reflection.cs`.
+Find them by name. Reflection helpers live in `osucc.Host/Core/Reflection.cs`.
 
 One trap: `GetField`/`GetMethod` with `FlattenHierarchy` does **not** see
 private instance members of base classes. Read those from the declaring type or
@@ -83,8 +83,8 @@ behaviour or data, otherwise `OnUpdate` will not fire.
 ## Build & run
 
 ```shell
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
 ```
 
 `osucc build` delegates to the repo's single MSBuild entry point,
@@ -133,8 +133,8 @@ Windows (no .NET runtime needed on the target machine; cross-publishing works
 from either OS since the app is fully managed):
 
 ```shell
-dotnet publish osucc.App/osucc.App.csproj -p:PublishProfile=linux-x64   # artifacts/publish/linux-x64/osucc
-dotnet publish osucc.App/osucc.App.csproj -p:PublishProfile=win-x64     # artifacts/publish/win-x64/osucc.exe
+dotnet publish osucc/osucc.csproj -p:PublishProfile=linux-x64   # artifacts/publish/linux-x64/osucc
+dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publish/win-x64/osucc.exe
 ```
 
 `PublishTrimmed` stays off (the path resolver relies on `AppContext.BaseDirectory`,
@@ -149,7 +149,7 @@ Everything the distribution needs is produced by `osucc build` into
 - `osucc.Host` — the plugin API (and the runtime hook assembly);
 - `osucc.Build` — shared MSBuild props/targets for plugins;
 - `osucc` — the launcher as a [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc.App` sets `PackAsTool`), so `osucc status` / `run` work without a
+  (`osucc` sets `PackAsTool`), so `osucc status` / `run` work without a
   checkout or a build (`start`/`deploy` still need the repo);
 - `osucc.Templates` — `dotnet new osucc-plugin`, instantiating a standalone
   plugin repo identical to the monorepo plugins.

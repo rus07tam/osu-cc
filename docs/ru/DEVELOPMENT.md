@@ -7,14 +7,14 @@
 ## Структура
 
 ```plaintext
-osucc/          DLL стартап-хука (classlib, net8.0)
+osucc.Host/     DLL стартап-хука (classlib, net8.0), он же NuGet-пакет osucc.Host
   StartupHook.cs     точка входа, которую вызывает рантайм
   Core/              бутстраппер, рефлексия, логирование
   Client/            публичный API + состояние клиента
   Patches/           Harmony-патчи
   UI/                оверлеи, секция настроек, мод-UI
   Plugin/            менеджер плагинов и host API
-osucc.App/      лаунчер CLI (build / deploy / run / start / clean / status)
+osucc/          лаунчер CLI (build / deploy / run / start / clean / status)
 plugins/        встроенные плагины (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           скриншоты (assets/), доки по языкам (en/, ru/)
 ```
@@ -29,7 +29,7 @@ docs/           скриншоты (assets/), доки по языкам (en/, r
 патч переживает обновления osu!. А вот UI/API код компилируется против NuGet-рефа
 `ppy.osu.Game`. Продакшн-`osu.Game.dll` обычно новее этого рефа, так что не
 ссылайтесь на внутренности osu напрямую. Ищите их по имени. Хелперы рефлексии лежат
-в `osucc/Core/Reflection.cs`.
+в `osucc.Host/Core/Reflection.cs`.
 
 Обнаруженная проблема: `GetField`/`GetMethod` с `FlattenHierarchy` **не видит** private
 instance-члены базовых классов. Читайте их через declaring-тип или ходи по
@@ -81,8 +81,8 @@ instance-члены базовых классов. Читайте их чере�
 ## Сборка и запуск
 
 ```shell
-dotnet build osucc.App/osucc.App.csproj -c Debug
-dotnet osucc.App/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
+dotnet build osucc/osucc.csproj -c Debug
+dotnet osucc/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
 ```
 
 `osucc build` делегирует в единую MSBuild-точку входа `osucc.build.proj`: он пакует
@@ -128,8 +128,8 @@ dotnet osucc.App/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
 на целевой машине; кросс-сборка работает с любой ОС, так как приложение полностью managed):
 
 ```shell
-dotnet publish osucc.App/osucc.App.csproj -p:PublishProfile=linux-x64   # artifacts/publish/linux-x64/osucc
-dotnet publish osucc.App/osucc.App.csproj -p:PublishProfile=win-x64     # artifacts/publish/win-x64/osucc.exe
+dotnet publish osucc/osucc.csproj -p:PublishProfile=linux-x64   # artifacts/publish/linux-x64/osucc
+dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publish/win-x64/osucc.exe
 ```
 
 `PublishTrimmed` выключен (резолвер путей опирается на `AppContext.BaseDirectory`, который пуст
@@ -143,7 +143,7 @@ dotnet publish osucc.App/osucc.App.csproj -p:PublishProfile=win-x64     # artifa
 - `osucc.Host` — API плагинов (и сама сборка хука);
 - `osucc.Build` — общие MSBuild props/targets для плагинов;
 - `osucc` — лаунчер как [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc.App` ставит `PackAsTool`), поэтому `osucc status` / `run` работают без чекаута
+  (`osucc` ставит `PackAsTool`), поэтому `osucc status` / `run` работают без чекаута
   и сборки (`start`/`deploy` всё ещё требуют репозиторий);
 - `osucc.Templates` — `dotnet new osucc-plugin`, создающий standalone-репо плагина, идентичное
   плагинам монорепа.
