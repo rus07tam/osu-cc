@@ -51,5 +51,21 @@ namespace osucc.Core
             EnsureLoaded();
             return new Harmony(id);
         }
+
+        /// <summary>
+        /// The single Harmony instance shared by every built-in patch, so the client's whole
+        /// surface unpatchable via <c>UnpatchAll("osucc")</c>. Plugins keep their own scoped
+        /// instances via <see cref="Create"/>.
+        /// </summary>
+        public static Harmony Main
+        {
+            get
+            {
+                EnsureLoaded();
+                return main ??= new Harmony("osucc");
+            }
+        }
+
+        private static Harmony? main;
     }
 }

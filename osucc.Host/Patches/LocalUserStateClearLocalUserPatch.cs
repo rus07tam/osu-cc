@@ -21,7 +21,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.supporter.logout").Patch(method, postfix: Reflection.HarmonyMethod(typeof(LocalUserStateClearLocalUserPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(LocalUserStateClearLocalUserPatch), nameof(Postfix)));
             TimingLog.Info("LocalUserState.ClearLocalUser patched (postfix)");
             return true;
         }

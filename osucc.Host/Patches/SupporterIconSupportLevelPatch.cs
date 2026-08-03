@@ -23,7 +23,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.supporter.icon").Patch(setter, transpiler: Reflection.HarmonyMethod(typeof(SupporterIconSupportLevelPatch), nameof(Transpiler)));
+            HookDependencies.Main.Patch(setter, transpiler: Reflection.HarmonyMethod(typeof(SupporterIconSupportLevelPatch), nameof(Transpiler)));
             TimingLog.Info("SupporterIcon.set_SupportLevel patched (transpiler)");
             return true;
         }

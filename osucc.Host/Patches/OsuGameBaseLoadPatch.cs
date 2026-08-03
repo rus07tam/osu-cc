@@ -2,7 +2,6 @@ using HarmonyLib;
 using osu.Game;
 using osucc.Client;
 using osucc.Core;
-using System.Reflection;
 
 namespace osucc.Patches
 {
@@ -16,16 +15,14 @@ namespace osucc.Patches
     {
         public static bool Install()
         {
-            var load = Reflection.GetGameType("osu.Game.OsuGameBase")
-                                 ?.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                                 .FirstOrDefault(m => m.Name == "load" && m.GetParameters().Length == 2);
+            var load = Reflection.GetMethod("osu.Game.OsuGameBase", "load", m => m.GetParameters().Length == 2);
             if (load == null)
             {
                 TimingLog.Error("OsuGameBaseLoadPatch: load(..) method not found");
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.load").Patch(load, postfix: Reflection.HarmonyMethod(typeof(OsuGameBaseLoadPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(load, postfix: Reflection.HarmonyMethod(typeof(OsuGameBaseLoadPatch), nameof(Postfix)));
             TimingLog.Info("OsuGameBase.load patched (postfix)");
             return true;
         }

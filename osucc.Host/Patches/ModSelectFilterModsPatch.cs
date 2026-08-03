@@ -25,7 +25,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.filter").Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectFilterModsPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectFilterModsPatch), nameof(Postfix)));
             TimingLog.Info("ModSelectOverlay.filterMods patched (postfix)");
             return true;
         }

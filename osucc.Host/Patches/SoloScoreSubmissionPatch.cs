@@ -29,7 +29,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.submission").Patch(method, prefix: Reflection.HarmonyMethod(typeof(SoloScoreSubmissionPatch), nameof(Prefix)));
+            HookDependencies.Main.Patch(method, prefix: Reflection.HarmonyMethod(typeof(SoloScoreSubmissionPatch), nameof(Prefix)));
             TimingLog.Info("SoloPlayer.CreateTokenRequest patched (prefix)");
             return true;
         }

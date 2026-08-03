@@ -25,7 +25,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.supporter.login").Patch(load, postfix: Reflection.HarmonyMethod(typeof(ToolbarUserButtonLoadPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(load, postfix: Reflection.HarmonyMethod(typeof(ToolbarUserButtonLoadPatch), nameof(Postfix)));
             TimingLog.Info("ToolbarUserButton.load patched (postfix)");
             return true;
         }

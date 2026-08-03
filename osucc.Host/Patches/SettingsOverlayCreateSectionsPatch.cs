@@ -22,7 +22,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.settings").Patch(method, postfix: Reflection.HarmonyMethod(typeof(SettingsOverlayCreateSectionsPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(SettingsOverlayCreateSectionsPatch), nameof(Postfix)));
             TimingLog.Info("SettingsOverlay.CreateSections patched (postfix)");
             return true;
         }

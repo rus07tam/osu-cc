@@ -41,16 +41,22 @@ namespace osucc.Core
 
         /// <summary>A method resolved by name against a runtime type, cached per (type, name). Non-throwing on ambiguity (first match wins).</summary>
         public static MethodInfo? GetMethod(string typeName, string methodName)
+            => GetMethod(typeName, methodName, null);
+
+        /// <summary>
+        /// Resolves a method by name against a runtime type, disambiguating overloads with
+        /// <paramref name="predicate"/>. Never cached (a delegate cannot key the cache), so use it
+        /// only at install time, not on hot paths.
+        /// </summary>
+        public static MethodInfo? GetMethod(string typeName, string methodName, Func<MethodInfo, bool>? predicate)
         {
-            var key = (typeName, methodName);
+            var methods = GetGameType(typeName)?.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                                               .Where(m => m.Name == methodName);
 
-            if (methods.TryGetValue(key, out var cached))
-                return cached;
+            if (predicate != null)
+                methods = methods?.Where(predicate);
 
-            var method = GetGameType(typeName)?.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                                              .FirstOrDefault(m => m.Name == methodName);
-            methods[key] = method;
-            return method;
+            return methods?.FirstOrDefault();
         }
 
         /// <summary>A constructor resolved by signature against a runtime type, cached per (type, signature).</summary>
@@ -102,7 +108,6 @@ namespace osucc.Core
         }
 
         private static readonly ConcurrentDictionary<(string, string), FieldInfo?> fields = new();
-        private static readonly ConcurrentDictionary<(string, string), MethodInfo?> methods = new();
         private static readonly ConcurrentDictionary<(string, string), ConstructorInfo?> constructors = new();
 
         /// <summary>A <see cref="HarmonyMethod"/> wrapping a private static method of the given patch type.</summary>

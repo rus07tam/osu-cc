@@ -23,7 +23,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.load").Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectLoadCompletePatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectLoadCompletePatch), nameof(Postfix)));
             TimingLog.Info("ModSelectOverlay.LoadComplete patched (postfix)");
             return true;
         }

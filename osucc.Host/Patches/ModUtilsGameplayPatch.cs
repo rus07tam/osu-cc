@@ -24,7 +24,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.valid").Patch(method, prefix: Reflection.HarmonyMethod(typeof(ModUtilsGameplayPatch), nameof(Prefix)));
+            HookDependencies.Main.Patch(method, prefix: Reflection.HarmonyMethod(typeof(ModUtilsGameplayPatch), nameof(Prefix)));
             TimingLog.Info("ModUtils.CheckValidForGameplay patched (prefix)");
             return true;
         }

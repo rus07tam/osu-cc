@@ -19,16 +19,14 @@ namespace osucc.Patches
     {
         public static bool Install()
         {
-            var load = Reflection.GetGameType("osu.Game.Overlays.Toolbar.Toolbar")
-                                 ?.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                                 .FirstOrDefault(m => m.Name == "load" && m.GetParameters().Length == 1);
+            var load = Reflection.GetMethod("osu.Game.Overlays.Toolbar.Toolbar", "load", m => m.GetParameters().Length == 1);
             if (load == null)
             {
                 TimingLog.Error("ToolbarLoadPatch: Toolbar.load(..) method not found");
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.toolbar").Patch(load, postfix: Reflection.HarmonyMethod(typeof(ToolbarLoadPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(load, postfix: Reflection.HarmonyMethod(typeof(ToolbarLoadPatch), nameof(Postfix)));
             TimingLog.Info("Toolbar.load patched (postfix)");
             return true;
         }

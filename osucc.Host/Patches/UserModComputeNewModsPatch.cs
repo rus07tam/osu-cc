@@ -25,7 +25,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.compute").Patch(method, prefix: Reflection.HarmonyMethod(typeof(UserModComputeNewModsPatch), nameof(Prefix)));
+            HookDependencies.Main.Patch(method, prefix: Reflection.HarmonyMethod(typeof(UserModComputeNewModsPatch), nameof(Prefix)));
             TimingLog.Info("UserModSelectOverlay.ComputeNewModsFromSelection patched (prefix)");
             return true;
         }

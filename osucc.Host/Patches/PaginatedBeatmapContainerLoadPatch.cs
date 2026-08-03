@@ -29,7 +29,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.favourites.profile").Patch(method, postfix: Reflection.HarmonyMethod(typeof(PaginatedBeatmapContainerLoadPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(PaginatedBeatmapContainerLoadPatch), nameof(Postfix)));
             TimingLog.Info("PaginatedBeatmapContainer.load patched (postfix)");
             return true;
         }

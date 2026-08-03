@@ -26,7 +26,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.favourites").Patch(method, postfix: Reflection.HarmonyMethod(typeof(PanelPrepareForUsePatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(PanelPrepareForUsePatch), nameof(Postfix)));
             TimingLog.Info("Panel.PrepareForUse patched (postfix)");
             return true;
         }

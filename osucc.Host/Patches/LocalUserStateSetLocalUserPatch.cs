@@ -23,7 +23,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.supporter.me").Patch(method, postfix: Reflection.HarmonyMethod(typeof(LocalUserStateSetLocalUserPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(LocalUserStateSetLocalUserPatch), nameof(Postfix)));
             TimingLog.Info("LocalUserState.SetLocalUser patched (postfix)");
             return true;
         }

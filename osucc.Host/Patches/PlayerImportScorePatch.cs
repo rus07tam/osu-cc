@@ -31,7 +31,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.record")
+            HookDependencies.Main
                             .Patch(method,
                                 prefix: Reflection.HarmonyMethod(typeof(PlayerImportScorePatch), nameof(Prefix)),
                                 postfix: Reflection.HarmonyMethod(typeof(PlayerImportScorePatch), nameof(Postfix)));

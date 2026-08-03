@@ -26,7 +26,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.supporter").Patch(perform, postfix: Reflection.HarmonyMethod(typeof(APIRequestPerformPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(perform, postfix: Reflection.HarmonyMethod(typeof(APIRequestPerformPatch), nameof(Postfix)));
             TimingLog.Info("APIRequest.Perform patched (postfix)");
             return true;
         }

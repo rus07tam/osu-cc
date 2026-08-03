@@ -28,7 +28,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.footer").Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectFooterCreateButtonsPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectFooterCreateButtonsPatch), nameof(Postfix)));
             TimingLog.Info("ModSelectFooterContent.CreateButtons patched (postfix)");
             return true;
         }

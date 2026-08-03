@@ -23,7 +23,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.branding").Patch(ctor, postfix: Reflection.HarmonyMethod(typeof(OsuGameBaseCtorPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(ctor, postfix: Reflection.HarmonyMethod(typeof(OsuGameBaseCtorPatch), nameof(Postfix)));
             TimingLog.Info("OsuGameBase ctor patched (postfix)");
             return true;
         }

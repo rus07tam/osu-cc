@@ -30,7 +30,7 @@ namespace osucc.Patches
                 return false;
             }
 
-            HookDependencies.Create("dev.osucc.mods.columns").Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectCreateColumnsPatch), nameof(Postfix)));
+            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectCreateColumnsPatch), nameof(Postfix)));
             TimingLog.Info("ModSelectOverlay.createColumns patched (postfix)");
             return true;
         }
