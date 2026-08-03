@@ -5,7 +5,9 @@ namespace osucc.App.Updater;
 /// <summary>
 /// Downloads the shipped plugin archives (zip assets) from the latest GitHub release of the
 /// osu-cc repo into the plugins folder; the in-game <c>PluginPackageStore</c> unpacks them on
-/// the next launch. Third-party plugins in the folder are left alone.
+/// the next launch. Every run fetches the archives again (a few hundred KB, idempotent), so no
+/// marker file is needed; a release that ships no plugin archives is treated as an error rather
+/// than a silent no-op. Third-party plugins in the folder are left alone.
 /// </summary>
 internal static class PluginUpdater
 {
@@ -24,21 +26,21 @@ internal static class PluginUpdater
 
         string tag = release.RootElement.GetProperty("tag_name").GetString() ?? string.Empty;
 
-        if (IsCurrent(pluginsDirectory, tag))
+        List<JsonElement> archives = release.RootElement.GetProperty("assets").EnumerateArray()
+            .Where(a => (a.GetProperty("name").GetString() ?? string.Empty).EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (archives.Count == 0)
         {
-            Console.WriteLine($"Plugins already up to date ({tag}).");
-            return 0;
+            Console.Error.WriteLine($"ERROR: the latest release ({tag}) has no plugin archives.");
+            return 1;
         }
 
         Directory.CreateDirectory(pluginsDirectory);
 
-        foreach (JsonElement asset in release.RootElement.GetProperty("assets").EnumerateArray())
+        foreach (JsonElement asset in archives)
         {
             string name = asset.GetProperty("name").GetString() ?? string.Empty;
-
-            if (!name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-                continue;
-
             string url = asset.GetProperty("browser_download_url").GetString() ?? string.Empty;
 
             if (string.IsNullOrEmpty(url))
@@ -60,23 +62,8 @@ internal static class PluginUpdater
             Console.WriteLine($"Downloaded plugin archive: {name}");
         }
 
-        WriteMarker(pluginsDirectory, tag);
         return 0;
     }
-
-    /// <summary>True when the latest release was already fetched via <c>osucc update</c>.</summary>
-    private static bool IsCurrent(string pluginsDirectory, string tag)
-    {
-        string markerFile = MarkerPath(pluginsDirectory);
-        return File.Exists(markerFile) && File.ReadAllText(markerFile).Trim() == tag;
-    }
-
-    private static void WriteMarker(string pluginsDirectory, string tag)
-        => File.WriteAllText(MarkerPath(pluginsDirectory), tag);
-
-    // Marker lives in the osu-cc data root, next to the plugins folder.
-    private static string MarkerPath(string pluginsDirectory)
-        => Path.Combine(Path.GetDirectoryName(pluginsDirectory) ?? string.Empty, "osucc.plugins-version");
 
     private static async Task<JsonDocument?> GetLatestReleaseAsync(HttpClient http)
     {

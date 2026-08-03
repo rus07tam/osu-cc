@@ -1,6 +1,6 @@
 # osu!cc
 
-**Документация:** [English](../en/README.md) · [Разработка](DEVELOPMENT.md) · Русский · [Безопасность](SECURITY.md) · [Контрибуции](CONTRIBUTING.md) · [Кодекс поведения](../../CODE_OF_CONDUCT.md)
+**Документация:** [English](../en/README.md) · Русский · [Разработка](DEVELOPMENT.md) · [Безопасность](SECURITY.md) · [Контрибуции](CONTRIBUTING.md) · [Кодекс поведения](../../CODE_OF_CONDUCT.md)
 
 osu!cc это дополнение к osu!lazer. Это не официальный клиент, а набор опциональных
 улучшений поверх игры, которая у вас уже стоит.

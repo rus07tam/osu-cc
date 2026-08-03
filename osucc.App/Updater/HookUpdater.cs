@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace osucc.App.Updater;
@@ -84,7 +85,6 @@ internal static class HookUpdater
             foreach (string file in new[] { "osucc.dll", "0Harmony.dll", "SharpCompress.dll" })
                 File.Copy(Path.Combine(tempDirectory, file), Path.Combine(hookDirectory, file), overwrite: true);
 
-            WriteMarker(hookDirectory, latest);
             Console.WriteLine($"Hook updated to {latest}.");
             return 0;
         }
@@ -100,19 +100,17 @@ internal static class HookUpdater
         }
     }
 
-    /// <summary>True when the deployed hook was last updated to this version via <c>osucc update</c>.</summary>
+    /// <summary>True when the deployed hook assembly already carries the latest version.</summary>
     private static bool IsCurrent(string hookDirectory, string latest)
     {
-        string markerFile = MarkerPath(hookDirectory);
-        return File.Exists(markerFile) && File.ReadAllText(markerFile).Trim() == latest;
+        string hookDll = Path.Combine(hookDirectory, "osucc.dll");
+
+        if (!File.Exists(hookDll) || !Version.TryParse(latest, out Version? latestVersion))
+            return false;
+
+        Version? deployed = AssemblyName.GetAssemblyName(hookDll).Version;
+        return deployed != null && deployed >= latestVersion;
     }
-
-    private static void WriteMarker(string hookDirectory, string version)
-        => File.WriteAllText(MarkerPath(hookDirectory), version);
-
-    // Marker lives in the osu-cc data root, next to the hook folder.
-    private static string MarkerPath(string hookDirectory)
-        => Path.Combine(Path.GetDirectoryName(hookDirectory) ?? string.Empty, "osucc.hook-version");
 
     private static bool ExtractEntry(string packagePath, Func<string, bool> match, string targetPath)
     {

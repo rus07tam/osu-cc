@@ -121,8 +121,10 @@ prebuilt artifacts straight from the public feeds:
   a standalone binary is swapped for the release build of the same OS (Windows
   defers the replacement to a detached script because the running exe is locked).
 
-Marker files (`osucc.hook-version`, `osucc.plugins-version`) in the osu-cc data
-root record the last fetched versions so repeat runs are no-ops.
+`osucc update` skips the hook when the deployed `osucc.dll` already carries the
+latest version, and always fetches the plugin archives from the latest GitHub
+release (they are small and idempotent). It errors out if the latest release
+ships no plugin archives, so a broken release is never a silent no-op.
 
 ### Standalone executables
 
