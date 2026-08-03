@@ -24,11 +24,11 @@ namespace osuccDebug
     /// </summary>
     public partial class osuccDebugOverlay : OsuCcShearedOverlay
     {
-        private readonly Action<LocalisableString, ClientNotifications.NotificationKind> notify;
+        private readonly Action<LocalisableString, NotificationKind> notify;
 
         private readonly FillFlowContainer panels;
 
-        public osuccDebugOverlay(Action<LocalisableString, ClientNotifications.NotificationKind> notify)
+        public osuccDebugOverlay(Action<LocalisableString, NotificationKind> notify)
             : base(OverlayColourScheme.Purple)
         {
             this.notify = notify;

@@ -20,13 +20,6 @@ namespace osucc.Client
 
         public static void Info(LocalisableString text) => Post(text, NotificationKind.Info);
 
-        public enum NotificationKind
-        {
-            Success,
-            Error,
-            Info
-        }
-
         public static void Post(LocalisableString text, NotificationKind kind) => Post(text, kind, null, null, null);
 
         /// <summary>
@@ -60,6 +53,7 @@ namespace osucc.Client
             {
                 NotificationKind.Success => OsuCcColours.Success,
                 NotificationKind.Error => OsuCcColours.Error,
+                NotificationKind.Warning => OsuCcColours.Warning,
                 _ => OsuCcColours.Info,
             };
 
@@ -77,7 +71,12 @@ namespace osucc.Client
                     : new SimpleNotification
                     {
                         Text = text,
-                        Icon = kind == NotificationKind.Success ? FontAwesome.Solid.CheckCircle : FontAwesome.Solid.InfoCircle,
+                        Icon = kind switch
+                        {
+                            NotificationKind.Success => FontAwesome.Solid.CheckCircle,
+                            NotificationKind.Warning => FontAwesome.Solid.ExclamationTriangle,
+                            _ => FontAwesome.Solid.InfoCircle,
+                        },
                         IconColour = colour,
                     };
             }

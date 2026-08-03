@@ -17,12 +17,12 @@ namespace osuccDebug
     {
         private readonly Bindable<string> message = new Bindable<string>("test notification");
 
-        private readonly Bindable<ClientNotifications.NotificationKind> kind =
-            new Bindable<ClientNotifications.NotificationKind>(ClientNotifications.NotificationKind.Info);
+        private readonly Bindable<NotificationKind> kind =
+            new Bindable<NotificationKind>(NotificationKind.Info);
 
-        private readonly Action<LocalisableString, ClientNotifications.NotificationKind> notify;
+        private readonly Action<LocalisableString, NotificationKind> notify;
 
-        public NotificationTestPanel(Action<LocalisableString, ClientNotifications.NotificationKind> notify)
+        public NotificationTestPanel(Action<LocalisableString, NotificationKind> notify)
         {
             this.notify = notify;
 
@@ -38,7 +38,7 @@ namespace osuccDebug
                     LabelText = osuccDebugStrings.NotificationMessageLabel,
                     Current = message,
                 },
-                new SettingsEnumDropdown<ClientNotifications.NotificationKind>
+                new SettingsEnumDropdown<NotificationKind>
                 {
                     LabelText = osuccDebugStrings.NotificationKindLabel,
                     Current = kind,

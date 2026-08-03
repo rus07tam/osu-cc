@@ -18,9 +18,9 @@ namespace ExamplePlugin
     {
         private readonly Bindable<bool> celebrate;
 
-        private readonly Action<LocalisableString, ClientNotifications.NotificationKind> notify;
+        private readonly Action<LocalisableString, NotificationKind> notify;
 
-        public ExampleToolbarButton(Bindable<bool> celebrate, Action<LocalisableString, ClientNotifications.NotificationKind> notify)
+        public ExampleToolbarButton(Bindable<bool> celebrate, Action<LocalisableString, NotificationKind> notify)
         {
             this.celebrate = celebrate;
             this.notify = notify;
@@ -42,7 +42,7 @@ namespace ExamplePlugin
                 }
                 else
                 {
-                    notify(ExamplePluginStrings.CelebrationsDisabled, ClientNotifications.NotificationKind.Info);
+                    notify(ExamplePluginStrings.CelebrationsDisabled, NotificationKind.Info);
                 }
             };
         }

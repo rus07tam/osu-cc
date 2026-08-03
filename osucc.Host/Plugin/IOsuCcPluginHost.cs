@@ -26,7 +26,7 @@ namespace osucc.Plugin
         void Log(string message);
 
         /// <summary>Posts a toast into the game's notification overlay.</summary>
-        void Notify(LocalisableString text, ClientNotifications.NotificationKind kind);
+        void Notify(LocalisableString text, NotificationKind kind);
 
         /// <summary>Shows a full-screen celebration over the game's top-most overlay content.</summary>
         void Celebrate(Celebration celebration);

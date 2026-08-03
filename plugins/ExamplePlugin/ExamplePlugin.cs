@@ -61,7 +61,7 @@ namespace ExamplePlugin
             // Persisted config is now available; the value reflects what the user chose.
             Host.Log($"attach: celebrate = {celebrateToggle.Value}");
 
-            Host.Notify(ExamplePluginStrings.Attached, ClientNotifications.NotificationKind.Success);
+            Host.Notify(ExamplePluginStrings.Attached, NotificationKind.Success);
 
             // Consume the username-visuals API (see ExampleUsernameVisualsApiConsumer). The
             // consumer shares the plugin settings so the "Username Visuals integration" toggle
@@ -79,19 +79,19 @@ namespace ExamplePlugin
         public override void OnInstall()
         {
             Host.Log("installed");
-            Host.Notify(ExamplePluginStrings.Installed, ClientNotifications.NotificationKind.Success);
+            Host.Notify(ExamplePluginStrings.Installed, NotificationKind.Success);
         }
 
         public override void OnUpdate(string previousVersion)
         {
             Host.Log($"updated from {previousVersion} to {PluginVersion}");
-            Host.Notify(ExamplePluginStrings.Updated(previousVersion, PluginVersion), ClientNotifications.NotificationKind.Info);
+            Host.Notify(ExamplePluginStrings.Updated(previousVersion, PluginVersion), NotificationKind.Info);
         }
 
         public override void OnUninstall()
         {
             Host.Log("uninstalled");
-            Host.Notify(ExamplePluginStrings.Uninstalled, ClientNotifications.NotificationKind.Info);
+            Host.Notify(ExamplePluginStrings.Uninstalled, NotificationKind.Info);
         }
 
         public override int SchemaVersion => 2;

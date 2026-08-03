@@ -10,9 +10,9 @@ namespace MyPlugin;
 /// <summary>A toolbar button contributed by the plugin; sends a notification when clicked.</summary>
 public partial class MyToolbarButton : ToolbarButton
 {
-    private readonly Action<LocalisableString, ClientNotifications.NotificationKind> notify;
+    private readonly Action<LocalisableString, NotificationKind> notify;
 
-    public MyToolbarButton(Action<LocalisableString, ClientNotifications.NotificationKind> notify)
+    public MyToolbarButton(Action<LocalisableString, NotificationKind> notify)
     {
         this.notify = notify;
 
@@ -20,7 +20,7 @@ public partial class MyToolbarButton : ToolbarButton
         TooltipMain = MyPluginStrings.TooltipMain;
         TooltipSub = MyPluginStrings.TooltipSub;
 
-        Action = () => notify(MyPluginStrings.HelloNotification, ClientNotifications.NotificationKind.Success);
+        Action = () => notify(MyPluginStrings.HelloNotification, NotificationKind.Success);
     }
 
     // Placed on the right edge, so open the tooltip toward the screen centre.
