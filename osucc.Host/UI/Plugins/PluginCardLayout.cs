@@ -1,0 +1,187 @@
+using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Localisation;
+using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
+using osucc.Core;
+using osucc.Localisation;
+using osucc.Plugin;
+using osuTK;
+using osuTK.Graphics;
+
+namespace osucc.UI.Plugins
+{
+    /// <summary>
+    /// Shared layout helpers for rendering plugin metadata (icon, dependency and "used by"
+    /// values). Used by <see cref="PluginDetailsOverlay"/>.
+    /// </summary>
+    internal static class PluginCardLayout
+    {
+        /// <summary>
+        /// Builds the plugin icon. Precedence: plugin-provided FontAwesome icon, folder icon,
+        /// embedded IconResource, generic puzzle-piece fallback.
+        /// </summary>
+        public static Drawable CreateIcon(PluginEntry entry, float size, out SpriteIcon? fallbackIcon)
+        {
+            fallbackIcon = null;
+
+            if (entry.Plugin is IOsuCcIconProvider { Icon: { } usage })
+                return createIcon(usage, size);
+
+            if (!string.IsNullOrEmpty(entry.IconPath))
+            {
+                var texture = entry.Host?.LoadTextureFromFile(entry.IconPath);
+
+                if (texture != null)
+                    return createTextureIcon(texture, size);
+            }
+
+            if (!string.IsNullOrEmpty(entry.IconResource))
+            {
+                var texture = entry.Host?.LoadTexture(entry.IconResource);
+
+                if (texture != null)
+                    return createTextureIcon(texture, size);
+            }
+
+            return fallbackIcon = createIcon(FontAwesome.Solid.PuzzlePiece, size);
+        }
+
+        private static SpriteIcon createIcon(IconUsage usage, float size) => new()
+        {
+            Size = new Vector2(size),
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            Icon = usage,
+            Colour = Color4.White,
+        };
+
+        private static Sprite createTextureIcon(Texture texture, float size)
+        {
+            // Size must be set before Texture: Sprite's Texture setter auto-sizes when Size is
+            // zero, which combined with RelativeSizeAxes would blow the icon up.
+            return new Sprite
+            {
+                Size = new Vector2(size),
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                FillMode = FillMode.Fit,
+                Texture = texture,
+            };
+        }
+
+        /// <summary>
+        /// Renders the "Depends on" value: one segment per dependency, joined by commas.
+        /// Dependencies that are missing (not discovered) or disabled are shown with a suffix and
+        /// highlighted.
+        /// </summary>
+        public static FillFlowContainer CreateDependenciesValue(
+            IReadOnlyList<string> dependencyIds,
+            IReadOnlyDictionary<string, LocalisableString> nameById,
+            IReadOnlySet<string> unavailableIds,
+            float fontSize = 13)
+        {
+            var flow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(0, 0),
+            };
+
+            for (int i = 0; i < dependencyIds.Count; i++)
+            {
+                string depId = dependencyIds[i];
+                bool missing = !nameById.ContainsKey(depId);
+                bool unavailable = missing || unavailableIds.Contains(depId);
+
+                var segment = new FillFlowContainer
+                {
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(0, 0),
+                    Children = new Drawable[]
+                    {
+                        unavailable
+                            ? new OsuSpriteText
+                            {
+                                Text = missing ? depId : nameById[depId],
+                                Font = OsuFont.Default.With(size: fontSize),
+                                Colour = OsuCcColours.Warning,
+                            }
+                            : new PluginNameLink(depId, nameById[depId], fontSize: fontSize),
+                    },
+                };
+
+                if (unavailable)
+                {
+                    segment.Add(new OsuSpriteText
+                    {
+                        Text = LocalisableString.Format("({0})", missing ? PluginsOverlayStrings.DependencyMissing : PluginsOverlayStrings.DependencyDisabled),
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = OsuCcColours.Warning,
+                    });
+                }
+
+                if (i > 0)
+                {
+                    flow.Add(new OsuSpriteText
+                    {
+                        Text = ", ",
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = Color4.White.Opacity(0.55f),
+                    });
+                }
+
+                flow.Add(segment);
+            }
+
+            return flow;
+        }
+
+        /// <summary>Renders the "Used by" value: one clickable link per dependent plugin.</summary>
+        public static FillFlowContainer CreateUsedByValue(
+            IReadOnlyList<string> dependentIds,
+            IReadOnlyDictionary<string, LocalisableString> nameById,
+            float fontSize = 13)
+        {
+            var flow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(0, 0),
+            };
+
+            for (int i = 0; i < dependentIds.Count; i++)
+            {
+                string id = dependentIds[i];
+
+                if (i > 0)
+                {
+                    flow.Add(new OsuSpriteText
+                    {
+                        Text = ", ",
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = Color4.White.Opacity(0.55f),
+                    });
+                }
+
+                if (nameById.TryGetValue(id, out var name))
+                    flow.Add(new PluginNameLink(id, name, fontSize: fontSize));
+                else
+                {
+                    flow.Add(new OsuSpriteText
+                    {
+                        Text = id,
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = Color4.White.Opacity(0.55f),
+                    });
+                }
+            }
+
+            return flow;
+        }
+    }
+}

@@ -52,5 +52,32 @@ namespace osucc.Localisation
 
         public static LocalisableString PluginDisabled(LocalisableString name)
             => OsuCcLocalisation.Get(getKey(nameof(PluginDisabled)), "Plugin '{0}' disabled (applies on next launch)", name);
+
+        public static LocalisableString DependenciesCaption => OsuCcLocalisation.Get(getKey(nameof(DependenciesCaption)), "Depends on:");
+
+        public static LocalisableString UsedByCaption => OsuCcLocalisation.Get(getKey(nameof(UsedByCaption)), "Used by:");
+
+        public static LocalisableString DependencyMissing => OsuCcLocalisation.Get(getKey(nameof(DependencyMissing)), "missing");
+
+        public static LocalisableString DependencyDisabled => OsuCcLocalisation.Get(getKey(nameof(DependencyDisabled)), "disabled");
+
+        public static LocalisableString NoPluginSettings => OsuCcLocalisation.Get(getKey(nameof(NoPluginSettings)), "This plugin has no settings.");
+
+        public static LocalisableString SettingsOpenFailed(string error)
+            => OsuCcLocalisation.Get(getKey(nameof(SettingsOpenFailed)), "Could not open plugin settings: {0}", error);
+
+        public static LocalisableString DetailsId => OsuCcLocalisation.Get(getKey(nameof(DetailsId)), "ID");
+
+        public static LocalisableString DetailsAuthor => OsuCcLocalisation.Get(getKey(nameof(DetailsAuthor)), "Author");
+
+        public static LocalisableString DetailsVersion => OsuCcLocalisation.Get(getKey(nameof(DetailsVersion)), "Version");
+
+        public static LocalisableString DetailsApiVersion => OsuCcLocalisation.Get(getKey(nameof(DetailsApiVersion)), "API version");
+
+        public static LocalisableString DetailsPriority => OsuCcLocalisation.Get(getKey(nameof(DetailsPriority)), "Priority");
+
+        public static LocalisableString DetailsSettingsTitle => OsuCcLocalisation.Get(getKey(nameof(DetailsSettingsTitle)), "Settings");
+
+        public static LocalisableString DetailsRelationsNone => OsuCcLocalisation.Get(getKey(nameof(DetailsRelationsNone)), "None");
     }
 }

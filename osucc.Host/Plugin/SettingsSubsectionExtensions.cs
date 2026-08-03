@@ -1,7 +1,9 @@
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using System.Linq;
 
@@ -45,7 +47,14 @@ namespace osucc.Plugin
 
             // OsuCcColourPalette is not an IFormControl, so it is added directly (it renders its
             // own caption/hint) instead of being wrapped in a SettingsItemV2 like the checkbox.
-            subsection.Add(palette);
+            // CompositeDrawable.Padding is protected, so the canonical inset lives on the wrapper.
+            subsection.Add(new Container
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = SettingsPanel.CONTENT_PADDING,
+                Child = palette,
+            });
 
             foreach (var colour in ParsePalette(persisted.Value))
                 palette.Colours.Add(colour);

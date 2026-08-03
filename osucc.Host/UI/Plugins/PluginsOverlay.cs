@@ -5,7 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
@@ -30,6 +30,7 @@ namespace osucc.UI.Plugins
     {
         private readonly FillFlowContainer list;
         private readonly List<PluginCard> cards = new();
+        private OverlayScrollContainer scrollContainer = null!;
 
         public PluginsOverlay()
             : base(OverlayColourScheme.Green)
@@ -54,7 +55,7 @@ namespace osucc.UI.Plugins
             Header.Title = PluginsOverlayStrings.OverlayTitle;
             Header.Description = PluginsOverlayStrings.OverlayDescription;
 
-            MainAreaContent.Add(new OverlayScrollContainer
+            MainAreaContent.Add(scrollContainer = new OverlayScrollContainer
             {
                 RelativeSizeAxes = Axes.Both,
                 Child = list,
@@ -164,7 +165,10 @@ namespace osucc.UI.Plugins
 
             public PluginEntry Entry { get; }
 
-            public PluginCard(PluginEntry entry, Action<PluginCard, int> moveRequested, Action<PluginCard> deleteRequested)
+            public PluginCard(
+                PluginEntry entry,
+                Action<PluginCard, int> moveRequested,
+                Action<PluginCard> deleteRequested)
             {
                 Entry = entry;
 
@@ -211,7 +215,7 @@ namespace osucc.UI.Plugins
                             {
                                 RelativeSizeAxes = Axes.Both,
                             },
-                            createIcon(entry),
+                            PluginCardLayout.CreateIcon(entry, iconSize, out fallbackIcon),
                             iconDivider = new Box
                             {
                                 RelativeSizeAxes = Axes.Y,
@@ -237,6 +241,12 @@ namespace osucc.UI.Plugins
                         Children = lines,
                     },
                 };
+            }
+
+            protected override bool OnClick(ClickEvent e)
+            {
+                PluginsOverlayComponent.Instance?.ShowDetails(Entry.Id);
+                return true;
             }
 
             protected override void LoadComplete()
@@ -376,60 +386,6 @@ namespace osucc.UI.Plugins
                 Action = action,
                 IconColour = Color4.White,
             };
-
-            private Drawable createIcon(PluginEntry entry)
-            {
-                // Precedence: plugin-provided FontAwesome icon, folder icon, embedded IconResource,
-                // generic puzzle-piece fallback.
-                if (Entry.Plugin is IOsuCcIconProvider { Icon: { } usage })
-                    return new SpriteIcon
-                    {
-                        Size = new Vector2(iconSize),
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Icon = usage,
-                        Colour = Color4.White,
-                    };
-
-                if (!string.IsNullOrEmpty(Entry.IconPath))
-                {
-                    var texture = Entry.Host?.LoadTextureFromFile(Entry.IconPath);
-
-                    if (texture != null)
-                        return createTextureIcon(texture);
-                }
-
-                if (!string.IsNullOrEmpty(Entry.IconResource))
-                {
-                    var texture = Entry.Host?.LoadTexture(Entry.IconResource);
-
-                    if (texture != null)
-                        return createTextureIcon(texture);
-                }
-
-                return fallbackIcon = new SpriteIcon
-                {
-                    Size = new Vector2(iconSize),
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Icon = FontAwesome.Solid.PuzzlePiece,
-                    Colour = Color4.White,
-                };
-            }
-
-            private static Sprite createTextureIcon(Texture texture)
-            {
-                // Size must be set before Texture: Sprite's Texture setter auto-sizes when Size is
-                // zero, which combined with RelativeSizeAxes would blow the icon up.
-                return new Sprite
-                {
-                    Size = new Vector2(iconSize),
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    FillMode = FillMode.Fit,
-                    Texture = texture,
-                };
-            }
 
             private static LocalisableString getStatusText(PluginEntry entry)
             {

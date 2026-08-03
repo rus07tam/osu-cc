@@ -22,7 +22,7 @@ namespace osucc.Plugin
 
         private static readonly List<PluginEntry> plugins = new();
         private static readonly List<ToolbarButtonRegistration> toolbarButtonRegistrations = new();
-        private static readonly List<Func<SettingsSubsection>> settingsSubsectionFactories = new();
+        private static readonly Dictionary<string, Func<SettingsSubsection>> settingsSubsectionFactories = new(StringComparer.Ordinal);
 
         /// <summary>
         /// Every discovered plugin in the dependency-resolved load order (a dependency loads
@@ -75,13 +75,22 @@ namespace osucc.Plugin
             }
         }
 
-        /// <summary>Settings subsection factories registered by plugins (invoked when the Specials section is built).</summary>
-        public static IReadOnlyList<Func<SettingsSubsection>> SettingsSubsectionFactories
+        /// <summary>Settings subsection factories registered by plugins, keyed by plugin id (invoked when the plugin manager builds a card's settings).</summary>
+        public static IReadOnlyDictionary<string, Func<SettingsSubsection>> SettingsSubsectionFactories
         {
             get
             {
                 lock (lockObject)
-                    return settingsSubsectionFactories.ToArray();
+                    return new Dictionary<string, Func<SettingsSubsection>>(settingsSubsectionFactories, StringComparer.Ordinal);
+            }
+        }
+
+        /// <summary>Returns the settings subsection factory registered by the given plugin id, or <c>null</c>.</summary>
+        internal static Func<SettingsSubsection>? GetSettingsSubsectionFactory(string pluginId)
+        {
+            lock (lockObject)
+            {
+                return settingsSubsectionFactories.TryGetValue(pluginId, out var factory) ? factory : null;
             }
         }
 
@@ -640,10 +649,10 @@ namespace osucc.Plugin
                 toolbarButtonRegistrations.Add(new ToolbarButtonRegistration(factory, placement, layoutPosition));
         }
 
-        internal static void RegisterSettingsSubsection(Func<SettingsSubsection> factory)
+        internal static void RegisterSettingsSubsection(string pluginId, Func<SettingsSubsection> factory)
         {
             lock (lockObject)
-                settingsSubsectionFactories.Add(factory);
+                settingsSubsectionFactories[pluginId] = factory;
         }
 
         /// <summary>Registers an exported API object under the given plugin id (see <see cref="IOsuCcPluginHost.ExportApi"/>).</summary>

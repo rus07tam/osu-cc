@@ -55,7 +55,7 @@ namespace osucc.Plugin
         public void AddToolbarButton(Func<ToolbarButton> factory, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null)
             => PluginManager.RegisterToolbarButton(factory, placement, layoutPosition);
 
-        public void AddSettingsSubsection(Func<SettingsSubsection> factory) => PluginManager.RegisterSettingsSubsection(factory);
+        public void AddSettingsSubsection(Func<SettingsSubsection> factory) => PluginManager.RegisterSettingsSubsection(entry.Id, factory);
 
         public PluginSettings GetSettings()
             => settings ??= new PluginSettings(() => resolveStorage());
