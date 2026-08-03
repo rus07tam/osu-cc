@@ -49,6 +49,42 @@ plugin can:
 - install its own Harmony patches (`host.CreateHarmony`)
 - persist config (`GetSettings` / `GetStorage`)
 
+Plugins can also expose a **public API** to each other. The plugin system only
+provides the transport — contract types live where the exporting plugin puts
+them. To export, call `host.ExportApi(api)` in `Load`; consumers fetch it by the
+exporting plugin's id with `host.GetApi<T>(pluginId)` (returns `null` when the
+plugin is missing or exported nothing assignable to `T`). Because the host's
+`AssemblyLoadContext.Default.Resolving` handler binds every `osucc` reference to
+the deployed hook, contract types declared in `osucc.Host` unify across plugins;
+a contract declared inside the exporting plugin's own assembly requires the
+consumer to reference that assembly (a `ProjectReference` in the monorepo). To
+cast across assemblies the contract must be shared, so exported interface types
+should live in `osucc.Host` or a common package. Example: the built-in
+`UsernameVisuals` plugin exports `IUsernameVisualsApi` (own/others palettes,
+display overrides and per-user overrides as prioritized conditionals) under the
+`username-visuals` id. Its own-username display settings (hide, replace) always
+win over plugin-registered rules; the others-palette fallback uses the lowest
+priority, so plugins can still style other users. The built-in `ExamplePlugin` consumes it in
+`AttachToGame` via `host.GetApi<IUsernameVisualsApi>("username-visuals")` (see
+`ExampleUsernameVisualsApiConsumer`); because the contract lives in the
+`UsernameVisuals` assembly it adds a `ProjectReference` to it. A missing or
+disabled exporting plugin makes `GetApi` return `null` (the consumer must handle
+that); the compile-time reference only resolves when the consumer's code actually
+touches the contract type.
+
+Export in `Load` so other plugins see it in their own `Load` (order via
+`Priority`) or in `AttachToGame`; `GetApi` is always safe from `AttachToGame`.
+
+Dependencies are declared on `[OsuCcPlugin]` with
+`DependsOn = new[] { "plugin-id" }`. The dependency resolver guarantees a
+dependency loads (and attaches) before the dependent plugin; when no dependency
+forces an order, the `Priority` order is preserved exactly, so the priority
+system keeps working (the overlay's display order stays purely priority-based,
+reordering arrows are unaffected). Dependencies are **soft**: a missing or
+disabled dependency only logs a warning, and the plugin still loads — `GetApi`
+returns `null`, which the consumer must handle as before. `ExamplePlugin`
+declares a dependency on `username-visuals` as the reference (see its attribute).
+
 Plugins are shipped as zip archives. The launcher drops them into the osu-cc
 data folder (`plugins/`), where the manager extracts each one into a folder
 named after the plugin `Id`. Disabled plugins stay listed in the overlay but
