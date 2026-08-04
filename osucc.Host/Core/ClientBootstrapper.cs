@@ -14,7 +14,6 @@ namespace osucc.Core
             var patches = new (string Name, Func<bool> Install)[]
             {
                 ("OsuGameBaseCtor", OsuGameBaseCtorPatch.Install),
-                ("OsuGameBaseLoad(Sentry)", OsuGameBaseLoadPrefixPatch.Install),
                 ("OsuGameBaseLoad", OsuGameBaseLoadPatch.Install),
                 ("SettingsOverlay.CreateSections", SettingsOverlayCreateSectionsPatch.Install),
                 ("UserModSelectOverlay.ComputeNewMods", UserModComputeNewModsPatch.Install),

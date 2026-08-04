@@ -21,6 +21,12 @@ public class StartupHook
     {
         TimingLog.Info("Initialize() called");
 
+        // Apply the Sentry error-reporting preference before any osu code runs: SentryLogger
+        // snapshots OSU_DISABLE_ERROR_REPORTING once at construction, and reading the persisted
+        // preference here (straight from disk) guarantees we beat it on every build, without a
+        // version-specific patch target.
+        SentryPreference.ApplyBeforeSentryLogger();
+
         // Plugin payloads carry an AssemblyRef to the osucc version they were compiled against.
         // That version can lag the deployed hook (e.g. a stale archive from before a version bump),
         // and the default ALC binds by exact version, which would silently drop every plugin type.
