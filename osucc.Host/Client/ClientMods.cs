@@ -85,7 +85,7 @@ namespace osucc.Client
         {
             lock (lockObject)
             {
-                overlays.RemoveWhere(o => isDisposed(o));
+                overlays.RemoveWhere(DrawableHelper.IsDisposed);
                 overlays.Add(overlay);
                 TimingLog.Info($"ClientMods: registered overlay {overlay.GetType().Name} ({overlays.Count} live)");
             }
@@ -100,7 +100,7 @@ namespace osucc.Client
             ModSelectOverlay[] live;
             lock (lockObject)
             {
-                overlays.RemoveWhere(o => isDisposed(o));
+                overlays.RemoveWhere(DrawableHelper.IsDisposed);
                 live = overlays.ToArray();
             }
 
@@ -182,22 +182,6 @@ namespace osucc.Client
             }
 
             return null;
-        }
-
-        // Drawable.IsDisposed is protected; read it through reflection.
-        private static bool isDisposed(ModSelectOverlay overlay)
-        {
-            try
-            {
-                var type = overlay.GetType();
-                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-                var prop = type.GetProperty("IsDisposed", flags);
-                return (bool?)prop?.GetValue(overlay) ?? false;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }

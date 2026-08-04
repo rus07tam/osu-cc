@@ -6,7 +6,6 @@ using osucc.Core;
 using osucc.UI.SongSelect;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Reflection;
 
 namespace osucc.Client
 {
@@ -68,7 +67,7 @@ namespace osucc.Client
             Panel[] live;
             lock (lockObject)
             {
-                panels.RemoveWhere(isDisposed);
+                panels.RemoveWhere(DrawableHelper.IsDisposed);
                 live = panels.ToArray();
             }
 
@@ -149,21 +148,8 @@ namespace osucc.Client
         {
             lock (lockObject)
             {
-                panels.RemoveWhere(isDisposed);
+                panels.RemoveWhere(DrawableHelper.IsDisposed);
                 panels.Add(panel);
-            }
-        }
-
-        private static bool isDisposed(Panel panel)
-        {
-            try
-            {
-                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-                return (bool?)panel.GetType().GetProperty("IsDisposed", flags)?.GetValue(panel) ?? false;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

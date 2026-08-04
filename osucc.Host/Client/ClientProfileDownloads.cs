@@ -9,7 +9,6 @@ using osucc.Core;
 using osucc.Localisation;
 using osucc.UI.Profile;
 using System.Linq;
-using System.Reflection;
 
 namespace osucc.Client
 {
@@ -48,7 +47,7 @@ namespace osucc.Client
         {
             lock (lockObject)
             {
-                buttons.RemoveWhere(isDisposed);
+                buttons.RemoveWhere(DrawableHelper.IsDisposed);
                 buttons.Add(button);
                 button.Alpha = enabledBindable?.Value == true ? 1 : 0;
             }
@@ -59,7 +58,7 @@ namespace osucc.Client
             DownloadAllFavouritesButton[] live;
             lock (lockObject)
             {
-                buttons.RemoveWhere(isDisposed);
+                buttons.RemoveWhere(DrawableHelper.IsDisposed);
                 live = buttons.ToArray();
             }
 
@@ -160,19 +159,6 @@ namespace osucc.Client
                 return null;
 
             return userBindable.Value?.User;
-        }
-
-        private static bool isDisposed(DownloadAllFavouritesButton button)
-        {
-            try
-            {
-                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-                return (bool?)button.GetType().GetProperty("IsDisposed", flags)?.GetValue(button) ?? false;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }

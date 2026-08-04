@@ -12,9 +12,27 @@ namespace osucc.Core
     public static class DrawableHelper
     {
         /// <summary>
-        /// Replaces a child within a flow, keeping its visual position (slightly earlier so it
-        /// stays ahead of same-position siblings added after it).
+        /// Reads <c>Drawable.IsDisposed</c>, which is protected, reflectively. Returns
+        /// <c>false</c> when the property cannot be read (including on disposed instances).
         /// </summary>
+        public static bool IsDisposed(Drawable? drawable)
+        {
+            if (drawable == null)
+                return false;
+
+            try
+            {
+                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
+                return (bool?)drawable.GetType().GetProperty("IsDisposed", flags)?.GetValue(drawable) ?? false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Replaces a child within a flow, keeping its visual position (slightly earlier so it
+        /// stays ahead of same-position siblings added after it).</summary>
         public static void SwapInFlow(FlowContainer<Drawable> flow, Drawable old, Drawable replacement)
         {
             float position = flow.GetLayoutPosition(old);

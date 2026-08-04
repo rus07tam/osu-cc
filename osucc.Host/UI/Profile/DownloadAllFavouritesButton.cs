@@ -5,7 +5,6 @@ using osucc.Client;
 using osucc.Core;
 using osucc.Localisation;
 using osuTK;
-using System.Reflection;
 
 namespace osucc.UI.Profile
 {
@@ -48,24 +47,11 @@ namespace osucc.UI.Profile
         {
             // The profile section can be disposed while the fetch chain is running; touching
             // the text sprite of a disposed drawable would throw on the update thread.
-            if (isDisposedInternal())
+            if (DrawableHelper.IsDisposed(this))
                 return;
 
             Enabled.Value = true;
             Text = DownloadStrings.ButtonDefault;
-        }
-
-        private bool isDisposedInternal()
-        {
-            try
-            {
-                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-                return (bool?)GetType().GetProperty("IsDisposed", flags)?.GetValue(this) ?? false;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }
