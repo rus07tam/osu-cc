@@ -12,6 +12,7 @@ using osucc.Client;
 using osucc.Core;
 using osucc.Localisation;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace osucc.Plugin
@@ -20,6 +21,10 @@ namespace osucc.Plugin
     public class PluginHost : IOsuCcPluginHost
     {
         private readonly PluginEntry entry;
+
+        private readonly object handleLock = new();
+        private readonly List<IDisposable> trackedHandles = new();
+        private HarmonyLib.Harmony? patchHarmony;
 
         private PluginSettings? settings;
 
@@ -68,9 +73,10 @@ namespace osucc.Plugin
         public void Celebrate(Celebration celebration) => ClientCelebrations.Show(celebration);
 
         public IDisposable AddToolbarButton(Func<ToolbarButton> button, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null)
-            => PluginManager.RegisterToolbarButton(button, placement, layoutPosition);
+            => track(PluginManager.RegisterToolbarButton(button, placement, layoutPosition));
 
-        public IDisposable AddSettingsSubsection(Func<SettingsSubsection> factory) => PluginManager.RegisterSettingsSubsection(entry.Id, factory);
+        public IDisposable AddSettingsSubsection(Func<SettingsSubsection> factory)
+            => track(PluginManager.RegisterSettingsSubsection(entry.Id, factory));
 
         public PluginSettings GetSettings()
             => settings ??= new PluginSettings(() => resolveStorage());
@@ -84,8 +90,6 @@ namespace osucc.Plugin
         /// <summary>This plugin's folder under the game's storage; <c>null</c> before the game attaches.</summary>
         private Storage? resolveStorage()
             => Reflection.GetStorage(ClientApi.Game)?.GetStorageForDirectory($"osu-cc/plugins/{entry.Id}");
-
-        public HarmonyLib.Harmony CreateHarmony(string id) => HookDependencies.Create($"{entry.Id}.{id}");
 
         public Texture? LoadTexture(string resourceName)
         {
@@ -123,7 +127,29 @@ namespace osucc.Plugin
             }
         }
 
-        public IDisposable RegisterBlockingOverlay(OverlayContainer overlay) => new BlockingOverlayRegistration(overlay);
+        public IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, MethodType type)
+        {
+            var harmony = patchHarmony ??= HookDependencies.Create($"{entry.Id}.patches");
+            var patch = Reflection.HarmonyMethod(patchType, patchMethodName);
+
+            try
+            {
+                harmony.Patch(target,
+                    prefix: type == MethodType.Prefix ? patch : null,
+                    postfix: type == MethodType.Postfix ? patch : null,
+                    transpiler: type == MethodType.Transpiler ? patch : null);
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginHost.AddPatch ('{entry.Name}'): {ex}");
+                return null;
+            }
+
+            TimingLog.Info($"PluginHost: '{entry.Name}' patched {target.DeclaringType?.FullName}.{target.Name} ({type})");
+            return track(new PatchLifecycleHandle(harmony, target));
+        }
+
+        public IDisposable RegisterBlockingOverlay(OverlayContainer overlay) => track(new BlockingOverlayRegistration(overlay));
 
         public void ExportApi(object api) => PluginManager.ExportPluginApi(entry.Id, api);
 
@@ -183,5 +209,67 @@ namespace osucc.Plugin
 
         /// <summary>Re-reads persisted settings from disk once the game storage is available.</summary>
         internal void ReloadSettings() => settings?.Reload();
+
+        private IDisposable track(IDisposable handle)
+        {
+            lock (handleLock)
+                trackedHandles.Add(handle);
+
+            return handle;
+        }
+
+        /// <summary>
+        /// Revokes everything the host handed out to this plugin (patches first, so the game
+        /// stops calling into plugin code before its state is torn down, then registrations and
+        /// settings). Called by <see cref="PluginManager"/> on live disable.
+        /// </summary>
+        internal void DisposeRuntime()
+        {
+            lock (handleLock)
+            {
+                foreach (IDisposable handle in trackedHandles)
+                {
+                    try
+                    {
+                        handle.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        TimingLog.Error($"PluginHost.DisposeRuntime ('{entry.Name}'): {ex}");
+                    }
+                }
+
+                trackedHandles.Clear();
+            }
+
+            settings?.Dispose();
+            settings = null;
+
+            (events as PluginEvents)?.Clear();
+            events = null;
+        }
+
+        /// <summary>Reverts a single patch applied through <see cref="AddPatch"/>.</summary>
+        private sealed class PatchLifecycleHandle : IDisposable
+        {
+            private readonly HarmonyLib.Harmony harmony;
+            private readonly MethodBase method;
+            private bool disposed;
+
+            public PatchLifecycleHandle(HarmonyLib.Harmony harmony, MethodBase method)
+            {
+                this.harmony = harmony;
+                this.method = method;
+            }
+
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+
+                disposed = true;
+                harmony.Unpatch(method, HarmonyLib.HarmonyPatchType.All);
+            }
+        }
     }
 }

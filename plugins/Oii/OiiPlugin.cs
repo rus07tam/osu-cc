@@ -1,4 +1,5 @@
 using osucc.Plugin;
+using System;
 
 namespace Oii
 {
@@ -14,10 +15,12 @@ namespace Oii
         Version = "1.0.0")]
     public class OiiPlugin : IOsuCcPlugin
     {
+        private IDisposable? patch;
+
         public void Load(IOsuCcPluginHost host)
         {
-            var harmony = host.CreateHarmony("oii");
-            host.Log(TotalPlayTimeLoadPatch.Install(harmony) ? "patch installed" : "patch unavailable");
+            patch = TotalPlayTimeLoadPatch.Install(host);
+            host.Log(patch != null ? "patch installed" : "patch unavailable");
             host.Log("loaded");
         }
 
@@ -27,6 +30,8 @@ namespace Oii
 
         public void Dispose()
         {
+            patch?.Dispose();
+            TotalPlayTimeLoadPatch.RemoveIndicators();
             GC.SuppressFinalize(this);
         }
     }

@@ -1,8 +1,10 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Overlays.Profile.Header.Components;
 using osucc.Client;
 using osucc.Core;
+using osucc.Plugin;
+using System;
+using System.Collections.Concurrent;
 
 namespace Oii
 {
@@ -12,8 +14,26 @@ namespace Oii
     /// </summary>
     internal static class TotalPlayTimeLoadPatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", typeof(TotalPlayTimeLoadPatch), nameof(Postfix));
+        private static readonly ConcurrentBag<WeakReference<OiiIndicator>> inserted = new();
+
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", typeof(TotalPlayTimeLoadPatch), nameof(Postfix));
+
+        /// <summary>
+        /// Removes every indicator this plugin inserted from its parent flow, so disabling the
+        /// plugin leaves the header tree as it was. Runs from the plugin's <c>Dispose</c>, on the
+        /// update thread.
+        /// </summary>
+        public static void RemoveIndicators()
+        {
+            foreach (var reference in inserted)
+            {
+                if (reference.TryGetTarget(out var indicator) && indicator.Parent is FillFlowContainer flow)
+                    flow.Remove(indicator, true);
+            }
+
+            inserted.Clear();
+        }
 
         private static void Postfix(TotalPlayTime __instance)
         {
@@ -30,6 +50,7 @@ namespace Oii
 
             var indicator = new OiiIndicator();
             indicator.User.BindTo(instance.User);
+            inserted.Add(new WeakReference<OiiIndicator>(indicator));
             flow.Insert((int)flow.GetLayoutPosition(instance) + 1, indicator);
 
             TimingLog.Info("Oii indicator inserted");

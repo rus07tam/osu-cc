@@ -8,13 +8,16 @@ using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
 using osucc.Celebrations;
 using osucc.Client;
+using osucc.Core;
 using System;
+using System.Reflection;
 
 namespace osucc.Plugin
 {
     /// <summary>
     /// Scoped surface given to each plugin. Every call is bound to the calling plugin
-    /// (id, storage folder, harmony id prefix, log prefix), so plugins stay isolated.
+    /// (id, storage folder, log prefix), so plugins stay isolated. Registrations and patches
+    /// are tracked by the host so they can be revoked on live disable.
     /// </summary>
     public interface IOsuCcPluginHost
     {
@@ -66,8 +69,15 @@ namespace osucc.Plugin
         /// <summary>A storage folder under the game's storage, dedicated to this plugin. <c>null</c> before the game attaches.</summary>
         Storage? GetStorage(string subPath = "");
 
-        /// <summary>Creates a Harmony instance scoped to this plugin for patching osu methods by name.</summary>
-        HarmonyLib.Harmony CreateHarmony(string id);
+        /// <summary>
+        /// Applies a Harmony patch scoped to this plugin and tracks it so the host can revert it
+        /// on live disable. The target is patched on a per-plugin Harmony instance, so disabling
+        /// this plugin never touches patches of the built-in client or other plugins. Returns
+        /// <c>null</c> when the target could not be patched; disposing the returned handle
+        /// unpatchs it. Prefer the convenience helpers in <see cref="PatchHelper"/> for the
+        /// common name-based shape.
+        /// </summary>
+        IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, MethodType type);
 
         /// <summary>
         /// Loads a texture from this plugin's embedded assembly resources. <c>null</c> if the game is

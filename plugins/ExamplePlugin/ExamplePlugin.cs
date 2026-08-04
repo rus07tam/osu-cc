@@ -50,7 +50,7 @@ namespace ExamplePlugin
             Host.AddSettingsSubsection(() => new ExampleSettingsSubsection(settings));
 
             // A Harmony patch resolved by name against the runtime osu.Game assembly.
-            if (ExampleHarmonyPatch.Install(Host))
+            if (ExampleHarmonyPatch.Install(Host) != null)
                 Host.Log("Harmony patch installed");
 
             Host.Log("loaded");

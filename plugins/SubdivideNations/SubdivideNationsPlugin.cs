@@ -1,5 +1,6 @@
 using osu.Framework.Bindables;
 using osucc.Plugin;
+using System;
 
 namespace SubdivideNations
 {
@@ -21,6 +22,8 @@ namespace SubdivideNations
         private PluginSettings settings = null!;
         private Bindable<bool> enabled = null!;
         private Bindable<bool> showFlags = null!;
+        private IDisposable? userPanelPatch;
+        private IDisposable? headerPatch;
 
         public void Load(IOsuCcPluginHost host)
         {
@@ -51,16 +54,16 @@ namespace SubdivideNations
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+            userPanelPatch?.Dispose();
+            headerPatch?.Dispose();
             settings?.Dispose();
         }
 
         private int installPatches()
         {
-            var harmony = host.CreateHarmony("subdivide-nations");
-
             int count = 0;
-            if (UserPanelCreateFlagPatch.Install(harmony)) count++;
-            if (TopHeaderContainerPatch.Install(harmony)) count++;
+            if (UserPanelCreateFlagPatch.Install(host) is { } userPanel) { userPanelPatch = userPanel; count++; }
+            if (TopHeaderContainerPatch.Install(host) is { } header) { headerPatch = header; count++; }
 
             return count;
         }

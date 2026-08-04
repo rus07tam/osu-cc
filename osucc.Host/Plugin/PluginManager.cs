@@ -1,5 +1,6 @@
 using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
+using osucc.Client;
 using osucc.Core;
 using osucc.Localisation;
 using System.Reflection;
@@ -118,16 +119,127 @@ namespace osucc.Plugin
         /// <summary>
         /// Persists the enabled state of a plugin. Disabled plugins are skipped on the next
         /// launch (they are still listed in the plugins overlay so they can be re-enabled).
+        /// Once the game is attached, the change also applies immediately on the update thread:
+        /// disabling revokes the plugin's patches/registrations and disposes it, enabling
+        /// re-instantiates it from the retained type and attaches it.
         /// </summary>
         public static void SetPluginEnabled(string id, bool enabled)
         {
+            PluginEntry? entry;
+            bool gameAttached;
+
             lock (lockObject)
             {
                 PluginStateStore.SetEnabled(id, enabled);
+                entry = plugins.FirstOrDefault(p => p.Id == id);
+                gameAttached = attached;
 
-                var entry = plugins.FirstOrDefault(p => p.Id == id);
                 if (entry != null)
                     entry.Enabled = enabled;
+            }
+
+            // Before the game attaches there is nothing to toggle at runtime; the persisted
+            // state already takes effect on the next launch.
+            if (!gameAttached || entry == null)
+                return;
+
+            // Must run on the update thread (the overlay toggle already is); mutates the live
+            // game tree (drawable removal in plugin Dispose) and Harmony patch state.
+            if (enabled)
+                enablePlugin(entry);
+            else
+                disablePlugin(entry);
+        }
+
+        /// <summary>Re-instantiates a disabled plugin from its retained type and attaches it. Runs on the update thread.</summary>
+        private static void enablePlugin(PluginEntry entry)
+        {
+            if (entry.Loaded)
+                return;
+
+            if (entry.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion || entry.PluginType == null)
+            {
+                entry.LoadError = new NotSupportedException($"plugin API v{entry.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
+                TimingLog.Error($"PluginManager: '{entry.Name}' cannot be enabled: {entry.LoadError.Message}");
+                return;
+            }
+
+            try
+            {
+                var instance = (IOsuCcPlugin)Activator.CreateInstance(entry.PluginType)!;
+                var host = new PluginHost(entry);
+
+                entry.Plugin = instance;
+                entry.Host = host;
+                entry.LoadError = null;
+
+                instance.Load(host);
+
+                // Dependencies were attached at startup or in their own enable call; attach now.
+                attachEntry(entry);
+
+                TimingLog.Info($"PluginManager: '{entry.Name}' enabled at runtime");
+            }
+            catch (Exception ex)
+            {
+                entry.Plugin = null;
+                entry.Host = null;
+                entry.Attached = false;
+                entry.LoadError = ex;
+
+                TimingLog.Error($"PluginManager: '{entry.Name}' failed to enable: {ex}");
+            }
+        }
+
+        /// <summary>Reverts a running plugin: unpatch + revoke registrations, then dispose it. Runs on the update thread.</summary>
+        private static void disablePlugin(PluginEntry entry)
+        {
+            if (entry.Plugin == null)
+                return;
+
+            string name = entry.Name;
+
+            // Stop the game from calling into plugin code first (unpatch), then let the plugin
+            // tear down whatever it inserted into the live tree.
+            try
+            {
+                entry.Host?.DisposeRuntime();
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginManager: '{name}' DisposeRuntime failed: {ex}");
+            }
+
+            try
+            {
+                entry.Plugin.Dispose();
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginManager: '{name}' Dispose failed: {ex}");
+            }
+
+            List<string> dependents;
+            lock (lockObject)
+            {
+                entry.Plugin = null;
+                entry.Host = null;
+                entry.Attached = false;
+
+                dependents = plugins
+                             .Where(p => p != entry && p.Dependencies.Contains(entry.Id, StringComparer.Ordinal))
+                             .Select(p => p.Name)
+                             .ToList();
+            }
+
+            TimingLog.Info($"PluginManager: '{name}' disabled at runtime");
+
+            // Exported APIs stay alive so already-loaded dependents do not crash; surface the gap.
+            if (dependents.Count > 0)
+            {
+                string dependentNames = string.Join(", ", dependents);
+                TimingLog.Error($"PluginManager: '{name}' disabled while still depended on by: {dependentNames}");
+                ClientNotifications.Warning($"\"{name}\" was disabled while still depended on by: {dependentNames}");
             }
         }
 
@@ -272,7 +384,7 @@ namespace osucc.Plugin
         /// <summary>
         /// Builds a <see cref="PluginEntry"/> from the plugin attribute metadata.
         /// </summary>
-        private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath)
+        private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath, Type? pluginType)
             => new()
             {
                 Id = attribute.Id,
@@ -286,6 +398,7 @@ namespace osucc.Plugin
                 Directory = directory,
                 IconPath = iconPath,
                 Dependencies = attribute.DependsOn,
+                PluginType = pluginType,
             };
 
         /// <summary>
@@ -383,7 +496,7 @@ namespace osucc.Plugin
 
             if (!IsEnabled(id))
             {
-                var disabledEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath);
+                var disabledEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
                 disabledEntry.Enabled = false;
 
                 addEntry(disabledEntry);
@@ -394,7 +507,7 @@ namespace osucc.Plugin
 
             if (candidate.Attribute.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion)
             {
-                var versionEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath);
+                var versionEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
                 versionEntry.LoadError = new NotSupportedException($"plugin API v{candidate.Attribute.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
 
                 addEntry(versionEntry);
@@ -406,7 +519,7 @@ namespace osucc.Plugin
             try
             {
                 var instance = (IOsuCcPlugin)Activator.CreateInstance(candidate.Type)!;
-                var entry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath);
+                var entry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
                 entry.Plugin = instance;
 
                 var host = new PluginHost(entry);
@@ -420,7 +533,7 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
-                var failedEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath);
+                var failedEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
                 failedEntry.LoadError = ex;
 
                 addEntry(failedEntry);
@@ -510,28 +623,32 @@ namespace osucc.Plugin
             }
 
             foreach (var entry in loadOrder)
+                attachEntry(entry);
+        }
+
+        /// <summary>Reloads settings, runs migrations and calls <see cref="IOsuCcPlugin.AttachToGame"/> for one plugin. Runs on the update thread.</summary>
+        private static void attachEntry(PluginEntry entry)
+        {
+            if (!entry.Loaded || entry.Plugin == null)
+                return;
+
+            try
             {
-                if (!entry.Loaded || entry.Plugin == null)
-                    continue;
+                entry.Host?.ReloadSettings();
 
-                try
-                {
-                    entry.Host?.ReloadSettings();
+                // Migrations run before AttachToGame so the plugin always reads current-schema data.
+                bool freshInstall = PluginStateStore.GetVersion(entry.Id) == null;
+                runMigrations(entry, freshInstall);
 
-                    // Migrations run before AttachToGame so the plugin always reads current-schema data.
-                    bool freshInstall = PluginStateStore.GetVersion(entry.Id) == null;
-                    runMigrations(entry, freshInstall);
+                entry.Plugin.AttachToGame();
+                entry.Attached = true;
 
-                    entry.Plugin.AttachToGame();
-                    entry.Attached = true;
-
-                    dispatchLifecycle(entry, freshInstall);
-                    TimingLog.Info($"PluginManager: '{entry.Name}' attached to game");
-                }
-                catch (Exception ex)
-                {
-                    TimingLog.Error($"PluginManager: '{entry.Name}' AttachToGame failed: {ex}");
-                }
+                dispatchLifecycle(entry, freshInstall);
+                TimingLog.Info($"PluginManager: '{entry.Name}' attached to game");
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginManager: '{entry.Name}' AttachToGame failed: {ex}");
             }
         }
 

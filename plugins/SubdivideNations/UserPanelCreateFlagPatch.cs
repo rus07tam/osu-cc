@@ -1,7 +1,8 @@
-using HarmonyLib;
 using osu.Game.Users;
 using osu.Game.Users.Drawables;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 
 namespace SubdivideNations
 {
@@ -12,8 +13,8 @@ namespace SubdivideNations
     /// </summary>
     internal static class UserPanelCreateFlagPatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Users.UserPanel", "CreateFlag", typeof(UserPanelCreateFlagPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Users.UserPanel", "CreateFlag", typeof(UserPanelCreateFlagPatch), nameof(Postfix));
 
         private static void Postfix(UserPanel __instance, ref UpdateableFlag __result)
         {

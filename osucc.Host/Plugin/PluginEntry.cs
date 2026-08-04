@@ -43,8 +43,14 @@ namespace osucc.Plugin
         /// <summary>Directory the plugin DLL + assets live in. Updated when the payload moves into the id-folder.</summary>
         public string Directory { get; internal set; } = string.Empty;
 
-        /// <summary>The live plugin instance, <c>null</c> if discovery/load failed.</summary>
+        /// <summary>The live plugin instance, <c>null</c> if discovery/load failed or the plugin is disabled.</summary>
         public IOsuCcPlugin? Plugin { get; internal set; }
+
+        /// <summary>
+        /// The discovered <c>[OsuCcPlugin]</c> type, retained even for disabled or version-mismatch
+        /// entries so the plugin can be instantiated on live enable without re-scanning the disk.
+        /// </summary>
+        public Type? PluginType { get; internal set; }
 
         /// <summary>The host bound to this plugin (kept so its config stays alive).</summary>
         public PluginHost? Host { get; internal set; }

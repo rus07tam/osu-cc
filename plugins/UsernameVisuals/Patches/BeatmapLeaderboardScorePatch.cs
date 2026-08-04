@@ -1,8 +1,9 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Screens.Select;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 
 namespace UsernameVisuals
 {
@@ -14,8 +15,8 @@ namespace UsernameVisuals
     /// </summary>
     internal static class BeatmapLeaderboardScorePatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Screens.Select.BeatmapLeaderboardScore", "load", typeof(BeatmapLeaderboardScorePatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.Select.BeatmapLeaderboardScore", "load", typeof(BeatmapLeaderboardScorePatch), nameof(Postfix));
 
         private static void Postfix(BeatmapLeaderboardScore __instance)
         {

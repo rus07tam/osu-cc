@@ -1,51 +1,44 @@
-using HarmonyLib;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace osucc.Core
 {
     /// <summary>
-    /// Thin wrapper over <see cref="Reflection"/> + Harmony for the common plugin patch shape:
-    /// resolve the target by name against the runtime osu.Game assembly and skip (return
-    /// <c>false</c>) when it is not found. Removes the per-patch Install boilerplate.
+    /// Thin wrapper over <see cref="Reflection"/> + the plugin host for the common plugin patch
+    /// shape: resolve the target by name against the runtime osu.Game assembly and let the host
+    /// apply it (see <see cref="IOsuCcPluginHost.AddPatch"/>). Returns <c>null</c> when the
+    /// target is not found, and the handle's dispose reverts the patch.
     /// </summary>
     public static class PatchHelper
     {
-        /// <summary>Attaches a prefix patch to a method resolved by name. Returns <c>false</c> if the target does not exist.</summary>
-        public static bool AttachPrefix(Harmony harmony, string typeName, string methodName, Type patchType, string patchMethodName)
-            => attach(harmony, typeName, methodName, patchType, patchMethodName, MethodType.Prefix);
+        /// <summary>Attaches a prefix patch to a method resolved by name. <c>null</c> if the target does not exist.</summary>
+        public static IDisposable? AttachPrefix(IOsuCcPluginHost host, string typeName, string methodName, Type patchType, string patchMethodName)
+            => attach(host, typeName, methodName, patchType, patchMethodName, MethodType.Prefix);
 
-        /// <summary>Attaches a postfix patch to a method resolved by name. Returns <c>false</c> if the target does not exist.</summary>
-        public static bool AttachPostfix(Harmony harmony, string typeName, string methodName, Type patchType, string patchMethodName)
-            => attach(harmony, typeName, methodName, patchType, patchMethodName, MethodType.Postfix);
+        /// <summary>Attaches a postfix patch to a method resolved by name. <c>null</c> if the target does not exist.</summary>
+        public static IDisposable? AttachPostfix(IOsuCcPluginHost host, string typeName, string methodName, Type patchType, string patchMethodName)
+            => attach(host, typeName, methodName, patchType, patchMethodName, MethodType.Postfix);
 
-        /// <summary>Attaches a transpiler to a method resolved by name. Returns <c>false</c> if the target does not exist.</summary>
-        public static bool AttachTranspiler(Harmony harmony, string typeName, string methodName, Type patchType, string patchMethodName)
-            => attach(harmony, typeName, methodName, patchType, patchMethodName, MethodType.Transpiler);
+        /// <summary>Attaches a transpiler to a method resolved by name. <c>null</c> if the target does not exist.</summary>
+        public static IDisposable? AttachTranspiler(IOsuCcPluginHost host, string typeName, string methodName, Type patchType, string patchMethodName)
+            => attach(host, typeName, methodName, patchType, patchMethodName, MethodType.Transpiler);
 
-        private static bool attach(Harmony harmony, string typeName, string methodName, Type patchType, string patchMethodName, MethodType type)
-        {
-            var method = Reflection.GetMethod(typeName, methodName);
-            if (method == null)
-                return false;
+        /// <summary>Attaches a postfix patch to an already-resolved method (e.g. a <c>typeof(...)</c> reference to a non-osu.Game type). <c>null</c> if it cannot be patched.</summary>
+        public static IDisposable? AttachMethodPostfix(IOsuCcPluginHost host, MethodBase target, Type patchType, string patchMethodName)
+            => host.AddPatch(target, patchType, patchMethodName, MethodType.Postfix);
 
-            var patch = Reflection.HarmonyMethod(patchType, patchMethodName);
-
-            harmony.Patch(method,
-                prefix: type == MethodType.Prefix ? patch : null,
-                postfix: type == MethodType.Postfix ? patch : null,
-                transpiler: type == MethodType.Transpiler ? patch : null);
-            return true;
-        }
-
-        /// <summary>Attaches a postfix patch to a constructor resolved by signature. Returns <c>false</c> if the target does not exist.</summary>
-        public static bool AttachConstructorPostfix(Harmony harmony, string typeName, Type patchType, string patchMethodName, params Type[] ctorParameterTypes)
+        /// <summary>Attaches a postfix patch to a constructor resolved by signature. <c>null</c> if the target does not exist.</summary>
+        public static IDisposable? AttachConstructorPostfix(IOsuCcPluginHost host, string typeName, Type patchType, string patchMethodName, params Type[] ctorParameterTypes)
         {
             var constructor = Reflection.GetConstructor(typeName, ctorParameterTypes);
-            if (constructor == null)
-                return false;
+            return constructor == null ? null : host.AddPatch(constructor, patchType, patchMethodName, MethodType.Postfix);
+        }
 
-            harmony.Patch(constructor, postfix: Reflection.HarmonyMethod(patchType, patchMethodName));
-            return true;
+        private static IDisposable? attach(IOsuCcPluginHost host, string typeName, string methodName, Type patchType, string patchMethodName, MethodType type)
+        {
+            var method = Reflection.GetMethod(typeName, methodName);
+            return method == null ? null : host.AddPatch(method, patchType, patchMethodName, type);
         }
     }
 

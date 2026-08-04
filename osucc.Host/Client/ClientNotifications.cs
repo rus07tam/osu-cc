@@ -18,6 +18,8 @@ namespace osucc.Client
 
         public static void Error(LocalisableString text) => Post(text, NotificationKind.Error);
 
+        public static void Warning(LocalisableString text) => Post(text, NotificationKind.Warning);
+
         public static void Info(LocalisableString text) => Post(text, NotificationKind.Info);
 
         public static void Post(LocalisableString text, NotificationKind kind) => Post(text, kind, null, null, null);

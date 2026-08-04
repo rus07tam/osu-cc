@@ -46,7 +46,9 @@ plugin can:
 - register full-screen overlays
 - send notifications (`host.Notify`)
 - play celebrations
-- install its own Harmony patches (`host.CreateHarmony`)
+- install its own Harmony patches via `host.AddPatch(...)` or the
+  `PatchHelper.AttachPrefix/AttachPostfix/AttachConstructorPostfix/AttachMethodPostfix`
+  wrappers, which return a disposable patch handle the host can revoke
 - persist config (`GetSettings` / `GetStorage`)
 
 Plugins can also expose a **public API** to each other. The plugin system only

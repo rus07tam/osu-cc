@@ -1,6 +1,7 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -14,14 +15,10 @@ namespace UsernameVisuals
     /// </summary>
     internal static class SpriteTextSetTextPatch
     {
-        public static bool Install(Harmony harmony)
+        public static IDisposable? Install(IOsuCcPluginHost host)
         {
             var setText = typeof(SpriteText).GetMethod("set_Text", BindingFlags.Instance | BindingFlags.Public);
-            if (setText == null)
-                return false;
-
-            harmony.Patch(setText, postfix: Reflection.HarmonyMethod(typeof(SpriteTextSetTextPatch), nameof(Postfix)));
-            return true;
+            return setText == null ? null : PatchHelper.AttachMethodPostfix(host, setText, typeof(SpriteTextSetTextPatch), nameof(Postfix));
         }
 
         private static void Postfix(SpriteText __instance)

@@ -1,4 +1,3 @@
-using HarmonyLib;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -6,7 +5,9 @@ using osu.Game.Overlays.Profile;
 using osu.Game.Overlays.Profile.Header;
 using osu.Game.Users.Drawables;
 using osucc.Core;
+using osucc.Plugin;
 using osuTK;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace SubdivideNations
@@ -23,8 +24,8 @@ namespace SubdivideNations
     {
         private static readonly ConditionalWeakTable<TopHeaderContainer, HeaderState> states = new();
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
 
         private static void Postfix(TopHeaderContainer __instance, UserProfileData? data)
         {

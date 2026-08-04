@@ -1,6 +1,7 @@
-using HarmonyLib;
 using osu.Game.Screens.Play.Leaderboards;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 
 namespace FriendsLeaderboard
 {
@@ -12,8 +13,8 @@ namespace FriendsLeaderboard
     /// </summary>
     internal static class RequiresSupporterPatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPrefix(harmony, "osu.Game.Extensions.ModelExtensions", "RequiresSupporter", typeof(RequiresSupporterPatch), nameof(Prefix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPrefix(host, "osu.Game.Extensions.ModelExtensions", "RequiresSupporter", typeof(RequiresSupporterPatch), nameof(Prefix));
 
         private static bool Prefix(BeatmapLeaderboardScope scope, bool filterMods, ref bool __result)
         {

@@ -45,7 +45,9 @@ instance-члены базовых классов. Читайте их чере�
 - регистрировать полноэкранные оверлеи
 - отправлять уведомления (`host.Notify`)
 - показывать целебрации
-- ставить собственные Harmony-патчи (`host.CreateHarmony`)
+- ставить собственные Harmony-патчи через `host.AddPatch(...)` или обёртки
+  `PatchHelper.AttachPrefix/AttachPostfix/AttachConstructorPostfix/AttachMethodPostfix`,
+  возвращающие одноразовый хендл патча, который хост может отозвать
 - сохранять свой конфиг (`GetSettings` / `GetStorage`)
 
 Плагины также могут выставлять **публичный API** друг для друга. Система плагинов

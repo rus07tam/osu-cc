@@ -1,9 +1,10 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -20,8 +21,8 @@ namespace UsernameVisuals
 
         private static readonly FieldInfo? currentField = Reflection.GetField("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "current");
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser", typeof(ParticipantPanelPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser", typeof(ParticipantPanelPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

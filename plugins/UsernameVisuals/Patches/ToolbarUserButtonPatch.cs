@@ -1,9 +1,10 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -21,8 +22,8 @@ namespace UsernameVisuals
 
         private static readonly FieldInfo? localUserField = Reflection.GetField("osu.Game.Overlays.Toolbar.ToolbarUserButton", "localUser");
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

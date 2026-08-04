@@ -1,6 +1,7 @@
-using HarmonyLib;
 using osu.Game.Online.API;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 
 namespace FriendsLeaderboard
 {
@@ -12,8 +13,8 @@ namespace FriendsLeaderboard
     /// </summary>
     internal static class GetScoresRequestPatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPrefix(harmony, "osu.Game.Online.API.APIRequest", "Perform", typeof(GetScoresRequestPatch), nameof(Prefix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPrefix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(GetScoresRequestPatch), nameof(Prefix));
 
         private static bool Prefix(APIRequest __instance)
         {

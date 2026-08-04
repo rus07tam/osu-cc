@@ -1,8 +1,9 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -17,8 +18,8 @@ namespace UsernameVisuals
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "usernameText");
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

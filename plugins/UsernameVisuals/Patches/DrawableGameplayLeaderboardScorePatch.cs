@@ -1,8 +1,9 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Screens.Play.HUD;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -16,8 +17,8 @@ namespace UsernameVisuals
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "usernameText");
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load", typeof(DrawableGameplayLeaderboardScorePatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load", typeof(DrawableGameplayLeaderboardScorePatch), nameof(Postfix));
 
         private static void Postfix(DrawableGameplayLeaderboardScore __instance)
         {

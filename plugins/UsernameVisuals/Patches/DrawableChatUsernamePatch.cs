@@ -1,10 +1,11 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays.Chat;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -22,11 +23,11 @@ namespace UsernameVisuals
 
         private static readonly FieldInfo? userField = Reflection.GetField("osu.Game.Overlays.Chat.DrawableChatUsername", "user");
 
-        public static bool Install(Harmony harmony)
+        public static IDisposable? Install(IOsuCcPluginHost host)
         {
-            bool constructor = PatchHelper.AttachConstructorPostfix(harmony, "osu.Game.Overlays.Chat.DrawableChatUsername", typeof(DrawableChatUsernamePatch), nameof(Postfix), typeof(APIUser));
-            bool text = PatchHelper.AttachPostfix(harmony, "osu.Game.Overlays.Chat.DrawableChatUsername", "set_Text", typeof(DrawableChatUsernamePatch), nameof(textPostfix));
-            return constructor && text;
+            IDisposable? constructor = PatchHelper.AttachConstructorPostfix(host, "osu.Game.Overlays.Chat.DrawableChatUsername", typeof(DrawableChatUsernamePatch), nameof(Postfix), typeof(APIUser));
+            IDisposable? text = PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Chat.DrawableChatUsername", "set_Text", typeof(DrawableChatUsernamePatch), nameof(textPostfix));
+            return constructor ?? text;
         }
 
         private static void Postfix(DrawableChatUsername __instance)

@@ -1,5 +1,6 @@
 using osu.Framework.Bindables;
 using osucc.Plugin;
+using System;
 
 namespace FriendsLeaderboard
 {
@@ -17,6 +18,8 @@ namespace FriendsLeaderboard
     public class FriendsLeaderboardPlugin : OsuCcPluginBase
     {
         private PluginSettings settings = null!;
+        private IDisposable? supporterGatePatch;
+        private IDisposable? requestPatch;
 
         protected override void OnLoad()
         {
@@ -26,18 +29,18 @@ namespace FriendsLeaderboard
 
             Host.AddSettingsSubsection(() => new FriendsLeaderboardSettingsSubsection(settings));
 
-            var harmony = Host.CreateHarmony("friends-leaderboard");
+            supporterGatePatch = RequiresSupporterPatch.Install(Host);
+            requestPatch = GetScoresRequestPatch.Install(Host);
 
-            bool gatePatched = RequiresSupporterPatch.Install(harmony);
-            bool requestPatched = GetScoresRequestPatch.Install(harmony);
-
-            Host.Log($"patches: supporter-gate={gatePatched}, request={requestPatched}");
+            Host.Log($"patches: supporter-gate={supporterGatePatch != null}, request={requestPatch != null}");
             Host.Log("loaded");
         }
 
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
+            supporterGatePatch?.Dispose();
+            requestPatch?.Dispose();
             settings?.Dispose();
             base.Dispose();
         }

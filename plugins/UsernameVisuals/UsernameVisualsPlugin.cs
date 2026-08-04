@@ -1,5 +1,7 @@
 using osu.Framework.Graphics.Sprites;
 using osucc.Plugin;
+using System;
+using System.Collections.Generic;
 
 namespace UsernameVisuals
 {
@@ -20,6 +22,7 @@ namespace UsernameVisuals
     public class UsernameVisualsPlugin : IOsuCcPlugin, IOsuCcIconProvider
     {
         private IOsuCcPluginHost host = null!;
+        private readonly List<IDisposable?> patches = new();
 
         /// <summary>The paint-drip icon, matching the gradient theme.</summary>
         public IconUsage? Icon => FontAwesome.Solid.FillDrip;
@@ -49,24 +52,25 @@ namespace UsernameVisuals
 
         public void Dispose()
         {
+            foreach (var patch in patches)
+                patch?.Dispose();
+            patches.Clear();
             GC.SuppressFinalize(this);
         }
 
         private void installPatches()
         {
-            var harmony = host.CreateHarmony("username-visuals");
-
             int count = 0;
-            if (UserPanelPatch.Install(harmony)) count++;
-            if (TopHeaderContainerPatch.Install(harmony)) count++;
-            if (LinkFlowContainerPatch.Install(harmony)) count++;
-            if (ClickableUsernamePatch.Install(harmony)) count++;
-            if (BeatmapLeaderboardScorePatch.Install(harmony)) count++;
-            if (DrawableGameplayLeaderboardScorePatch.Install(harmony)) count++;
-            if (DrawableChatUsernamePatch.Install(harmony)) count++;
-            if (ToolbarUserButtonPatch.Install(harmony)) count++;
-            if (ParticipantPanelPatch.Install(harmony)) count++;
-            if (SpriteTextSetTextPatch.Install(harmony)) count++;
+            if (UserPanelPatch.Install(host) is { } userPanel) { patches.Add(userPanel); count++; }
+            if (TopHeaderContainerPatch.Install(host) is { } header) { patches.Add(header); count++; }
+            if (LinkFlowContainerPatch.Install(host) is { } links) { patches.Add(links); count++; }
+            if (ClickableUsernamePatch.Install(host) is { } clickable) { patches.Add(clickable); count++; }
+            if (BeatmapLeaderboardScorePatch.Install(host) is { } beatmap) { patches.Add(beatmap); count++; }
+            if (DrawableGameplayLeaderboardScorePatch.Install(host) is { } gameplay) { patches.Add(gameplay); count++; }
+            if (DrawableChatUsernamePatch.Install(host) is { } chat) { patches.Add(chat); count++; }
+            if (ToolbarUserButtonPatch.Install(host) is { } toolbar) { patches.Add(toolbar); count++; }
+            if (ParticipantPanelPatch.Install(host) is { } participants) { patches.Add(participants); count++; }
+            if (SpriteTextSetTextPatch.Install(host) is { } setText) { patches.Add(setText); count++; }
 
             host.Log($"patched {count}/10 username hooks");
         }

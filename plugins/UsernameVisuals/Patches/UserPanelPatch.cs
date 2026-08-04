@@ -1,8 +1,9 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 
 namespace UsernameVisuals
 {
@@ -13,8 +14,8 @@ namespace UsernameVisuals
     /// </summary>
     internal static class UserPanelPatch
     {
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPostfix(harmony, "osu.Game.Users.UserPanel", "CreateUsername", typeof(UserPanelPatch), nameof(Postfix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Users.UserPanel", "CreateUsername", typeof(UserPanelPatch), nameof(Postfix));
 
         private static void Postfix(UserPanel __instance, ref OsuSpriteText __result)
         {

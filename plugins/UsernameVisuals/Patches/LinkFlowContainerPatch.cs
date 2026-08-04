@@ -1,4 +1,3 @@
-using HarmonyLib;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Containers;
@@ -6,6 +5,8 @@ using osu.Game.Localisation;
 using osu.Game.Online.Chat;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -21,8 +22,8 @@ namespace UsernameVisuals
         private static readonly Lazy<MethodInfo?> applyDefaultParametersMethod = new(() =>
             typeof(TextFlowContainer).GetMethod("ApplyDefaultCreationParameters", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
 
-        public static bool Install(Harmony harmony)
-            => PatchHelper.AttachPrefix(harmony, "osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", typeof(LinkFlowContainerPatch), nameof(Prefix));
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPrefix(host, "osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", typeof(LinkFlowContainerPatch), nameof(Prefix));
 
         private static bool Prefix(LinkFlowContainer __instance, IUser user, Action<SpriteText>? creationParameters)
         {
