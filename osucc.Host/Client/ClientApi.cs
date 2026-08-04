@@ -78,7 +78,7 @@ namespace osucc.Client
             if (Game == null || Config == null)
                 return false;
 
-            if (Config.GetBindable<bool>(SpecialsSetting.FirstRunSetupComplete).Value)
+            if (ClientConfig.FirstRunSetupComplete.Value)
             {
                 TimingLog.Info("First-run disclaimer skipped (already completed)");
                 return true;
@@ -94,7 +94,7 @@ namespace osucc.Client
 
             overlay.Push(new OsuCcDisclaimerDialog(() =>
             {
-                Config.GetBindable<bool>(SpecialsSetting.FirstRunSetupComplete).Value = true;
+                ClientConfig.FirstRunSetupComplete.Value = true;
                 TimingLog.Info("First-run disclaimer acknowledged; FirstRunSetupComplete set to true");
             }));
 

@@ -34,18 +34,15 @@ namespace osucc.Client
         private static readonly Lazy<MethodInfo?> createModColumnContentMethod = new(() =>
             overlayType.Value?.GetMethod("createModColumnContent", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
 
-        public static bool AllowIncompatibleMods => getFlag(SpecialsSetting.AllowIncompatibleMods);
+        public static bool AllowIncompatibleMods => ClientConfig.AllowIncompatibleMods.Value;
 
-        public static bool ShowSystemMods => getFlag(SpecialsSetting.ShowSystemMods);
+        public static bool ShowSystemMods => ClientConfig.ShowSystemMods.Value;
 
-        public static bool ShowRandomModsButton => getFlag(SpecialsSetting.ShowRandomModsButton);
+        public static bool ShowRandomModsButton => ClientConfig.ShowRandomModsButton.Value;
 
-        public static bool CelebrateNewRecord => getFlag(SpecialsSetting.CelebrateNewRecord);
+        public static bool CelebrateNewRecord => ClientConfig.CelebrateNewRecord.Value;
 
-        public static bool DisableSoloScoreSubmission => getFlag(SpecialsSetting.DisableSoloScoreSubmission);
-
-        private static bool getFlag(SpecialsSetting setting)
-            => ClientApi.Config?.GetBindable<bool>(setting).Value ?? false;
+        public static bool DisableSoloScoreSubmission => ClientConfig.DisableSoloScoreSubmission.Value;
 
         /// <summary>
         /// Randomly selects a valid set of mods on the given overlay, replacing the current

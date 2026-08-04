@@ -20,23 +20,18 @@ namespace osucc.UI.Specials
 
         public SpecialsSettingsSubsection()
         {
-            var config = ClientApi.Config;
+            addCheckbox(ClientConfig.Branding, SpecialsSettingsStrings.BrandingCaption, default);
+            addCheckbox(ClientConfig.AllowIncompatibleMods, SpecialsSettingsStrings.AllowIncompatibleModsCaption, SpecialsSettingsStrings.AllowIncompatibleModsHint);
+            addCheckbox(ClientConfig.ShowSystemMods, SpecialsSettingsStrings.ShowSystemModsCaption, SpecialsSettingsStrings.ShowSystemModsHint);
+            addCheckbox(ClientConfig.FirstRunSetupComplete, SpecialsSettingsStrings.FirstRunSetupCompleteCaption, SpecialsSettingsStrings.FirstRunSetupCompleteHint);
+            addCheckbox(ClientConfig.CelebrateNewRecord, SpecialsSettingsStrings.CelebrateNewRecordCaption, SpecialsSettingsStrings.CelebrateNewRecordHint);
+            addCheckbox(ClientConfig.DisableSoloScoreSubmission, SpecialsSettingsStrings.DisableSoloScoreSubmissionCaption, SpecialsSettingsStrings.DisableSoloScoreSubmissionHint);
+            addCheckbox(ClientConfig.ShowRandomModsButton, SpecialsSettingsStrings.RandomModsButtonCaption, SpecialsSettingsStrings.RandomModsButtonHint);
+            addCheckbox(ClientConfig.SentryErrorReporting, SpecialsSettingsStrings.SentryErrorReportingCaption, SpecialsSettingsStrings.SentryErrorReportingHint);
+            addCheckbox(ClientConfig.FavouriteMapHighlight, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint);
+            addCheckbox(ClientConfig.ProfileFavouriteDownloadButton, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint);
 
-            if (config == null)
-                return;
-
-            addCheckbox(config, SpecialsSettingsStrings.BrandingCaption, default, SpecialsSetting.Branding);
-            addCheckbox(config, SpecialsSettingsStrings.AllowIncompatibleModsCaption, SpecialsSettingsStrings.AllowIncompatibleModsHint, SpecialsSetting.AllowIncompatibleMods);
-            addCheckbox(config, SpecialsSettingsStrings.ShowSystemModsCaption, SpecialsSettingsStrings.ShowSystemModsHint, SpecialsSetting.ShowSystemMods);
-            addCheckbox(config, SpecialsSettingsStrings.FirstRunSetupCompleteCaption, SpecialsSettingsStrings.FirstRunSetupCompleteHint, SpecialsSetting.FirstRunSetupComplete);
-            addCheckbox(config, SpecialsSettingsStrings.CelebrateNewRecordCaption, SpecialsSettingsStrings.CelebrateNewRecordHint, SpecialsSetting.CelebrateNewRecord);
-            addCheckbox(config, SpecialsSettingsStrings.DisableSoloScoreSubmissionCaption, SpecialsSettingsStrings.DisableSoloScoreSubmissionHint, SpecialsSetting.DisableSoloScoreSubmission);
-            addCheckbox(config, SpecialsSettingsStrings.RandomModsButtonCaption, SpecialsSettingsStrings.RandomModsButtonHint, SpecialsSetting.ShowRandomModsButton);
-            addCheckbox(config, SpecialsSettingsStrings.SentryErrorReportingCaption, SpecialsSettingsStrings.SentryErrorReportingHint, SpecialsSetting.SentryErrorReporting);
-            addCheckbox(config, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint, SpecialsSetting.FavouriteMapHighlight);
-            addCheckbox(config, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint, SpecialsSetting.ProfileFavouriteDownloadButton);
-
-            var supporterEnabled = addCheckbox(config, SpecialsSettingsStrings.FakeSupporterEnabledCaption, SpecialsSettingsStrings.FakeSupporterEnabledHint, SpecialsSetting.FakeSupporterEnabled);
+            var supporterEnabled = addCheckbox(ClientConfig.FakeSupporterEnabled, SpecialsSettingsStrings.FakeSupporterEnabledCaption, SpecialsSettingsStrings.FakeSupporterEnabledHint);
 
             // The slider needs a BindableNumber range (1–10), while the config exposes a plain
             // Bindable<int>; mirror its value both ways. TransferValueOnCommit (as osu's own
@@ -52,10 +47,10 @@ namespace osucc.UI.Specials
                 {
                     MinValue = 1,
                     MaxValue = 10,
-                    Value = config.GetBindable<int>(SpecialsSetting.FakeSupporterLevel).Value,
+                    Value = ClientConfig.FakeSupporterLevel.Value,
                 },
             };
-            supporterLevel.Current.BindValueChanged(e => config.GetBindable<int>(SpecialsSetting.FakeSupporterLevel).Value = e.NewValue, true);
+            supporterLevel.Current.BindValueChanged(e => ClientConfig.FakeSupporterLevel.Value = e.NewValue, true);
             Add(new SettingsItemV2(supporterLevel));
 
             supporterEnabled.Current.BindValueChanged(e => supporterLevel.Current.Disabled = !e.NewValue, true);
@@ -82,13 +77,13 @@ namespace osucc.UI.Specials
             });
         }
 
-        private FormCheckBox addCheckbox(SpecialsConfigManager config, LocalisableString caption, LocalisableString hint, SpecialsSetting setting)
+        private FormCheckBox addCheckbox(Bindable<bool> current, LocalisableString caption, LocalisableString hint)
         {
             var checkbox = new FormCheckBox
             {
                 Caption = caption,
                 HintText = hint,
-                Current = config.GetBindable<bool>(setting),
+                Current = current,
             };
 
             Add(new SettingsItemV2(checkbox));

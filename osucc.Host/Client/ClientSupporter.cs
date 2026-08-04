@@ -46,15 +46,13 @@ namespace osucc.Client
             TimingLog.Info($"ToolbarUserButton: login overlay {(overlay == null ? "unavailable" : "captured")}");
         }
 
-        public static void Attach(SpecialsConfigManager config)
+        public static void Attach()
         {
             if (attached)
                 return;
 
-            // Strong refs: ConfigManager.GetBindable returns weak copies, so the subscriptions
-            // below would die after the first (immediate) fire otherwise.
-            enabledBindable = config.GetBindable<bool>(SpecialsSetting.FakeSupporterEnabled);
-            levelBindable = config.GetBindable<int>(SpecialsSetting.FakeSupporterLevel);
+            enabledBindable = ClientConfig.FakeSupporterEnabled;
+            levelBindable = ClientConfig.FakeSupporterLevel;
             enabledBindable.BindValueChanged(e => onEnabledChanged(e.NewValue), true);
             levelBindable.BindValueChanged(e => onLevelChanged(e.NewValue), true);
 

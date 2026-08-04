@@ -27,14 +27,12 @@ namespace osucc.Client
         private static ILocalUserState? localUserState;
         private static bool attached;
 
-        public static void Attach(SpecialsConfigManager config)
+        public static void Attach()
         {
             if (attached)
                 return;
 
-            // Strong ref: ConfigManager.GetBindable returns weak copies, so the subscription
-            // below would die after the first (immediate) fire otherwise.
-            enabledBindable = config.GetBindable<bool>(SpecialsSetting.FavouriteMapHighlight);
+            enabledBindable = ClientConfig.FavouriteMapHighlight;
             enabledBindable.BindValueChanged(e => onEnabledChanged(e.NewValue), true);
 
             var api = ClientApi.Game?.Dependencies?.Get(typeof(IAPIProvider)) as IAPIProvider;

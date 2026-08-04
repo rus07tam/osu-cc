@@ -28,14 +28,12 @@ namespace osucc.Client
         private static Bindable<bool>? enabledBindable;
         private static bool attached;
 
-        public static void Attach(SpecialsConfigManager config)
+        public static void Attach()
         {
             if (attached)
                 return;
 
-            // Strong ref: ConfigManager.GetBindable returns weak copies, so the subscription
-            // below would die after the first (immediate) fire otherwise.
-            enabledBindable = config.GetBindable<bool>(SpecialsSetting.ProfileFavouriteDownloadButton);
+            enabledBindable = ClientConfig.ProfileFavouriteDownloadButton;
             enabledBindable.BindValueChanged(e => refreshButtons(e.NewValue), true);
 
             attached = true;

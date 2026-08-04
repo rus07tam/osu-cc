@@ -1,4 +1,3 @@
-using osu.Framework.Bindables;
 using osu.Game;
 using osucc.Core;
 using osucc.Plugin;
@@ -15,12 +14,6 @@ namespace osucc.Client
     /// </summary>
     public static class ClientBootstrap
     {
-        // ConfigManager.GetBindable returns weak copies; hold strong references or the
-        // BindValueChanged subscriptions die after the first (immediate) fire.
-        private static Bindable<bool>? brandingBindable;
-        private static Bindable<bool>? showSystemModsBindable;
-        private static Bindable<bool>? firstRunSetupCompleteBindable;
-
         /// <summary>
         /// Called from the <c>OsuGameBase.load</c> postfix, once the instance, storage and
         /// dependency injection are available. Wires up config, branding and the startup
@@ -45,23 +38,20 @@ namespace osucc.Client
             var config = new SpecialsConfigManager(storage.GetStorageForDirectory("osu-cc"));
             ClientApi.SetConfig(config);
             config.Load();
-            TimingLog.Info($"SpecialsConfigManager loaded (branding default: {config.GetBindable<bool>(SpecialsSetting.Branding).Value})");
+            ClientConfig.Attach(config);
+            TimingLog.Info($"SpecialsConfigManager loaded (branding default: {ClientConfig.Branding.Value})");
 
-            applySentryReportingPreference(config);
+            applySentryReportingPreference();
 
-            ClientSupporter.Attach(config);
-            ClientFavourites.Attach(config);
-            ClientProfileDownloads.Attach(config);
+            ClientSupporter.Attach();
+            ClientFavourites.Attach();
+            ClientProfileDownloads.Attach();
 
             // Live-binding: toggling the checkbox in the Specials section flips the window title.
-            brandingBindable = config.GetBindable<bool>(SpecialsSetting.Branding);
-            brandingBindable.BindValueChanged(v => applyBranding(v.NewValue), true);
+            ClientConfig.Branding.BindValueChanged(v => applyBranding(v.NewValue), true);
 
             // Live-binding: toggling "Show System mods" adds/removes the column on open overlays immediately.
-            showSystemModsBindable = config.GetBindable<bool>(SpecialsSetting.ShowSystemMods);
-            showSystemModsBindable.BindValueChanged(_ => ClientMods.RefreshOverlays(), true);
-
-            firstRunSetupCompleteBindable = config.GetBindable<bool>(SpecialsSetting.FirstRunSetupComplete);
+            ClientConfig.ShowSystemMods.BindValueChanged(_ => ClientMods.RefreshOverlays(), true);
 
             game.Add(new InitNotificationsComponent());
             game.Add(new FirstRunSetupComponent());
@@ -87,9 +77,9 @@ namespace osucc.Client
         /// <c>OsuGame.load</c> constructs <c>SentryLogger</c>; since the logger reads the env var
         /// once at construction, the preference takes effect on the next launch.
         /// </summary>
-        private static void applySentryReportingPreference(SpecialsConfigManager config)
+        private static void applySentryReportingPreference()
         {
-            bool enabled = config.GetBindable<bool>(SpecialsSetting.SentryErrorReporting).Value;
+            bool enabled = ClientConfig.SentryErrorReporting.Value;
 
             if (enabled)
             {
