@@ -3,6 +3,7 @@ using osu.Game.Overlays.Toolbar;
 using osucc.Client;
 using osucc.Core;
 using osucc.Localisation;
+using osucc.Patches;
 using System.Reflection;
 
 namespace osucc.Plugin
@@ -226,8 +227,10 @@ namespace osucc.Plugin
                 entry.Host = null;
                 entry.Attached = false;
 
+                // Only still-running plugins count as dependents: a plugin that was itself
+                // disabled no longer calls into this one, so it must not block the disable.
                 dependents = plugins
-                             .Where(p => p != entry && p.Dependencies.Contains(entry.Id, StringComparer.Ordinal))
+                             .Where(p => p != entry && p.Loaded && p.Dependencies.Contains(entry.Id, StringComparer.Ordinal))
                              .Select(p => p.Name)
                              .ToList();
             }
@@ -767,6 +770,10 @@ namespace osucc.Plugin
             lock (lockObject)
                 toolbarButtonRegistrations.Add(registration);
 
+            // The toolbar is built once at startup; a button registered afterwards (live enable)
+            // must be injected immediately. No-op while the toolbar has not loaded yet.
+            ToolbarLoadPatch.AddPluginButton(registration);
+
             return new ToolbarButtonLifecycleHandle(registration);
         }
 
@@ -796,6 +803,12 @@ namespace osucc.Plugin
 
                 lock (lockObject)
                     toolbarButtonRegistrations.Remove(registration);
+
+                // The toolbar is not rebuilt when a plugin is disabled, so the button drawn at
+                // load time (or on a live enable) must be removed from the live toolbar now.
+                // Runs outside the lock: removing a drawable mutates the live tree, which must
+                // never re-enter PluginManager while the manager lock is held.
+                registration.RemoveCreated();
             }
         }
 

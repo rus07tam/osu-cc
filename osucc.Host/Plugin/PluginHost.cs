@@ -204,6 +204,10 @@ namespace osucc.Plugin
 
                 disposed = true;
                 token?.Dispose();
+
+                // A blocking overlay still open on screen would throw on disposal; close it
+                // before the plugin tears itself down.
+                overlay.Hide();
             }
         }
 

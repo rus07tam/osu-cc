@@ -10,13 +10,19 @@ using System.Reflection;
 namespace osucc.Patches
 {
     /// <summary>
-    /// Injects plugin toolbar buttons once <c>Toolbar.load</c> has run. Both button groups are
-    /// located by their stable <c>Name = "Left buttons"</c> / <c>Name = "Right buttons"</c>
-    /// markers, and each registered plugin button is added to the matching
-    /// <see cref="FillFlowContainer"/> with its requested layout position.
+    /// Injects plugin toolbar buttons once <c>Toolbar.load</c> has run, and again for buttons
+    /// registered later (live plugin enable). Both button groups are located by their stable
+    /// <c>Name = "Left buttons"</c> / <c>Name = "Right buttons"</c> markers, and each registered
+    /// plugin button is added to the matching <see cref="FillFlowContainer"/> with its requested
+    /// layout position. The buttons stay attached to the toolbar (removed only on live disable
+    /// via <see cref="Plugin.ToolbarButtonRegistration.RemoveCreated"/>), since the toolbar is
+    /// built once and never rebuilt mid-session.
     /// </summary>
     public static class ToolbarLoadPatch
     {
+        /// <summary>The last observed Toolbar instance; null until the toolbar has loaded.</summary>
+        private static Toolbar? toolbar;
+
         public static bool Install()
         {
             var load = Reflection.GetMethod("osu.Game.Overlays.Toolbar.Toolbar", "load", m => m.GetParameters().Length == 1);
@@ -35,8 +41,31 @@ namespace osucc.Patches
         {
             try
             {
-                var leftButtons = findVisualChild(__instance, "Left buttons");
-                var rightButtons = findVisualChild(__instance, "Right buttons");
+                toolbar = __instance;
+
+                foreach (var registration in PluginManager.ToolbarButtonRegistrations)
+                    AddPluginButton(registration);
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"ToolbarLoadPatch.Postfix: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Injects a plugin's button into the live toolbar. No-op until the toolbar has loaded; a
+        /// button registered later (live enable) is injected immediately. Adding the same button
+        /// twice is skipped, and the created button is recorded so it can be removed on disable.
+        /// </summary>
+        internal static void AddPluginButton(ToolbarButtonRegistration registration)
+        {
+            if (toolbar == null)
+                return;
+
+            try
+            {
+                var leftButtons = findVisualChild(toolbar, "Left buttons");
+                var rightButtons = findVisualChild(toolbar, "Right buttons");
 
                 var leftFlow = leftButtons == null ? null : getChildren(leftButtons).OfType<FillFlowContainer>().FirstOrDefault();
                 var rightFlow = rightButtons == null ? null : getChildren(rightButtons).OfType<FillFlowContainer>().FirstOrDefault();
@@ -50,42 +79,34 @@ namespace osucc.Patches
                 if (leftFlow == null)
                     TimingLog.Info("ToolbarLoadPatch: FillFlowContainer in 'Left buttons' not found (no left-placed buttons?)");
 
-                foreach (var registration in PluginManager.ToolbarButtonRegistrations)
+                var button = registration.Factory();
+
+                if (button == null)
+                    return;
+
+                var flow = registration.Placement == ToolbarButtonPlacement.Left ? leftFlow : rightFlow;
+
+                if (flow == null)
                 {
-                    try
-                    {
-                        var button = registration.Factory();
-
-                        if (button == null)
-                            continue;
-
-                        var flow = registration.Placement == ToolbarButtonPlacement.Left ? leftFlow : rightFlow;
-
-                        if (flow == null)
-                        {
-                            TimingLog.Error($"ToolbarLoadPatch: no flow for placement {registration.Placement} ({button.GetType().Name} skipped)");
-                            continue;
-                        }
-
-                        if (flow.Any(c => ReferenceEquals(c, button)))
-                            continue;
-
-                        flow.Add(button);
-
-                        if (registration.LayoutPosition is { } position)
-                            flow.SetLayoutPosition(button, position);
-
-                        TimingLog.Info($"ToolbarLoadPatch: plugin button added ({button.GetType().Name}, {registration.Placement}, position={registration.LayoutPosition})");
-                    }
-                    catch (Exception ex)
-                    {
-                        TimingLog.Error($"ToolbarLoadPatch.AddPluginButtons: {ex}");
-                    }
+                    TimingLog.Error($"ToolbarLoadPatch: no flow for placement {registration.Placement} ({button.GetType().Name} skipped)");
+                    return;
                 }
+
+                if (flow.Any(c => ReferenceEquals(c, button)))
+                    return;
+
+                flow.Add(button);
+
+                if (registration.LayoutPosition is { } position)
+                    flow.SetLayoutPosition(button, position);
+
+                registration.RecordCreated(button);
+
+                TimingLog.Info($"ToolbarLoadPatch: plugin button added ({button.GetType().Name}, {registration.Placement}, position={registration.LayoutPosition})");
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"ToolbarLoadPatch.Postfix: {ex}");
+                TimingLog.Error($"ToolbarLoadPatch.AddPluginButton: {ex}");
             }
         }
 

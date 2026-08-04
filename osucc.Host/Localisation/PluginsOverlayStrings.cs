@@ -28,9 +28,9 @@ namespace osucc.Localisation
 
         public static LocalisableString StatusActive => OsuCcLocalisation.Get(getKey(nameof(StatusActive)), "Loaded and attached");
 
-        public static LocalisableString StatusPendingEnable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingEnable)), "Will be enabled (next launch)");
+        public static LocalisableString StatusPendingEnable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingEnable)), "Enabling...");
 
-        public static LocalisableString StatusPendingDisable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDisable)), "Will be disabled (next launch)");
+        public static LocalisableString StatusPendingDisable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDisable)), "Disabling...");
 
         public static LocalisableString StatusPendingDelete => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDelete)), "Will be deleted (next launch)");
 
@@ -48,10 +48,10 @@ namespace osucc.Localisation
         public static LocalisableString DeletePluginTooltip => OsuCcLocalisation.Get(getKey(nameof(DeletePluginTooltip)), "Delete plugin");
 
         public static LocalisableString PluginEnabled(LocalisableString name)
-            => OsuCcLocalisation.Get(getKey(nameof(PluginEnabled)), "Plugin '{0}' enabled (applies on next launch)", name);
+            => OsuCcLocalisation.Get(getKey(nameof(PluginEnabled)), "Plugin '{0}' enabled", name);
 
         public static LocalisableString PluginDisabled(LocalisableString name)
-            => OsuCcLocalisation.Get(getKey(nameof(PluginDisabled)), "Plugin '{0}' disabled (applies on next launch)", name);
+            => OsuCcLocalisation.Get(getKey(nameof(PluginDisabled)), "Plugin '{0}' disabled", name);
 
         public static LocalisableString DependenciesCaption => OsuCcLocalisation.Get(getKey(nameof(DependenciesCaption)), "Depends on:");
 

@@ -29,6 +29,9 @@ namespace osucc.Plugin
         /// <summary>True while <see cref="Reload"/> is re-applying persisted values.</summary>
         private bool reloading;
 
+        /// <summary>True once disposed; the host and the plugin can both dispose the same settings.</summary>
+        private bool disposed;
+
         public PluginSettings(Func<Storage?> storageProvider, string filename = "plugin.ini")
         {
             this.storageProvider = storageProvider;
@@ -252,6 +255,11 @@ namespace osucc.Plugin
 
         public void Dispose()
         {
+            if (disposed)
+                return;
+
+            disposed = true;
+
             GC.SuppressFinalize(this);
             saveTimer.Dispose();
             Save();

@@ -80,8 +80,9 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Overlay status, resolved in order: pending deletion wins, then errors, then the
-        /// enabled/disabled states (a plugin toggled off while still running is "pending
-        /// disable", one disabled from the start is simply "disabled").
+        /// enabled/disabled states. Live toggles are synchronous, so the transient "pending
+        /// enable"/"pending disable" states only surface if a plugin stays half-loaded after a
+        /// failed toggle; a plugin disabled from the start is simply "disabled".
         /// </summary>
         public PluginStatus Status
         {
