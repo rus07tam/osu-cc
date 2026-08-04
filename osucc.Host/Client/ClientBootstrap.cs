@@ -7,10 +7,10 @@ namespace osucc.Client
 {
     /// <summary>
     /// Owns the one-time wiring between the (reflective) patches and the typed client layers:
-    /// resolves storage, builds the <see cref="SpecialsConfigManager"/>, applies the Sentry
-    /// preference, attaches each client subsystem, sets up the live config bindables and the
-    /// startup components, then attaches every plugin. Kept separate from <see cref="ClientApi"/>
-    /// so that class stays a thin public surface (game instance, config, branding, startup toasts).
+    /// resolves storage, builds the <see cref="SpecialsConfigManager"/>, attaches each client
+    /// subsystem, sets up the live config bindables and the startup components, then attaches
+    /// every plugin. Kept separate from <see cref="ClientApi"/> so that class stays a thin
+    /// public surface (game instance, config, branding, startup toasts).
     /// </summary>
     public static class ClientBootstrap
     {
@@ -41,8 +41,6 @@ namespace osucc.Client
             ClientConfig.Attach(config);
             TimingLog.Info($"SpecialsConfigManager loaded (branding default: {ClientConfig.Branding.Value})");
 
-            applySentryReportingPreference();
-
             ClientSupporter.Attach();
             ClientFavourites.Attach();
             ClientProfileDownloads.Attach();
@@ -69,29 +67,6 @@ namespace osucc.Client
 
             Reflection.SetName(ClientApi.Game, enabled ? ClientApi.BrandingName : ClientApi.OriginalGameName ?? ClientApi.BrandingName);
             TimingLog.Info($"Branding applied: enabled={enabled}");
-        }
-
-        /// <summary>
-        /// Applies the <see cref="SpecialsSetting.SentryErrorReporting"/> preference via osu's own
-        /// kill-switch env var (<c>OSU_DISABLE_ERROR_REPORTING</c>). Must run before
-        /// <c>OsuGame.load</c> constructs <c>SentryLogger</c>; since the logger reads the env var
-        /// once at construction, the preference takes effect on the next launch.
-        /// </summary>
-        private static void applySentryReportingPreference()
-        {
-            bool enabled = ClientConfig.SentryErrorReporting.Value;
-
-            if (enabled)
-            {
-                // Removing the variable (null) re-enables the game's default behaviour.
-                Environment.SetEnvironmentVariable("OSU_DISABLE_ERROR_REPORTING", null);
-                TimingLog.Info("Sentry error reporting ENABLED (OSU_DISABLE_ERROR_REPORTING cleared)");
-            }
-            else
-            {
-                Environment.SetEnvironmentVariable("OSU_DISABLE_ERROR_REPORTING", "1");
-                TimingLog.Info("Sentry error reporting DISABLED (OSU_DISABLE_ERROR_REPORTING=1)");
-            }
         }
     }
 }

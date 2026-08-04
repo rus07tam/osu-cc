@@ -40,7 +40,7 @@ namespace osucc.Localisation
 
         public static LocalisableString SentryErrorReportingCaption => OsuCcLocalisation.Get(getKey(nameof(SentryErrorReportingCaption)), "Send error reports to osu (Sentry)");
 
-        public static LocalisableString SentryErrorReportingHint => OsuCcLocalisation.Get(getKey(nameof(SentryErrorReportingHint)), "Whether the game may send anonymous error reports to the osu! servers. Disabled by default to avoid leaking client-specific patterns. Applies on the next launch.");
+        public static LocalisableString SentryErrorReportingHint => OsuCcLocalisation.Get(getKey(nameof(SentryErrorReportingHint)), "Whether the game may send anonymous error reports to the osu! servers. Disabled by default to avoid leaking client-specific patterns. Applied before the error logger starts on the next launch.");
 
         public static LocalisableString FavouriteMapHighlightCaption => OsuCcLocalisation.Get(getKey(nameof(FavouriteMapHighlightCaption)), "Highlight favourited maps in song select");
 

@@ -11,10 +11,19 @@ namespace osucc.Client
     /// </summary>
     public class SpecialsConfigManager : IniConfigManager<SpecialsSetting>
     {
+        /// <summary>
+        /// The ini file holding the persisted settings, written under the game storage's
+        /// "osu-cc" folder. Shared by the early Sentry-preference reader
+        /// (<see cref="Core.SentryPreference"/>) so both read the same file.
+        /// </summary>
+        public const string ConfigFileName = "framework.ini";
+
         public SpecialsConfigManager(Storage storage)
             : base(storage)
         {
         }
+
+        protected override string? Filename => ConfigFileName;
 
         protected override void InitialiseDefaults()
         {

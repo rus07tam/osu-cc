@@ -23,7 +23,7 @@ namespace osucc.Client
         /// <summary>Block solo score submission to the osu! servers. Local scores are still saved.</summary>
         DisableSoloScoreSubmission,
 
-        /// <summary>Send error reports (Sentry) to osu servers. Applied on the next launch.</summary>
+        /// <summary>Send error reports (Sentry) to osu servers. Applied before <c>SentryLogger</c> is constructed on the next launch.</summary>
         SentryErrorReporting,
 
         /// <summary>Visually fake the current player's osu!supporter tag everywhere. Local cosmetic only: no server interaction.</summary>
