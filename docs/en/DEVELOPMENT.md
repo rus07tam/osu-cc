@@ -7,6 +7,8 @@ Notes for people hacking on this repo.
 ## Layout
 
 ```plaintext
+osucc.Shared/    shared layout/version/staging logic (namespace osucc.Common), the single
+                 source of truth for the launcher, the hook and the updater plugin
 osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuGet package
   StartupHook.cs     entry point the runtime calls
   Core/              bootstrapper, reflection helpers, logging
@@ -14,8 +16,8 @@ osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuG
   Patches/           the Harmony patches
   UI/                overlays, settings section, mod UI
   Plugin/            plugin manager and the host API
-osucc/          the launcher CLI (build / deploy / run / start / clean / status)
-plugins/        the built-in plugins (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
+osucc/          the launcher CLI (run / start / status only — never builds, never writes to the install)
+plugins/        the built-in plugins (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, OsuCcUpdater, SubdivideNations, UsernameVisuals)
 docs/           screenshots (assets/), per-language docs (en/, ru/)
 ```
 
@@ -99,6 +101,15 @@ data folder (`plugins/`), where the manager extracts each one into a folder
 named after the plugin `Id`. Disabled plugins stay listed in the overlay but
 aren't loaded.
 
+The **osu-cc Updater** plugin (`plugins/OsuCcUpdater`) is special only in what
+it does, not in how it is built: it is a normal plugin with a settings
+subsection and a toolbar button. It keeps the hook and the shipped plugins
+current by fetching the runtime bundle — from GitHub releases or by building it
+locally from the official repo — staging it into `<data>/osu-cc/staging/` next
+to an `update.json` marker (`UpdateMarker` in `osucc.Shared`), and letting the
+launcher apply it on the next launch (the running game locks the `hook/` files
+on Windows, so updates can only be swapped on the next start).
+
 ### Lifecycle hooks & data migrations
 
 On top of `Load` / `AttachToGame` a plugin can implement optional interfaces to
@@ -128,48 +139,58 @@ behaviour or data, otherwise `OnUpdate` will not fire.
 ## Build & run
 
 ```shell
-dotnet build osucc/osucc.csproj -c Debug
-dotnet osucc/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
+dotnet build osucc.build.proj -c Debug        # hook + plugins (+ local NuGet feed)
+dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release   # artifacts/runtime/osucc-runtime-<ver>.zip
+dotnet osucc/bin/Debug/net8.0/osucc.dll status # where everything is / would go
+dotnet osucc/bin/Debug/net8.0/osucc.dll run    # launch osu! with the deployed hook
 ```
 
-`osucc build` delegates to the repo's single MSBuild entry point,
-`osucc.build.proj`: it packs `osucc.Host` / `osucc.Build` / `osucc` (the dotnet
-tool) / `osucc.Templates` into the repo-local feed (`artifacts/nuget`), clears
-their stale global-cache copies, then builds the hook and all `plugins/*/*.csproj`
-in one parallel MSBuild process. All four distributable packages share a single
-version (`OsuCcVersion`), centrally managed in `Directory.Packages.props` (CPM),
-so a version bump is a single edit.
+`osucc.build.proj` is the repo's single MSBuild entry point: it packs
+`osucc.Host` / `osucc.Build` / `osucc` (the dotnet tool) / `osucc.Shared` /
+`osucc.Templates` into the repo-local feed (`artifacts/nuget`), clears their
+stale global-cache copies, then builds the hook and all `plugins/*/*.csproj` in
+one parallel MSBuild process. All distributable packages share a single version
+(`OsuCcVersion`), centrally managed in `Directory.Packages.props` (CPM), so a
+version bump is a single edit.
 
-`osucc deploy` copies `osucc.dll`, `0Harmony.dll` and `SharpCompress.dll` into
-`<osu-cc data>/hook/` plus the plugin archives into `plugins/`. The
-NuGet-restored `osu.*` copies in `bin` are deliberately **not** deployed, since they
-would overwrite the production assemblies.
+`PackRuntimeBundle` collects the deployable output into one zip: `osucc.dll`,
+`0Harmony.dll`, `SharpCompress.dll` and `osucc.Shared.dll` under `hook/`, plus
+every plugin archive under `plugins/`. The NuGet-restored `osu.*` copies in
+`bin` are deliberately **not** included, since they would overwrite the
+production assemblies. Deploying is unpacking this bundle into the data folder
+(`hook/` + `plugins/`), which is exactly what the updater plugin stages and
+what a fresh install does manually.
 
-Building requires a local checkout: the launcher locates the repo by walking up
-from its own location until it finds `osucc.sln` (`--repo` overrides). Commands
-that do not compile (`run`, `status`, `clean`) work without one; `osucc run`
-launches the already-deployed hook and never touches the repo.
+The launcher (`osucc run` / `osucc start` / `osucc status`) does none of that:
+it locates the osu install and the data root, applies a staged update if one is
+waiting, and launches the game. If the hook is missing it fails with a pointer
+to the runtime bundle — it never builds or writes to the install, so it works
+without a checkout and cannot corrupt anything. Path resolution lives in
+`osucc/OsuCcPaths.cs` and the shared `OsuCcDataRootResolver`; shared layout
+names live in `osucc.Shared/OsuCcLayout.cs`.
 
-### Updating without a build
+### Updating from inside the game
 
-`osucc update` keeps the hook and plugins current without a checkout, pulling
-prebuilt artifacts straight from the public feeds:
+Updating happens in-game through the **osu-cc Updater** plugin, not through the
+launcher:
 
-- the hook: the latest `osucc.Host` package from nuget.org — the flat-container
-  API returns the newest stable version, then the nupkg is unpacked to
-  `<osu-cc data>/hook/` together with its runtime dependencies (`Lib.Harmony` →
-  `0Harmony.dll`, `SharpCompress`), versions read from the package's own nuspec;
-- the plugins: the zip assets of the latest GitHub release (the CI attaches them)
-  are downloaded into `<osu-cc data>/plugins/`, where the in-game
-  `PluginPackageStore` unpacks them on the next launch;
-- the launcher (`--launcher`): a global dotnet tool runs `dotnet tool update`,
-  a standalone binary is swapped for the release build of the same OS (Windows
-  defers the replacement to a detached script because the running exe is locked).
+- **GitHub bundle (default):** the plugin queries the repo's latest GitHub
+  release for the `osucc-runtime-<version>.zip` asset and downloads it into a
+  temp file.
+- **Local build:** it clones (or fetches) the official repo into
+  `<data>/osu-cc/src/osu-cc`, checks out the newest version tag and runs
+  `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`, producing
+  the same bundle. Needs the .NET SDK and git on the machine.
 
-`osucc update` skips the hook when the deployed `osucc.dll` already carries the
-latest version, and always fetches the plugin archives from the latest GitHub
-release (they are small and idempotent). It errors out if the latest release
-ships no plugin archives, so a broken release is never a silent no-op.
+Either way the bundle is unpacked into `<data>/osu-cc/staging/` (only the
+top-level `hook/` and `plugins/` entries, with a zip-slip guard) and an
+`update.json` marker is written with the version, source and timestamp. The
+**next** launch of osu! applies the staged files over `hook/` and `plugins/`
+and deletes `staging/` — the running game locks the hook files on Windows, so
+an in-place swap is not possible. `osucc status` shows a waiting staged update,
+and the updater's settings subsection and toolbar button show the current /
+latest / staged versions. Auto-check runs on startup and is throttled to once
+per six hours; it notifies but never stages automatically.
 
 ### Standalone executables
 
@@ -184,18 +205,20 @@ dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publ
 
 `PublishTrimmed` stays off (the path resolver relies on `AppContext.BaseDirectory`,
 which is empty under trimming-unsafe reflection patterns). A standalone binary
-without a checkout can still `osucc run` an already-deployed hook.
+without a checkout can still `osucc run` an already-deployed hook or `osucc status`.
 
 ### Publishing to NuGet
 
-Everything the distribution needs is produced by `osucc build` into
+Everything the distribution needs is produced by `dotnet build osucc.build.proj` into
 `artifacts/nuget`:
 
 - `osucc.Host` — the plugin API (and the runtime hook assembly);
 - `osucc.Build` — shared MSBuild props/targets for plugins;
 - `osucc` — the launcher as a [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc` sets `PackAsTool`), so `osucc status` / `run` work without a
-  checkout or a build (`start`/`deploy` still need the repo);
+  (`osucc` sets `PackAsTool`), so `osucc status` / `run` / `start` work without a
+  checkout or a build;
+- `osucc.Shared` — the shared layout/version logic, pulled in by plugins from NuGet
+  (its code lives in the `osucc.Shared` project, namespace `osucc.Common`);
 - `osucc.Templates` — `dotnet new osucc-plugin`, instantiating a standalone
   plugin repo identical to the monorepo plugins.
 
@@ -215,15 +238,17 @@ any osucc source; drop the resulting `MyPlugin.zip` into the game's
 
 `.github/workflows/ci.yml` runs on every push and PR, and on `v*` tags:
 
-- **build** and **build-windows** build the hook, the plugins and the four NuGet
-  packages (`osucc build` in Release), gate on `dotnet format --verify-no-changes`,
-  and publish the standalone launchers. Everything is attached as CI artifacts:
-  the `.nupkg` files, the plugin `.zip` archives and the `linux-x64` / `win-x64`
-  binaries.
-- **publish** runs only on `v*` tags: it pushes the four packages to nuget.org
+- **build** and **build-windows** build the hook, the plugins and the NuGet
+  packages (`dotnet build osucc.build.proj` in Release), gate on `dotnet format --verify-no-changes`,
+  publish the standalone launchers, and run `PackRuntimeBundle` to produce the
+  single runtime zip. Everything is attached as CI artifacts: the `.nupkg`
+  files, the plugin `.zip` archives, the `linux-x64` / `win-x64` binaries and
+  the `osucc-runtime-*.zip` bundle.
+- **publish** runs only on `v*` tags: it pushes the packages to nuget.org
   via trusted publishing (OIDC — the job gets `id-token: write` and exchanges the
   GitHub token for a short-lived API key through `NuGet/login@v1`, no repository
-  secrets involved) and creates a GitHub release with all artifacts attached.
+  secrets involved) and creates a GitHub release with all artifacts attached,
+  including the runtime bundle the updater plugin pulls.
   The trust policy is set up once on nuget.org
   (`account/trustedpublishing`, owner `rus07tam`, repo `osu-cc`).
 

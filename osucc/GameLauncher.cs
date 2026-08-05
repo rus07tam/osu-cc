@@ -21,7 +21,7 @@ internal static class GameLauncher
 
         if (!File.Exists(hookDll))
         {
-            Console.Error.WriteLine($"ERROR: {hookDll} not found. Run 'osucc update' or 'osucc start' first.");
+            Console.Error.WriteLine($"ERROR: {hookDll} not found. Install the hook first - see 'osucc status'.");
             return 1;
         }
 

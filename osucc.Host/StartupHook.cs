@@ -1,3 +1,4 @@
+using osucc.Common;
 using osucc.Core;
 using osucc.Plugin;
 using System.Runtime.Loader;
@@ -20,6 +21,9 @@ public class StartupHook
     public static void Initialize()
     {
         TimingLog.Info("Initialize() called");
+
+        // Route the shared resolver's diagnostics into the osu-cc timing log.
+        OsuCcTimingLog.Error = message => TimingLog.Error($"OsuCcDataRootResolver: {message}");
 
         // Apply the Sentry error-reporting preference before any osu code runs: SentryLogger
         // snapshots OSU_DISABLE_ERROR_REPORTING once at construction, and reading the persisted

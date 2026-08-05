@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Framework-free shared logic used by every osu-cc surface that talks about the on-disk
+    layout (the osucc launcher, the osucc.Host hook and the updater plugin): the osu-cc data
+    root resolution, the staging/update-marker contract and version helpers. The one source of
+    truth so the hook, the launcher and the updater never disagree about where things live.
+    Packed into the local feed alongside osucc.Host, which depends on it.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>osucc.Shared</PackageId>
+    <Version>$(OsuCcVersion)</Version>
+    <Authors>osu-cc</Authors>
+    <Description>Framework-free shared layout/version logic for osu-cc (data-root resolution, update-marker contract), shared by the launcher, the hook and the updater plugin.</Description>
+    <PackageTags>osu osucc</PackageTags>
+  </PropertyGroup>
+
+</Project>

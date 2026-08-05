@@ -14,12 +14,15 @@
     <Version>$(OsuCcVersion)</Version>
     <PackageType>DotnetTool</PackageType>
     <Authors>osu-cc</Authors>
-    <Description>osu-cc launcher: builds the hook and plugins from a repo checkout, deploys them into the osu-cc data root and launches osu! with DOTNET_STARTUP_HOOKS. Installable as a dotnet tool (osucc status/deploy/run --no-build work without a checkout).</Description>
+    <Description>osu-cc launcher: launches osu! with DOTNET_STARTUP_HOOKS pointing at the hook deployed in the osu-cc data root. Never builds, never touches the install dir; the hook is installed and updated by the in-game updater plugin.</Description>
     <PackageTags>osu osucc launcher hook</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DotMake.CommandLine" />
+    <!-- PrivateAssets embeds osucc.Shared.dll into the tool package instead of declaring it as a
+         nuget.org dependency (osucc.Shared is only published through the repo-local feed). -->
+    <ProjectReference Include="..\osucc.Shared\osucc.Shared.csproj" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

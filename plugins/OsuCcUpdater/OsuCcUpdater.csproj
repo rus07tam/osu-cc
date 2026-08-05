@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>OsuCcUpdater</AssemblyName>
+    <RootNamespace>OsuCcUpdater</RootNamespace>
+    <IsPlugin>true</IsPlugin>
+    <PluginId>osucc-updater</PluginId>
+    <PluginName>Updater</PluginName>
+    <PluginAuthor>osu-cc</PluginAuthor>
+    <PluginDescription>Checks the official osu-cc repository for a new build (a GitHub release bundle or a local dotnet build) and stages it; the osucc launcher applies the staged update on the next launch.</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <PluginIconGlyph>CloudDownloadAlt</PluginIconGlyph>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="osucc.Host" />
+    <PackageReference Include="osucc.Build" PrivateAssets="all" />
+    <PackageReference Include="ppy.osu.Game" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
+  </ItemGroup>
+
+</Project>

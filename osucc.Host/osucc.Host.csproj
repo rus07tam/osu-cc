@@ -19,6 +19,7 @@
     <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="ppy.osu.Game" />
     <PackageReference Include="SharpCompress" />
+    <ProjectReference Include="..\osucc.Shared\osucc.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

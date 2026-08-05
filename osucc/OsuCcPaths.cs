@@ -1,36 +1,14 @@
 namespace osucc.App;
 
 /// <summary>
-/// Resolves the paths osucc works with: the repo root (walk-up from the app base directory until
-/// <c>osucc.sln</c>), the osu! install dir, and the osu-cc data root (same logic as
-/// <c>osucc.Plugin.PluginDirectories</c>, so the hook finds what we deploy). The hook DLLs
-/// live in <c>&lt;osu-cc&gt;/hook</c>, never inside the osu install dir. <c>AppContext.BaseDirectory</c>
-/// is used instead of <c>Assembly.Location</c> because the latter is empty for single-file publishes.
+/// Resolves the paths the launcher works with: the osu! install dir and (via
+/// <see cref="Shared.OsuCcDataRootResolver"/>, the same logic the hook uses in-game) the osu-cc
+/// data root. The hook DLLs live in <c>&lt;osu-cc&gt;/hook</c>, never inside the osu install dir.
+/// <c>AppContext.BaseDirectory</c> is used instead of <c>Assembly.Location</c> because the latter
+/// is empty for single-file publishes.
 /// </summary>
 internal static class OsuCcPaths
 {
-    public const string OsuCcDirectoryName = "osu-cc";
-    public const string HookDirectoryName = "hook";
-    public const string PluginsDirectoryName = "plugins";
-
-    public static string? ResolveRepoRoot(string? overridePath)
-    {
-        if (!string.IsNullOrEmpty(overridePath))
-            return Path.GetFullPath(overridePath);
-
-        string? directory = AppContext.BaseDirectory;
-
-        while (directory != null)
-        {
-            if (File.Exists(Path.Combine(directory, "osucc.sln")))
-                return directory;
-
-            directory = Path.GetDirectoryName(directory);
-        }
-
-        return null;
-    }
-
     public static string ResolveOsuDirectory(string? overridePath)
     {
         if (!string.IsNullOrEmpty(overridePath))
@@ -124,84 +102,5 @@ internal static class OsuCcPaths
     {
         string name = OperatingSystem.IsWindows() ? "osu!.exe" : "osu!";
         return Path.Combine(osuDirectory, name);
-    }
-
-    /// <summary>Path of the osu-cc data root (same as <c>PluginDirectories.ResolveOsuCcDirectory()</c>).</summary>
-    public static string ResolveOsuCcDirectory()
-    {
-        string launcherDirectory = AppContext.BaseDirectory;
-
-        // Portable install: a framework.ini next to the launcher means osu keeps everything there.
-        if (launcherDirectory.Length > 0 && File.Exists(Path.Combine(launcherDirectory, "framework.ini")))
-            return Path.Combine(launcherDirectory, OsuCcDirectoryName);
-
-        foreach (string storagePath in userStoragePaths())
-        {
-            if (!Directory.Exists(storagePath))
-                continue;
-
-            foreach (string gameDirectory in Directory.GetDirectories(storagePath))
-            {
-                string osuCc = Path.Combine(gameDirectory, OsuCcDirectoryName);
-
-                if (Directory.Exists(osuCc))
-                    return osuCc;
-            }
-        }
-
-        foreach (string storagePath in userStoragePaths())
-        {
-            string path = Path.Combine(storagePath, "osu", OsuCcDirectoryName);
-
-            try
-            {
-                Directory.CreateDirectory(path);
-                return path;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"osucc: cannot create {path}: {ex.Message}");
-            }
-        }
-
-        return Path.Combine(userStoragePaths().First(), "osu", OsuCcDirectoryName);
-    }
-
-    public static string ResolveHookDirectory()
-        => Path.Combine(ResolveOsuCcDirectory(), HookDirectoryName);
-
-    public static string ResolvePluginsDirectory()
-        => Path.Combine(ResolveOsuCcDirectory(), PluginsDirectoryName);
-
-    /// <summary>Path of the hook's build output for a given configuration.</summary>
-    public static string ResolveHookOutput(string repoRoot, string config)
-        => Path.Combine(repoRoot, "osucc.Host", "bin", config, "net8.0");
-
-    /// <summary>Path of the osucc.dll startup hook that gets loaded by the game.</summary>
-    public static string ResolveHookDll(string hookDirectory)
-        => Path.Combine(hookDirectory, "osucc.dll");
-
-    private static IEnumerable<string> userStoragePaths()
-    {
-        if (OperatingSystem.IsWindows())
-            return new[]
-            {
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
-            };
-
-        var paths = new List<string>
-        {
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create),
-        };
-
-        if (OperatingSystem.IsMacOS())
-        {
-            string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-            if (home.Length > 0)
-                paths.Add(Path.Combine(home, ".local", "share"));
-        }
-
-        return paths;
     }
 }

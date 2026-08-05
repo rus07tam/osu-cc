@@ -80,12 +80,20 @@ These ship with the client and can be disabled from the plugins overlay:
 - **Debug overlay**: test panels for the notification and celebration systems.
 - **ExamplePlugin**: a reference implementation that demonstrates the plugin
   API. It is meant for developers; delete it if you do not need it.
+- **osu-cc Updater**: keeps the hook and the shipped plugins up to date without
+  touching the install. It downloads the latest runtime bundle from GitHub
+  releases, or builds it locally from the official repository (needs the .NET
+  SDK and git), stages it and applies it on the next launch. It runs from a
+  settings subsection, a toolbar button and a toggleable auto-check on startup.
+  Removing it does not remove the hook — it only stops automatic updates.
+
+The **osu-cc Updater** is the recommended way to update from now on.
 
 Planned:
 
 - webview browser
-- plugin browser & updater: find plugins and their metadata on GitHub, install
-  and update them from the plugins overlay.
+- plugin browser: find plugins and their metadata on GitHub, install and enable
+  them from the plugins overlay.
 - more username-colour conditionals: per-player manual overrides, osu!supporter,
   has badge X, is a friend
 - username font (also conditional, like the colours)
@@ -112,79 +120,79 @@ You need the .NET SDK 8.0 (download it from the
 [official website](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)) and
 osu!lazer installed.
 
-#### Windows
-
-The launcher finds osu! automatically in `%LOCALAPPDATA%\osulazer\current`.
-
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc\osucc.csproj -c Debug
-dotnet osucc\bin\Debug\net8.0\osucc.dll start
+cd osu-cc
+dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release
 ```
 
-The first `osucc start` builds the hook and the plugins, deploys them and starts osu!.
-
-#### Linux
-
-Every distro puts osu! somewhere different, so the launcher looks for it on
-`$PATH` first (that covers nixpkgs/NixOS, the AUR packages and most manual
-installs) and falls back to a few common locations afterwards. If yours is
-somewhere unusual, point at it with `--osu-dir`.
+This builds the hook and the plugins and produces a single runtime bundle,
+`artifacts/runtime/osucc-runtime-<version>.zip`. Deploying is just unpacking it
+into the game's `osu-cc` data folder (it contains `hook/` and `plugins/`):
 
 ```shell
-git clone https://github.com/rus07tam/osu-cc.git
-dotnet build osucc/osucc.csproj -c Debug
-dotnet osucc/bin/Debug/net8.0/osucc.dll start
+# Windows: %APPDATA%\osu\osu-cc ; Linux/macOS: ~/.local/share/osu/osu-cc
+unzip artifacts/runtime/osucc-runtime-1.0.0.zip -d <data>/osu-cc
 ```
 
-The first `osucc start` builds the hook and the plugins, deploys them and starts osu!.
+Then launch the game with the hook loaded:
 
-To update everything, pull the latest changes and run `osucc start` again:
-`git pull` rebuilds the hook and plugins, and `osucc start` redeploys them and
-launches the game.
+```shell
+dotnet osucc/bin/Release/net8.0/osucc.dll run
+```
+
+The first run also gives you the **osu-cc Updater** plugin, which handles all
+future updates in-game — rebuild the bundle (`dotnet build osucc.build.proj
+-t:PackRuntimeBundle -c Release`), or let it pull the latest from GitHub
+releases.
+
+If you point the hook's location with `--osu-dir`, remember it must be the
+osu! install that the data folder belongs to; the launcher only ever reads, it
+never writes into the install.
 
 ### Binaries (standalone, no build)
 
-No checkout or .NET SDK needed: the launcher is a self-contained binary that
-fetches the prebuilt hook and plugins itself. Available once the first public
-release (`v1.0.0`) is out.
+No checkout or .NET SDK needed. Available once the first public release
+(`v1.0.0`) is out.
 
-1. Download `osucc` (Linux) or `osucc.exe` (Windows) from the latest
-   [GitHub release](https://github.com/rus07tam/osu-cc/releases) and put it
-   somewhere on your `PATH` (`chmod +x osucc` on Linux).
-2. Fetch the hook and the shipped plugins:
+1. Download `osucc` (Linux) or `osucc.exe` (Windows) **and**
+   `osucc-runtime-<version>.zip` from the latest
+   [GitHub release](https://github.com/rus07tam/osu-cc/releases); put the
+   binary somewhere on your `PATH` (`chmod +x osucc` on Linux).
+2. Deploy the runtime bundle by unpacking it into the game's `osu-cc` data
+   folder (it creates `hook/` and `plugins/`):
 
    ```shell
-   osucc update
+   # Windows: %APPDATA%\osu\osu-cc ; Linux/macOS: ~/.local/share/osu/osu-cc
+   unzip osucc-runtime-1.0.0.zip -d <data>/osu-cc
    ```
-
-   This pulls `osucc.dll` and its runtime dependencies from nuget.org and drops
-   the plugin archives from the same release into the data folder; the game
-   unpacks them on the next launch.
 3. Start the game:
 
    ```shell
    osucc run
    ```
 
-Run `osucc update` again whenever you want the latest hook and plugins;
-`osucc update --launcher` also replaces the launcher binary itself.
+The in-game **osu-cc Updater** keeps everything up to date from then on
+(rebuild locally or pull the newest release). If there is no hook deployed yet,
+`osucc run` / `osucc start` refuse to start and point you at the release —
+the launcher never installs anything on its own.
 
 ## Commands
 
 Bare `osucc` prints the help; every action is an explicit subcommand:
 
-| Command        | What it does                                |
-| ---            | ---                                         |
-| `osucc build`  | build the hook and the plugins              |
-| `osucc deploy` | copy the hook and plugins into the data folder |
-| `osucc run`    | launch osu! with the already-deployed hook  |
-| `osucc start`  | build + deploy + run                        |
-| `osucc update` | pull the latest hook + plugins (add `--launcher` to also update osucc itself) |
-| `osucc clean`  | remove the hook files                       |
-| `osucc status` | show where everything is                    |
+| Command            | What it does                                |
+| ---                | ---                                         |
+| `osucc run`        | launch osu! with the deployed hook, applying a staged update first if one is waiting |
+| `osucc start`      | alias for `osucc run`                       |
+| `osucc status`     | show the osu install, data root, hook version, plugins and any staged update |
 
-Options: `--osu-dir <path>`, `--repo <path>`, `-c|--config <Debug|Release>`, `--no-build`.
+Options: `--osu-dir <path>`, `--verbose|-v`.
+
+The launcher is deliberately minimal: it **never builds** and **never writes**
+to the install. If the hook is missing it fails with a message pointing at the
+runtime bundle. Keep the hook and plugins current from inside the game with the
+**osu-cc Updater** plugin instead.
 
 ## Development
 

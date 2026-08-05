@@ -1,11 +1,17 @@
 <Project DefaultTargets="Build">
 
+  <!-- Classic (non-SDK) project, so Directory.Packages.props is not auto-imported; pull in the
+       central OsuCcVersion the bundle name and package versions read. -->
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Packages.props" />
+
   <!--
-    Single MSBuild entry point for `osucc build`: packs the distributable packages (osucc.Host /
-    osucc.Build, the osucc dotnet tool and the osucc.Templates package) into the repo-local feed,
-    clears stale global-cache copies so the plugin restores resolve the freshly packed nupkgs, then
-    builds the hook and all plugins in one MSBuild process (parallel, one restore graph).
-    `osucc build` is just `dotnet build` on this file; the old per-project loop in the launcher is gone.
+    Single MSBuild entry point for building osu-cc from source: packs the distributable packages
+    (osucc.Host / osucc.Build, the osucc dotnet tool and the osucc.Templates package) into the
+    repo-local feed, clears stale global-cache copies so the plugin restores resolve the freshly
+    packed nupkgs, then builds the hook and all plugins in one MSBuild process (parallel, one
+    restore graph). The official build pipeline used by CI and by the in-game updater plugin's
+    local-build source; `dotnet build` on this file is the whole build, and the optional
+    `-t:PackRuntimeBundle` target additionally assembles the distributable runtime bundle.
   -->
 
   <PropertyGroup>
@@ -16,7 +22,9 @@
 
   <ItemGroup>
     <!-- Everything that gets packed into the local feed: the plugin API + build helpers, the
-         dotnet-tool launcher and the dotnet new template package. -->
+         shared layout/version library, the dotnet-tool launcher and the dotnet new template
+         package. -->
+    <PackageProject Include="$(OsuCcRoot)osucc.Shared/osucc.Shared.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
     <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
@@ -67,6 +75,40 @@
          Exists-guarded osucc.Build.targets import. -->
     <MSBuild Projects="@(BuildProject)" BuildInParallel="true"
              Properties="Configuration=$(Configuration);OsuCcPluginBuildSession=1" />
+  </Target>
+
+  <!--
+    Assembles the distributable runtime bundle: the hook payload (osucc.dll + its runtime blobs)
+    under hook/ and every plugin archive under plugins/, zipped as
+    artifacts/runtime/osucc-runtime-<OsuCcVersion>.zip. This is the single artifact both the CI
+    GitHub release and the in-game updater plugin's GitHub source work with, so the updater
+    downloads exactly what a local build produced. Invoked as
+    `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`.
+  -->
+  <Target Name="PackRuntimeBundle" DependsOnTargets="Build">
+    <PropertyGroup>
+      <RuntimeStaging>$(OsuCcRoot)artifacts/runtime/staging</RuntimeStaging>
+      <RuntimeArchive>$(OsuCcRoot)artifacts/runtime/osucc-runtime-$(OsuCcVersion).zip</RuntimeArchive>
+      <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
+    </PropertyGroup>
+
+    <Error Condition="!Exists('$(HookOutput)/osucc.dll')" Text="Hook payload missing: $(HookOutput)/osucc.dll not found (build osucc.Host first in $(Configuration))." />
+
+    <ItemGroup>
+      <_HookPayload Include="$(HookOutput)/osucc.dll" />
+      <_HookPayload Include="$(HookOutput)/0Harmony.dll" />
+      <_HookPayload Include="$(HookOutput)/SharpCompress.dll" />
+      <_HookPayload Include="$(HookOutput)/osucc.Shared.dll" />
+      <_PluginArchive Include="$(OsuCcRoot)plugins/*/bin/$(Configuration)/net8.0/*.zip" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(RuntimeStaging)" />
+    <MakeDir Directories="$(RuntimeStaging)/hook;$(RuntimeStaging)/plugins" />
+    <Copy SourceFiles="@(_HookPayload)" DestinationFolder="$(RuntimeStaging)/hook" />
+    <Copy SourceFiles="@(_PluginArchive)" DestinationFolder="$(RuntimeStaging)/plugins" />
+    <ZipDirectory SourceDirectory="$(RuntimeStaging)" DestinationFile="$(RuntimeArchive)" Overwrite="true" />
+    <RemoveDir Directories="$(RuntimeStaging)" />
+    <Message Text="Runtime bundle: $(RuntimeArchive)" Importance="high" />
   </Target>
 
 </Project>

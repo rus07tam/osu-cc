@@ -7,6 +7,8 @@
 ## Структура
 
 ```plaintext
+osucc.Shared/   общая логика layout/версий/стейджинга (namespace osucc.Common), единый источник
+                правды для лаунчера, хука и апдейтера
 osucc.Host/     DLL стартап-хука (classlib, net8.0), он же NuGet-пакет osucc.Host
   StartupHook.cs     точка входа, которую вызывает рантайм
   Core/              бутстраппер, рефлексия, логирование
@@ -14,8 +16,8 @@ osucc.Host/     DLL стартап-хука (classlib, net8.0), он же NuGet-
   Patches/           Harmony-патчи
   UI/                оверлеи, секция настроек, мод-UI
   Plugin/            менеджер плагинов и host API
-osucc/          лаунчер CLI (build / deploy / run / start / clean / status)
-plugins/        встроенные плагины (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
+osucc/          лаунчер CLI (только run / start / status — ничего не собирает, не пишет в установку)
+plugins/        встроенные плагины (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, OsuCcUpdater, SubdivideNations, UsernameVisuals)
 docs/           скриншоты (assets/), доки по языкам (en/, ru/)
 ```
 
@@ -101,6 +103,15 @@ instance-члены базовых классов. Читайте их чере�
 (`plugins/`), где менеджер распаковывает каждый в папку, названную по `Id`
 плагина. Отключённые плагины остаются в списке оверлея, но не грузятся.
 
+Плагин **osu-cc Updater** (`plugins/OsuCcUpdater`) особенный только тем, что
+делает, а не как устроен: это обычный плагин с подсекцией настроек и кнопкой на
+тулбаре. Он держит хук и встроенные плагины актуальными: получает рантайм-бандл
+— из GitHub releases или собирая его локально из официального репозитория —
+стейджит его в `<данные>/osu-cc/staging/` рядом с маркером `update.json`
+(`UpdateMarker` из `osucc.Shared`), а лаунчер применяет его при следующем
+запуске (запущенная игра держит файлы `hook/` в Windows, поэтому обновление
+можно подменить только на следующем старте).
+
 ### Lifecycle-хуки и миграции данных
 
 Поверх `Load` / `AttachToGame` плагин может реализовать опциональные интерфейсы,
@@ -130,46 +141,56 @@ instance-члены базовых классов. Читайте их чере�
 ## Сборка и запуск
 
 ```shell
-dotnet build osucc/osucc.csproj -c Debug
-dotnet osucc/bin/Debug/net8.0/osucc.dll start       # build + deploy + run
+dotnet build osucc.build.proj -c Debug        # хук + плагины (+ локальный NuGet-фид)
+dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release   # artifacts/runtime/osucc-runtime-<версия>.zip
+dotnet osucc/bin/Debug/net8.0/osucc.dll status # где что лежит / куда пойдёт
+dotnet osucc/bin/Debug/net8.0/osucc.dll run    # запуск osu! с развёрнутым хуком
 ```
 
-`osucc build` делегирует в единую MSBuild-точку входа `osucc.build.proj`: он пакует
-`osucc.Host` / `osucc.Build` / `osucc` (dotnet tool) / `osucc.Templates` в репозиторий-локальный
-фид (`artifacts/nuget`), чистит их устаревшие копии в глобальном NuGet-кэше, затем собирает хук и
-все `plugins/*/*.csproj` в одном параллельном MSBuild-процессе. Все четыре
-дистрибутивных пакета разделяют одну версию (`OsuCcVersion`), централизованную в
+`osucc.build.proj` это единая MSBuild-точка входа: он пакует
+`osucc.Host` / `osucc.Build` / `osucc` (dotnet tool) / `osucc.Shared` /
+`osucc.Templates` в репозиторий-локальный фид (`artifacts/nuget`), чистит их
+устаревшие копии в глобальном NuGet-кэше, затем собирает хук и все
+`plugins/*/*.csproj` в одном параллельном MSBuild-процессе. Все дистрибутивные
+пакеты разделяют одну версию (`OsuCcVersion`), централизованную в
 `Directory.Packages.props` (CPM), поэтому бамп версии это одна правка.
 
-`osucc deploy` копирует `osucc.dll`, `0Harmony.dll` и `SharpCompress.dll` в
-`<данные osu-cc>/hook/` и архивы плагинов в `plugins/`. NuGet-копии `osu.*` из
-`bin` сознательно **не** деплоятся, так как они перезапишут продакшн-сборки.
+`PackRuntimeBundle` собирает деплоимый вывод в один zip: `osucc.dll`,
+`0Harmony.dll`, `SharpCompress.dll` и `osucc.Shared.dll` в `hook/`, плюс каждый
+архив плагина в `plugins/`. NuGet-копии `osu.*` из `bin` сознательно **не**
+включаются, так как они перезапишут продакшн-сборки. Деплой — это распаковка
+этого бандла в папку данных (`hook/` + `plugins/`), что ровно и делает плагин
+апдейтера при стейджинге и что делают вручную при свежей установке.
 
-Сборка требует локального чекаута: лаунчер находит репозиторий, поднимаясь от своего
-расположения до `osucc.sln` (`--repo` переопределяет). Команды, которые не компилируют
-(`run`, `status`, `clean`), работают без чекаута; `osucc run` запускает уже
-задеплоенный хук и вообще не трогает репозиторий.
+Лаунчер (`osucc run` / `osucc start` / `osucc status`) ничего из этого не делает:
+он находит установку osu! и корень данных, применяет отложенное обновление,
+если оно ждёт, и запускает игру. Если хука нет, он завершается с ошибкой и
+указывает на рантайм-бандл — он никогда не собирает и не пишет в установку, так
+что работает без чекаута и не может ничего испортить. Резолв путей живёт в
+`osucc/OsuCcPaths.cs` и общем `OsuCcDataRootResolver`; канонические имена
+layout — в `osucc.Shared/OsuCcLayout.cs`.
 
-### Обновление без сборки
+### Обновление из игры
 
-`osucc update` держит хук и плагины актуальными без чекаута, забирая готовые
-артефакты из публичных фидов:
+Обновление происходит в игре через плагин **osu-cc Updater**, а не через лаунчер:
 
-- хук: последний пакет `osucc.Host` с nuget.org — flat-container API возвращает
-  новейшую стабильную версию, затем nupkg распаковывается в
-  `<данные osu-cc>/hook/` вместе с его рантайм-зависимостями (`Lib.Harmony` →
-  `0Harmony.dll`, `SharpCompress`), версии которых читаются из собственного nuspec пакета;
-- плагины: zip-ассеты последнего GitHub release (их прикладывает CI)
-  скачиваются в `<данные osu-cc>/plugins/`, где встроенный `PluginPackageStore`
-  распакует их при следующем запуске;
-- лаунчер (`--launcher`): глобальный dotnet tool выполняет `dotnet tool update`,
-  standalone-бинарник заменяется на release-сборку той же ОС (Windows откладывает
-  замену в отдельный скрипт, потому что работающий exe заблокирован).
+- **GitHub-бандл (по умолчанию):** плагин спрашивает у репозитория последний
+  GitHub release, ищет в нём ассет `osucc-runtime-<версия>.zip` и скачивает его
+  во временный файл.
+- **Локальная сборка:** плагин клонирует (или фетчит) официальный репозиторий в
+  `<данные>/osu-cc/src/osu-cc`, чекаутит новейший версионный тег и выполняет
+  `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`, получая тот
+  же бандл. Нужны .NET SDK и git на машине.
 
-`osucc update` пропускает хук, если задеплоенный `osucc.dll` уже несёт последнюю
-версию, и всегда качает архивы плагинов из последнего GitHub release (они малы и
-идемпотентны). Если в последнем релизе нет ни одного архива плагинов, команда
-возвращает ошибку — сломанный релиз не остаётся молчаливым no-op.
+В любом случае бандл распаковывается в `<данные>/osu-cc/staging/` (только
+верхнеуровневые `hook/` и `plugins/`, с защитой от zip-slip) и пишется маркер
+`update.json` с версией, источником и временем. При **следующем** запуске osu!
+стейдженные файлы накладываются поверх `hook/` и `plugins/`, а `staging/`
+удаляется — запущенная игра держит файлы хука в Windows, так что замена на
+лету невозможна. `osucc status` показывает ждущее отложенное обновление, а
+подсекция настроек и кнопка апдейтера показывают текущую / последнюю /
+стейдженную версии. Автопроверка запускается при старте и ограничена одним
+разом в шесть часов; она уведомляет, но никогда не стейджит сама.
 
 ### Standalone-исполняемые файлы
 
@@ -182,18 +203,20 @@ dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publ
 ```
 
 `PublishTrimmed` выключен (резолвер путей опирается на `AppContext.BaseDirectory`, который пуст
-при unsafed-для-тримминга reflection). Standalone-бинарник без чекаута может `osucc run`
-уже задеплоенного хука.
+при unsafed-для-тримминга reflection). Standalone-бинарник без чекаута может `osucc run` уже
+задеплоенного хука или `osucc status`.
 
 ### Публикация на NuGet
 
-Всё, что нужно для дистрибуции, `osucc build` кладёт в `artifacts/nuget`:
+Всё, что нужно для дистрибуции, `dotnet build osucc.build.proj` кладёт в `artifacts/nuget`:
 
 - `osucc.Host` — API плагинов (и сама сборка хука);
 - `osucc.Build` — общие MSBuild props/targets для плагинов;
 - `osucc` — лаунчер как [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc` ставит `PackAsTool`), поэтому `osucc status` / `run` работают без чекаута
-  и сборки (`start`/`deploy` всё ещё требуют репозиторий);
+  (`osucc` ставит `PackAsTool`), поэтому `osucc status` / `run` / `start` работают без чекаута
+  и сборки;
+- `osucc.Shared` — общая логика layout/версий, подтягивается плагинами с NuGet (код лежит в
+  проекте `osucc.Shared`, namespace `osucc.Common`);
 - `osucc.Templates` — `dotnet new osucc-plugin`, создающий standalone-репо плагина, идентичное
   плагинам монорепа.
 
@@ -212,14 +235,16 @@ dotnet new osucc-plugin -n MyPlugin -o /tmp/MyPlugin && dotnet build /tmp/MyPlug
 
 `.github/workflows/ci.yml` запускается на каждый push и PR, а также на теги `v*`:
 
-- **build** и **build-windows** собирают хук, плагины и четыре NuGet-пакета (`osucc build`
-  в Release), гейт на `dotnet format --verify-no-changes` и публикуют standalone-лаунчеры.
-  Всё прикрепляется как CI-artifacts: файлы `.nupkg`, архивы плагинов `.zip` и бинарники
-  `linux-x64` / `win-x64`.
-- **publish** работает только на тегах `v*`: пушит четыре пакета на nuget.org через
+- **build** и **build-windows** собирают хук, плагины и NuGet-пакеты
+  (`dotnet build osucc.build.proj` в Release), гейт на `dotnet format --verify-no-changes`,
+  публикуют standalone-лаунчеры и выполняют `PackRuntimeBundle`, получая единый
+  рантайм-zip. Всё прикрепляется как CI-artifacts: файлы `.nupkg`, архивы плагинов
+  `.zip`, бинарники `linux-x64` / `win-x64` и бандл `osucc-runtime-*.zip`.
+- **publish** работает только на тегах `v*`: пушит пакеты на nuget.org через
   **trusted publishing** (OIDC — джоба получает `id-token: write` и обменивает GitHub-токен
   на короткоживущий API-ключ через `NuGet/login@v1`, никаких секретов в репозитории)
-  и создаёт GitHub Release со всеми ассетами. Политика доверия настраивается один раз на
+  и создаёт GitHub Release со всеми ассетами, включая рантайм-бандл, который тянет плагин
+  апдейтера. Политика доверия настраивается один раз на
   nuget.org (`account/trustedpublishing`, owner `rus07tam`, repo `osu-cc`).
 
 Релиз: бампните `OsuCcVersion` в `Directory.Packages.props` (все пакеты её разделяют)
