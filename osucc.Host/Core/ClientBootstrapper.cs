@@ -25,11 +25,6 @@ namespace osucc.Core
                 ("Player.ImportScore", PlayerImportScorePatch.Install),
                 ("SoloPlayer.CreateTokenRequest", SoloScoreSubmissionPatch.Install),
                 ("Toolbar.load", ToolbarLoadPatch.Install),
-                ("APIRequest.Perform", APIRequestPerformPatch.Install),
-                ("LocalUserState.SetLocalUser", LocalUserStateSetLocalUserPatch.Install),
-                ("LocalUserState.ClearLocalUser", LocalUserStateClearLocalUserPatch.Install),
-                ("SupporterIcon.set_SupportLevel", SupporterIconSupportLevelPatch.Install),
-                ("ToolbarUserButton.load", ToolbarUserButtonLoadPatch.Install),
                 ("Panel.PrepareForUse", PanelPrepareForUsePatch.Install),
                 ("PaginatedBeatmapContainer.load", PaginatedBeatmapContainerLoadPatch.Install),
             };

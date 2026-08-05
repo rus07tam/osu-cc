@@ -43,6 +43,10 @@ namespace osucc.UI.Overlays
         private const double fadeInDuration = 400;
         private const double fadeOutDuration = 500;
 
+        // Depth raised while shown so this overlay renders above the game's own (depth-0) overlays
+        // in the shared overlayContent layer. Negative so it is always in front of them.
+        private const float showDepth = -1;
+
         [Cached]
         public OverlayColourProvider ColourProvider { get; }
 
@@ -163,6 +167,12 @@ namespace osucc.UI.Overlays
                 }
             }
 
+            // The game places all full-screen overlays in the single overlayContent container; ours
+            // are registered early, so without this they would sit at the bottom of that layer and
+            // render behind any other visible overlay. Raising the depth keeps the freshly opened
+            // overlay on top (lower depth = drawn in front).
+            (Parent as Container)?.ChangeChildDepth(this, showDepth);
+
             this.FadeIn(fadeInDuration, Easing.OutQuint);
             Header.MoveToY(0, fadeInDuration, Easing.OutQuint);
         }
@@ -170,6 +180,8 @@ namespace osucc.UI.Overlays
         protected override void PopOut()
         {
             base.PopOut();
+            (Parent as Container)?.ChangeChildDepth(this, 0);
+
             this.FadeOut(fadeOutDuration, Easing.OutQuint);
             Header.MoveToY(-Header.DrawHeight, fadeOutDuration, Easing.OutQuint);
 

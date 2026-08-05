@@ -7,6 +7,11 @@
     <AssemblyName>FriendsLeaderboard</AssemblyName>
     <RootNamespace>FriendsLeaderboard</RootNamespace>
     <IsPlugin>true</IsPlugin>
+    <PluginId>friends-leaderboard</PluginId>
+    <PluginName>Friends Leaderboard</PluginName>
+    <PluginAuthor>osu-cc</PluginAuthor>
+    <PluginDescription>Shows the friend leaderboard without an osu!supporter tag by aggregating each friend's best score client-side.</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
   </PropertyGroup>
 
   <ItemGroup>

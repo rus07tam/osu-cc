@@ -15,14 +15,6 @@ namespace ExamplePlugin
     /// that API via <c>Host.GetApi&lt;IUsernameVisualsApi&gt;</c>. Because the dependency is
     /// soft, a missing/disabled exporting plugin is handled by the consumer's null-check.
     /// </summary>
-    [OsuCcPlugin(
-        "example",
-        "Example Plugin",
-        100,
-        Author = "osu-cc",
-        Description = "Demonstrates the osu!cc plugin API: toolbar button, notifications, celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.",
-        Version = "1.0.0",
-        DependsOn = new[] { "username-visuals" })]
     public class ExamplePlugin : OsuCcPluginBase
     {
         private const string PluginVersion = "1.0.0";

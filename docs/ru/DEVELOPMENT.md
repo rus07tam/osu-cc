@@ -15,7 +15,7 @@ osucc.Host/     DLL стартап-хука (classlib, net8.0), он же NuGet-
   UI/                оверлеи, секция настроек, мод-UI
   Plugin/            менеджер плагинов и host API
 osucc/          лаунчер CLI (build / deploy / run / start / clean / status)
-plugins/        встроенные плагины (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
+plugins/        встроенные плагины (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           скриншоты (assets/), доки по языкам (en/, ru/)
 ```
 
@@ -37,8 +37,16 @@ instance-члены базовых классов. Читайте их чере�
 
 ## Плагины
 
-Плагин это classlib с типом, помеченным `[OsuCcPlugin]`. Рабочий пример:
-`plugins/ExamplePlugin`. Через `IOsuCcPluginHost` плагин может:
+Плагин это classlib, реализующий `IOsuCcPlugin` (или наследующий `OsuCcPluginBase`).
+Рабочий пример: `plugins/ExamplePlugin`. Метаданные плагина объявляются в **проектном
+файле**, а не в коде: сборка превращает свойства `PluginId` / `PluginName` /
+`PluginAuthor` / `PluginDescription` / `PluginVersion` / `PluginPriority`, значения
+`PluginIcon` (файл-картинка), `PluginIconGlyph` (имя FontAwesome) и `PluginIconResource`
+(встроенный ресурс), а также элементы `PluginDependency` в assembly-уровневый атрибут
+`[OsuCcPlugin]` (генерируется в `obj/PluginMetadata.g.cs`), который менеджер читает при
+обнаружении. Legacy-архивы, где атрибут лежит на классе плагина, по-прежнему
+обнаруживаются, но с предупреждением о deprecation. Через `IOsuCcPluginHost` плагин
+может:
 
 - добавлять кнопки на тулбар (`AddToolbarButton(factory, placement, layoutPosition)`)
 - добавлять подсекции настроек
@@ -78,8 +86,8 @@ instance-члены базовых классов. Читайте их чере�
 Экспортируйте в `Load`, чтобы другие плагины видели API в своём `Load` (порядок —
 через `Priority`) или в `AttachToGame`; `GetApi` безопасно вызывать из `AttachToGame`.
 
-Зависимости объявляются в `[OsuCcPlugin]` через
-`DependsOn = new[] { "plugin-id" }`. Разрешитель зависимостей гарантирует, что
+Зависимости объявляются в проектном файле через
+`<PluginDependency Include="plugin-id" />`. Разрешитель зависимостей гарантирует, что
 зависимый плагин грузится (и подключается) после своих зависимостей; когда ни
 одна зависимость не требует иного порядка, порядок `Priority` сохраняется как
 есть, так что система приоритетов продолжает работать (порядок отображения в
@@ -87,7 +95,7 @@ instance-члены базовых классов. Читайте их чере�
 Зависимости **мягкие**: отсутствующий или отключённый плагин-зависимость лишь
 логирует предупреждение, а плагин грузится как обычно — `GetApi` вернёт `null`,
 и потребитель должен это обрабатывать как и раньше. `ExamplePlugin` объявляет
-зависимость на `username-visuals` как эталонный пример (см. его атрибут).
+зависимость на `username-visuals` как эталонный пример (см. его csproj).
 
 Плагины поставляются как zip-архивы. Лаунчер кладёт их в папку данных osu-cc
 (`plugins/`), где менеджер распаковывает каждый в папку, названную по `Id`
@@ -116,8 +124,8 @@ instance-члены базовых классов. Читайте их чере�
 Последняя виденная версия (`version.<id>`) и схема (`schema.<id>`) персистятся в
 `plugin-states.ini` рядом с папкой плагинов; обе записи стираются при удалении
 плагина, поэтому повторная установка снова вызовет `OnInstall`. Дифф версий
-сравнивает атрибут `Version` из `[OsuCcPlugin]`, поэтому бампайте его при каждом релизе,
-меняющем поведение или данные, иначе `OnUpdate` не сработает.
+сравнивает `PluginVersion`, объявленный в проектном файле, поэтому бампайте его при каждом
+релизе, меняющем поведение или данные, иначе `OnUpdate` не сработает.
 
 ## Сборка и запуск
 

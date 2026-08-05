@@ -11,6 +11,8 @@ using osucc.Localisation;
 using osucc.Plugin;
 using osuTK;
 using osuTK.Graphics;
+using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace osucc.UI.Plugins
 {
@@ -21,8 +23,9 @@ namespace osucc.UI.Plugins
     internal static class PluginCardLayout
     {
         /// <summary>
-        /// Builds the plugin icon. Precedence: plugin-provided FontAwesome icon, folder icon,
-        /// embedded IconResource, generic puzzle-piece fallback.
+        /// Builds the plugin icon. Precedence: plugin-provided FontAwesome icon, FontAwesome icon
+        /// declared in the plugin attribute, folder icon, embedded IconResource, generic
+        /// puzzle-piece fallback.
         /// </summary>
         public static Drawable CreateIcon(PluginEntry entry, float size, out SpriteIcon? fallbackIcon)
         {
@@ -30,6 +33,9 @@ namespace osucc.UI.Plugins
 
             if (entry.Plugin is IOsuCcIconProvider { Icon: { } usage })
                 return createIcon(usage, size);
+
+            if (ResolveFontAwesomeIcon(entry.Icon) is { } declaredIcon)
+                return createIcon(declaredIcon, size);
 
             if (!string.IsNullOrEmpty(entry.IconPath))
             {
@@ -58,6 +64,50 @@ namespace osucc.UI.Plugins
             Icon = usage,
             Colour = Color4.White,
         };
+
+        private static readonly ConcurrentDictionary<string, IconUsage?> fontAwesomeIconLookup = new();
+
+        /// <summary>
+        /// Resolves a FontAwesome glyph by name (e.g. <c>"FillDrip"</c>, <c>"solid/fill-drip"</c>,
+        /// <c>"fa-solid-fill-drip"</c>) across the solid, regular and brands families. Cached via
+        /// reflection on the static properties of <see cref="FontAwesome"/>.
+        /// </summary>
+        public static IconUsage? ResolveFontAwesomeIcon(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            string key = name.Trim().Replace(" ", "-", StringComparison.Ordinal);
+            if (fontAwesomeIconLookup.TryGetValue(key, out var cached))
+                return cached;
+
+            var resolved = resolveFontAwesomeIcon(key);
+            fontAwesomeIconLookup.TryAdd(key, resolved);
+            return resolved;
+        }
+
+        private static IconUsage? resolveFontAwesomeIcon(string key)
+        {
+            foreach (var family in new[] { typeof(FontAwesome.Solid), typeof(FontAwesome.Regular), typeof(FontAwesome.Brands) })
+            {
+                foreach (var property in family.GetProperties(BindingFlags.Public | BindingFlags.Static))
+                {
+                    if (property.PropertyType != typeof(IconUsage) || property.GetValue(null) is not IconUsage usage)
+                        continue;
+
+                    string familyName = family.Name;
+                    string propertyName = property.Name;
+
+                    if (string.Equals(propertyName, key, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals($"{familyName}/{propertyName}", key, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals($"{familyName}-{propertyName}", key, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals($"fa-{familyName}-{propertyName}", key, StringComparison.OrdinalIgnoreCase))
+                        return usage;
+                }
+            }
+
+            return null;
+        }
 
         private static Sprite createTextureIcon(Texture texture, float size)
         {

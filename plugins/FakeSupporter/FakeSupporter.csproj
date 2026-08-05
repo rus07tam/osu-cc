@@ -4,15 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>SubdivideNations</AssemblyName>
-    <RootNamespace>SubdivideNations</RootNamespace>
+    <AssemblyName>FakeSupporter</AssemblyName>
+    <RootNamespace>FakeSupporter</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>subdivide-nations</PluginId>
-    <PluginName>Subdivide Nations</PluginName>
+    <PluginId>fake-supporter</PluginId>
+    <PluginName>Fake Supporter</PluginName>
     <PluginAuthor>osu-cc</PluginAuthor>
-    <PluginDescription>Shows each user's sub-national region on profiles and user cards.</PluginDescription>
+    <PluginDescription>Fakes the current player's osu!supporter tag (level 1–10) everywhere, plus per-user supporter overrides and a public rule API.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
-    <PluginIcon>icon.png</PluginIcon>
+    <PluginIconGlyph>Heart</PluginIconGlyph>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Regions.json" />
     <EmbeddedResource Include="Localisation/*.json" />
   </ItemGroup>
 

@@ -15,7 +15,7 @@ osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuG
   UI/                overlays, settings section, mod UI
   Plugin/            plugin manager and the host API
 osucc/          the launcher CLI (build / deploy / run / start / clean / status)
-plugins/        the built-in plugins (ExamplePlugin, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
+plugins/        the built-in plugins (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, SubdivideNations, UsernameVisuals)
 docs/           screenshots (assets/), per-language docs (en/, ru/)
 ```
 
@@ -37,8 +37,15 @@ walk `BaseType`.
 
 ## Plugins
 
-A plugin is a classlib with a type marked `[OsuCcPlugin]`; see
-`plugins/ExamplePlugin` for a working example. Through `IOsuCcPluginHost` a
+A plugin is a classlib that implements `IOsuCcPlugin` (or extends `OsuCcPluginBase`);
+see `plugins/ExamplePlugin` for a working example. Plugin metadata is declared in the
+**project file**, never in source: the build turns the `PluginId` / `PluginName` /
+`PluginAuthor` / `PluginDescription` / `PluginVersion` / `PluginPriority` properties,
+the `PluginIcon` (image file), `PluginIconGlyph` (FontAwesome name) and
+`PluginIconResource` (embedded resource) values, and the `PluginDependency` items into an
+assembly-level `[OsuCcPlugin]` manifest (generated into `obj/PluginMetadata.g.cs`), which
+the manager reads at discovery. Legacy archives whose attribute lives on the plugin class
+are still discovered, with a deprecation log. Through `IOsuCcPluginHost` a
 plugin can:
 
 - add toolbar buttons (`AddToolbarButton(factory, placement, layoutPosition)`)
@@ -77,15 +84,15 @@ touches the contract type.
 Export in `Load` so other plugins see it in their own `Load` (order via
 `Priority`) or in `AttachToGame`; `GetApi` is always safe from `AttachToGame`.
 
-Dependencies are declared on `[OsuCcPlugin]` with
-`DependsOn = new[] { "plugin-id" }`. The dependency resolver guarantees a
+Dependencies are declared in the project file with
+`<PluginDependency Include="plugin-id" />` items. The dependency resolver guarantees a
 dependency loads (and attaches) before the dependent plugin; when no dependency
 forces an order, the `Priority` order is preserved exactly, so the priority
 system keeps working (the overlay's display order stays purely priority-based,
 reordering arrows are unaffected). Dependencies are **soft**: a missing or
 disabled dependency only logs a warning, and the plugin still loads — `GetApi`
 returns `null`, which the consumer must handle as before. `ExamplePlugin`
-declares a dependency on `username-visuals` as the reference (see its attribute).
+declares a dependency on `username-visuals` as the reference (see its csproj).
 
 Plugins are shipped as zip archives. The launcher drops them into the osu-cc
 data folder (`plugins/`), where the manager extracts each one into a folder
@@ -115,7 +122,7 @@ react to install/uninstall/update events and version its persisted data:
 The last-seen version (`version.<id>`) and schema (`schema.<id>`) are persisted in
 `plugin-states.ini` next to the plugins folder; both are cleared when a plugin is
 removed, so a re-install fires `OnInstall` again. Version diffs compare the
-`[OsuCcPlugin]` `Version` attribute, so bump it on every release that changes
+`<PluginVersion>` declared in the project file, so bump it on every release that changes
 behaviour or data, otherwise `OnUpdate` will not fire.
 
 ## Build & run

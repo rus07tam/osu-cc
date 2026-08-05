@@ -10,12 +10,6 @@ namespace osuccDebug
     /// and the full-screen debug overlay through the plugin API, demonstrating blocking-overlay
     /// registration from a plugin.
     /// </summary>
-    [OsuCcPlugin(
-        "osucc-debug",
-        "Debug Overlay",
-        Author = "osu-cc debug",
-        Description = "The debug overlay: customised test overlays and notifications.",
-        Version = "1.0.0")]
     public class osuccDebugPlugin : IOsuCcPlugin, IOsuCcIconProvider
     {
         private IOsuCcPluginHost host = null!;

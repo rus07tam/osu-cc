@@ -49,7 +49,7 @@ namespace UsernameVisuals
         private const int userPreferencePriority = 1_000_000;
 
         /// <summary>The singleton the plugin exports and its own username texts resolve through.</summary>
-        public static UsernameVisualsApi Instance { get; internal set; } = null!;
+        public static UsernameVisualsApi? Instance { get; internal set; }
 
         private static readonly JsonSerializerOptions jsonOptions = new()
         {

@@ -1,0 +1,22 @@
+{
+  "fake-supporter:name": "Фейковий osu!supporter",
+  "fake-supporter:description": "Візуально показує поточного гравця з тегом osu!supporter (рівень 1–10) усюди, плюс перевизначення для окремих гравців і відкритий API правил.",
+  "fake-supporter:EnabledCaption": "Фейковий osu!supporter",
+  "fake-supporter:EnabledHint": "Візуально показує поточного гравця з тегом osu!supporter (з обраним рівнем) усюди — профіль, лідерборди, скори, чат. Лише локальна косметика: на сервери нічого не надсилається. Перевизначення для гравців і правила плагінів працюють і при вимкненому перемикачі.",
+  "fake-supporter:LevelCaption": "Рівень фейкового сапортера",
+  "fake-supporter:LevelHint": "Скільки сердечок показує фейковий тег сапортера (1–10).",
+  "fake-supporter:UserOverridesSectionCaption": "Перевизначення для гравців",
+  "fake-supporter:UserOverrideIdCaption": "ID гравця",
+  "fake-supporter:UserOverrideIdPlaceholder": "osu! ID гравця",
+  "fake-supporter:UserOverrideModeCaption": "Режим",
+  "fake-supporter:UserOverrideModeHint": "Примусово задає стан сапортера цього гравця усюди: показувати з тегом сапортера або примусово показати реальний (не сапортер) стан.",
+  "fake-supporter:UserOverrideLevelCaption": "Рівень (1–10)",
+  "fake-supporter:UserOverrideLevelPlaceholder": "Необов'язковий рівень",
+  "fake-supporter:UserOverrideApplyButtonText": "Застосувати",
+  "fake-supporter:UserOverridesListCaption": "Поточні перевизначення",
+  "fake-supporter:NoUserOverrides": "Перевизначень для гравців поки немає.",
+  "fake-supporter:OverrideModeSupporter": "Сапортер",
+  "fake-supporter:OverrideModeNotSupporter": "Не сапортер",
+  "fake-supporter:UserOverrideEditTooltip": "Редагувати",
+  "fake-supporter:UserOverrideDeleteTooltip": "Видалити"
+}

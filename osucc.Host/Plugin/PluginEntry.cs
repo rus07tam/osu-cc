@@ -21,6 +21,12 @@ namespace osucc.Plugin
         public string? IconResource { get; init; }
 
         /// <summary>
+        /// FontAwesome glyph name declared in <see cref="OsuCcPluginAttribute.Icon"/>. Available
+        /// without a live plugin instance, so a disabled/errored plugin still shows its real icon.
+        /// </summary>
+        public string? Icon { get; init; }
+
+        /// <summary>
         /// Absolute path of an <c>icon.*</c> / <c>image.*</c> file in the plugin folder (preferred
         /// over <see cref="IconResource"/>). Updated when the payload moves into the id-folder.
         /// </summary>

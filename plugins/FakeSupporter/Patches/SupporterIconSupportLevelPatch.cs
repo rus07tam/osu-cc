@@ -1,9 +1,13 @@
 using HarmonyLib;
 using osucc.Core;
+using osucc.Plugin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace osucc.Patches
+namespace FakeSupporter
 {
     /// <summary>
     /// Removes the hard-coded <c>Math.Clamp(value, 0, 3)</c> inside
@@ -11,21 +15,19 @@ namespace osucc.Patches
     /// hearts. The transpiler nops the clamp call and its two bound constants, leaving the raw
     /// level on the stack for the field store.
     /// </summary>
-    public static class SupporterIconSupportLevelPatch
+    internal static class SupporterIconSupportLevelPatch
     {
-        public static bool Install()
+        public static IDisposable? Install(IOsuCcPluginHost host)
         {
             var setter = Reflection.GetGameType("osu.Game.Overlays.Profile.Header.Components.SupporterIcon")?.GetProperty("SupportLevel")?.GetSetMethod(true);
 
             if (setter == null)
             {
                 TimingLog.Error("SupporterIconSupportLevelPatch: SupporterIcon.SupportLevel setter not found");
-                return false;
+                return null;
             }
 
-            HookDependencies.Main.Patch(setter, transpiler: Reflection.HarmonyMethod(typeof(SupporterIconSupportLevelPatch), nameof(Transpiler)));
-            TimingLog.Info("SupporterIcon.set_SupportLevel patched (transpiler)");
-            return true;
+            return host.AddPatch(setter, typeof(SupporterIconSupportLevelPatch), nameof(Transpiler), osucc.Core.MethodType.Transpiler);
         }
 
         private static readonly MethodInfo clampMethod = typeof(Math).GetMethod(nameof(Math.Clamp), new[] { typeof(int), typeof(int), typeof(int) })!;

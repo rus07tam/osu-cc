@@ -19,8 +19,6 @@ namespace osucc.Client
         public static readonly Bindable<bool> ShowRandomModsButton = new(true);
         public static readonly Bindable<bool> DisableSoloScoreSubmission = new(false);
         public static readonly Bindable<bool> SentryErrorReporting = new(false);
-        public static readonly Bindable<bool> FakeSupporterEnabled = new(false);
-        public static readonly Bindable<int> FakeSupporterLevel = new(2);
         public static readonly Bindable<bool> FavouriteMapHighlight = new(false);
         public static readonly Bindable<bool> ProfileFavouriteDownloadButton = new(false);
 
@@ -35,13 +33,11 @@ namespace osucc.Client
             bind(config, SpecialsSetting.ShowRandomModsButton, ShowRandomModsButton);
             bind(config, SpecialsSetting.DisableSoloScoreSubmission, DisableSoloScoreSubmission);
             bind(config, SpecialsSetting.SentryErrorReporting, SentryErrorReporting);
-            bind(config, SpecialsSetting.FakeSupporterEnabled, FakeSupporterEnabled);
-            bind(config, SpecialsSetting.FakeSupporterLevel, FakeSupporterLevel);
             bind(config, SpecialsSetting.FavouriteMapHighlight, FavouriteMapHighlight);
             bind(config, SpecialsSetting.ProfileFavouriteDownloadButton, ProfileFavouriteDownloadButton);
         }
 
         private static void bind<T>(SpecialsConfigManager config, SpecialsSetting setting, Bindable<T> strong)
-            => strong.BindTo(config.GetBindable<T>(setting));
+            => config.BindWith(setting, strong);
     }
 }

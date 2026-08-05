@@ -13,16 +13,11 @@ namespace UsernameVisuals
     /// effect is consistent everywhere. The own username can additionally be replaced with a
     /// custom text or hidden behind a solid block.
     /// </summary>
-    [OsuCcPlugin(
-        "username-visuals",
-        "Username Visuals",
-        Author = "osu-cc",
-        Description = "Username visuals plus an own-username display override (custom text / hide).",
-        Version = "1.0.0")]
     public class UsernameVisualsPlugin : IOsuCcPlugin, IOsuCcIconProvider
     {
         private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
+        private UsernameVisualsApi? api;
 
         /// <summary>The paint-drip icon, matching the gradient theme.</summary>
         public IconUsage? Icon => FontAwesome.Solid.FillDrip;
@@ -33,7 +28,7 @@ namespace UsernameVisuals
 
             var settings = host.GetSettings();
 
-            var api = new UsernameVisualsApi();
+            api = new UsernameVisualsApi();
             UsernameVisualsApi.Instance = api;
             api.Attach(settings);
 
@@ -52,6 +47,12 @@ namespace UsernameVisuals
 
         public void Dispose()
         {
+            // Revoke the resolver before unpatching so every already-swapped text re-applies to a
+            // plain rendering (the instance is gone) instead of keeping its gradient/override.
+            // Text components re-bind on the next frame via their Update() pass.
+            if (api != null)
+                UsernameVisualsApi.Instance = null;
+
             foreach (var patch in patches)
                 patch?.Dispose();
             patches.Clear();

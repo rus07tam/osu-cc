@@ -7,16 +7,18 @@
     <AssemblyName>Oii</AssemblyName>
     <RootNamespace>Oii</RootNamespace>
     <IsPlugin>true</IsPlugin>
+    <PluginId>oii</PluginId>
+    <PluginName>oii</PluginName>
+    <PluginAuthor>osu-cc</PluginAuthor>
+    <PluginDescription>Shows the improvement indicator next to total play time on user profiles.</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <PluginIcon>icon.png</PluginIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="osucc.Host" />
     <PackageReference Include="osucc.Build" PrivateAssets="all" />
     <PackageReference Include="ppy.osu.Game" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="icon.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

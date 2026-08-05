@@ -9,12 +9,6 @@ namespace FriendsLeaderboard
     /// without an osu!supporter tag, by aggregating each friend's best score for the beatmap
     /// through the public per-user endpoint instead of the supporter-gated friend endpoint.
     /// </summary>
-    [OsuCcPlugin(
-        "friends-leaderboard",
-        "Friends Leaderboard",
-        Author = "osu-cc",
-        Description = "Shows the friend leaderboard without an osu!supporter tag by aggregating each friend's best score client-side.",
-        Version = "1.0.0")]
     public class FriendsLeaderboardPlugin : OsuCcPluginBase
     {
         private PluginSettings settings = null!;

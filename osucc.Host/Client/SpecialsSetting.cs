@@ -26,12 +26,6 @@ namespace osucc.Client
         /// <summary>Send error reports (Sentry) to osu servers. Applied before <c>SentryLogger</c> is constructed on the next launch.</summary>
         SentryErrorReporting,
 
-        /// <summary>Visually fake the current player's osu!supporter tag everywhere. Local cosmetic only: no server interaction.</summary>
-        FakeSupporterEnabled,
-
-        /// <summary>The faked supporter level (1–10 hearts). Only meaningful when <see cref="FakeSupporterEnabled"/> is on.</summary>
-        FakeSupporterLevel,
-
         /// <summary>Draw a pink pulsing outline with particles around favourited beatmaps in the song select carousel.</summary>
         FavouriteMapHighlight,
 

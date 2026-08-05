@@ -31,30 +31,6 @@ namespace osucc.UI.Specials
             addCheckbox(ClientConfig.FavouriteMapHighlight, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint);
             addCheckbox(ClientConfig.ProfileFavouriteDownloadButton, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint);
 
-            var supporterEnabled = addCheckbox(ClientConfig.FakeSupporterEnabled, SpecialsSettingsStrings.FakeSupporterEnabledCaption, SpecialsSettingsStrings.FakeSupporterEnabledHint);
-
-            // The slider needs a BindableNumber range (1–10), while the config exposes a plain
-            // Bindable<int>; mirror its value both ways. TransferValueOnCommit (as osu's own
-            // settings sliders use) keeps LoadComplete from writing the instantaneous value into
-            // the Disabled bindable when the fake supporter is switched off — that write would
-            // otherwise throw.
-            var supporterLevel = new FormSliderBar<int>
-            {
-                Caption = SpecialsSettingsStrings.FakeSupporterLevelCaption,
-                HintText = SpecialsSettingsStrings.FakeSupporterLevelHint,
-                TransferValueOnCommit = true,
-                Current = new BindableNumber<int>
-                {
-                    MinValue = 1,
-                    MaxValue = 10,
-                    Value = ClientConfig.FakeSupporterLevel.Value,
-                },
-            };
-            supporterLevel.Current.BindValueChanged(e => ClientConfig.FakeSupporterLevel.Value = e.NewValue, true);
-            Add(new SettingsItemV2(supporterLevel));
-
-            supporterEnabled.Current.BindValueChanged(e => supporterLevel.Current.Disabled = !e.NewValue, true);
-
             Add(new SettingsButtonV2
             {
                 Text = SpecialsSettingsStrings.ManagePluginsCaption,

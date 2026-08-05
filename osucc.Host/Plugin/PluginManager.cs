@@ -385,7 +385,8 @@ namespace osucc.Plugin
         }
 
         /// <summary>
-        /// Builds a <see cref="PluginEntry"/> from the plugin attribute metadata.
+        /// Builds a <see cref="PluginEntry"/> from the plugin metadata (the build-emitted
+        /// attribute) and the discovered plugin type.
         /// </summary>
         private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath, Type? pluginType)
             => new()
@@ -396,6 +397,7 @@ namespace osucc.Plugin
                 Description = attribute.Description,
                 Version = attribute.Version,
                 IconResource = attribute.IconResource,
+                Icon = attribute.Icon,
                 Priority = PluginStateStore.GetPriority(attribute.Id) ?? attribute.Priority,
                 ApiVersion = attribute.ApiVersion,
                 Directory = directory,
@@ -444,22 +446,48 @@ namespace osucc.Plugin
         }
 
         /// <summary>
-        /// Discovers <c>[OsuCcPlugin]</c> types in a dll without running any plugin code; they are
-        /// instantiated later, in priority order.
+        /// Discovers a plugin in a dll without running any plugin code; the type is instantiated
+        /// later, in priority order. New-style plugins carry an assembly-level
+        /// <see cref="OsuCcPluginAttribute"/> emitted by the build from the project file (exactly
+        /// one plugin type per assembly); legacy plugins keep the attribute on the class itself.
         /// </summary>
         private static void discoverPluginDll(string path, List<PluginCandidate> candidates)
         {
             string fallbackId = Path.GetFileNameWithoutExtension(path);
+            string pluginDirectory = Path.GetDirectoryName(path) ?? string.Empty;
 
             try
             {
                 var assembly = Assembly.LoadFrom(path);
                 OsuCcLocalisation.RegisterAssembly(assembly);
+
+                var manifest = assembly.GetCustomAttribute<OsuCcPluginAttribute>();
+
+                if (manifest != null)
+                {
+                    var pluginTypes = getLoadableTypes(assembly).Where(isPluginType).ToArray();
+
+                    if (pluginTypes.Length == 0)
+                    {
+                        TimingLog.Info($"PluginManager: '{manifest.Name}' declares a manifest but no IOsuCcPlugin type was found in {path}");
+                        return;
+                    }
+
+                    if (pluginTypes.Length > 1)
+                    {
+                        TimingLog.Error($"PluginManager: '{manifest.Name}' (id '{manifest.Id}') declares an assembly manifest but contains {pluginTypes.Length} plugin types; only one plugin per assembly is supported, skipping {path}");
+                        return;
+                    }
+
+                    candidates.Add(new PluginCandidate(pluginTypes[0], manifest, pluginDirectory, resolveDeclaredIcon(manifest, pluginDirectory)));
+                    return;
+                }
+
                 bool anyPluginType = false;
 
                 foreach (Type type in getLoadableTypes(assembly))
                 {
-                    if (type.IsAbstract || type.IsInterface || !typeof(IOsuCcPlugin).IsAssignableFrom(type))
+                    if (!isPluginType(type))
                         continue;
 
                     var attribute = type.GetCustomAttribute<OsuCcPluginAttribute>();
@@ -468,9 +496,8 @@ namespace osucc.Plugin
 
                     anyPluginType = true;
 
-                    string pluginDirectory = Path.GetDirectoryName(path) ?? string.Empty;
                     string? iconPath = findIconFile(pluginDirectory);
-                    TimingLog.Info($"PluginManager: '{attribute.Name}' folder icon: {iconPath ?? "(none)"}");
+                    TimingLog.Info($"PluginManager: '{attribute.Name}' folder icon: {iconPath ?? "(none)"} (deprecated class-level [OsuCcPlugin] metadata; declare metadata in the project file)");
 
                     candidates.Add(new PluginCandidate(type, attribute, pluginDirectory, iconPath));
                 }
@@ -484,7 +511,7 @@ namespace osucc.Plugin
                 {
                     Id = fallbackId,
                     Name = fallbackId,
-                    Directory = Path.GetDirectoryName(path) ?? string.Empty,
+                    Directory = pluginDirectory,
                     LoadError = ex,
                 });
 
@@ -492,37 +519,68 @@ namespace osucc.Plugin
             }
         }
 
+        private static bool isPluginType(Type type)
+            => !type.IsAbstract && !type.IsInterface && typeof(IOsuCcPlugin).IsAssignableFrom(type);
+
+        /// <summary>
+        /// Resolves the plugin's image icon: the manifest's declared <c>IconPath</c> (relative to
+        /// the plugin folder) preferred, falling back to the legacy <c>icon.*</c>/<c>image.*</c>
+        /// convention when the declared file is absent.
+        /// </summary>
+        private static string? resolveDeclaredIcon(OsuCcPluginAttribute manifest, string pluginDirectory)
+        {
+            string? iconPath = null;
+
+            if (!string.IsNullOrEmpty(manifest.IconPath))
+            {
+                string declared = Path.Combine(pluginDirectory, manifest.IconPath.Replace('\\', '/'));
+
+                if (File.Exists(declared))
+                {
+                    iconPath = declared;
+                }
+                else
+                {
+                    TimingLog.Info($"PluginManager: '{manifest.Name}' declares icon '{manifest.IconPath}' but it is missing from the plugin folder");
+                }
+            }
+
+            iconPath ??= findIconFile(pluginDirectory);
+            TimingLog.Info($"PluginManager: '{manifest.Name}' folder icon: {iconPath ?? "(none)"}");
+            return iconPath;
+        }
+
         /// <summary>Instantiates and loads a single discovered plugin type, recording the result as an entry.</summary>
         private static void instantiatePlugin(PluginCandidate candidate)
         {
-            string id = candidate.Attribute.Id;
+            string id = candidate.Metadata.Id;
 
             if (!IsEnabled(id))
             {
-                var disabledEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
+                var disabledEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
                 disabledEntry.Enabled = false;
 
                 addEntry(disabledEntry);
 
-                TimingLog.Info($"PluginManager: '{candidate.Attribute.Name}' is disabled; skipping");
+                TimingLog.Info($"PluginManager: '{candidate.Metadata.Name}' is disabled; skipping");
                 return;
             }
 
-            if (candidate.Attribute.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion)
+            if (candidate.Metadata.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion)
             {
-                var versionEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
-                versionEntry.LoadError = new NotSupportedException($"plugin API v{candidate.Attribute.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
+                var versionEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
+                versionEntry.LoadError = new NotSupportedException($"plugin API v{candidate.Metadata.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
 
                 addEntry(versionEntry);
 
-                TimingLog.Error($"PluginManager: '{candidate.Attribute.Name}' skipped: {versionEntry.LoadError.Message}");
+                TimingLog.Error($"PluginManager: '{candidate.Metadata.Name}' skipped: {versionEntry.LoadError.Message}");
                 return;
             }
 
             try
             {
                 var instance = (IOsuCcPlugin)Activator.CreateInstance(candidate.Type)!;
-                var entry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
+                var entry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
                 entry.Plugin = instance;
 
                 var host = new PluginHost(entry);
@@ -536,12 +594,12 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
-                var failedEntry = createEntry(candidate.Attribute, candidate.Directory, candidate.IconPath, candidate.Type);
+                var failedEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
                 failedEntry.LoadError = ex;
 
                 addEntry(failedEntry);
 
-                TimingLog.Error($"PluginManager: '{candidate.Attribute.Name}' failed to load: {ex}");
+                TimingLog.Error($"PluginManager: '{candidate.Metadata.Name}' failed to load: {ex}");
             }
         }
 

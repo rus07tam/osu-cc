@@ -10,12 +10,6 @@ namespace SubdivideNations
     /// osu-subdivide-nations web extension uses). Region names come from an embedded dataset;
     /// region flags are loaded as PNG thumbnails when available and degrade to name-only otherwise.
     /// </summary>
-    [OsuCcPlugin(
-        "subdivide-nations",
-        "Subdivide Nations",
-        Author = "osu-cc",
-        Description = "Shows each user's sub-national region on profiles and user cards.",
-        Version = "1.0.0")]
     public class SubdivideNationsPlugin : IOsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;

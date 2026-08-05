@@ -7,7 +7,18 @@
     <AssemblyName>ExamplePlugin</AssemblyName>
     <RootNamespace>ExamplePlugin</RootNamespace>
     <IsPlugin>true</IsPlugin>
+    <PluginId>example</PluginId>
+    <PluginName>Example Plugin</PluginName>
+    <PluginAuthor>osu-cc</PluginAuthor>
+    <PluginDescription>Demonstrates the osu!cc plugin API: toolbar button, notifications, celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <PluginPriority>100</PluginPriority>
+    <PluginIcon>icon.png</PluginIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PluginDependency Include="username-visuals" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="osucc.Host" />
@@ -18,10 +29,6 @@
          the plugin-to-plugin API (host.GetApi<IUsernameVisualsApi>). Not packed into the
          plugin archive: at runtime it resolves to the already-loaded plugin assembly. -->
     <ProjectReference Include="..\UsernameVisuals\UsernameVisuals.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="icon.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

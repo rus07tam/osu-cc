@@ -30,17 +30,15 @@ namespace osucc.Client
         protected override void InitialiseDefaults()
         {
             SetDefault(SpecialsSetting.Branding, true);
-            SetDefault(SpecialsSetting.AllowIncompatibleMods, false);
-            SetDefault(SpecialsSetting.ShowSystemMods, false);
+            SetDefault(SpecialsSetting.AllowIncompatibleMods, true);
+            SetDefault(SpecialsSetting.ShowSystemMods, true);
             SetDefault(SpecialsSetting.FirstRunSetupComplete, false);
             SetDefault(SpecialsSetting.CelebrateNewRecord, true);
             SetDefault(SpecialsSetting.ShowRandomModsButton, true);
             SetDefault(SpecialsSetting.DisableSoloScoreSubmission, false);
             SetDefault(SpecialsSetting.SentryErrorReporting, false);
-            SetDefault(SpecialsSetting.FakeSupporterEnabled, false);
-            SetDefault(SpecialsSetting.FakeSupporterLevel, 2);
-            SetDefault(SpecialsSetting.FavouriteMapHighlight, false);
-            SetDefault(SpecialsSetting.ProfileFavouriteDownloadButton, false);
+            SetDefault(SpecialsSetting.FavouriteMapHighlight, true);
+            SetDefault(SpecialsSetting.ProfileFavouriteDownloadButton, true);
         }
     }
 }

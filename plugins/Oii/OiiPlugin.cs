@@ -7,12 +7,6 @@ namespace Oii
     /// oii: shows the improvement indicator (ii) — the ratio of expected playtime for the user's pp
     /// against their actual playtime — next to total play time on every user profile.
     /// </summary>
-    [OsuCcPlugin(
-        "oii",
-        "oii",
-        Author = "osu-cc",
-        Description = "Shows the improvement indicator next to total play time on user profiles.",
-        Version = "1.0.0")]
     public class OiiPlugin : IOsuCcPlugin
     {
         private IDisposable? patch;

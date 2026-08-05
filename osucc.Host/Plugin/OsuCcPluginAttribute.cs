@@ -1,7 +1,13 @@
 namespace osucc.Plugin
 {
-    /// <summary>Marks a class as an osu!cc plugin. The metadata is displayed in the plugins overlay.</summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    /// <summary>
+    /// Carries a plugin's metadata. Declared in the plugin's project file (see
+    /// <c>PluginId</c>/<c>PluginName</c>/… properties and <c>PluginDependency</c> items in the
+    /// csproj); the build emits an assembly-level instance from those properties, so plugin
+    /// sources never write the attribute directly. The class-level target is retained only so
+    /// archives built before the csproj declaration are still discovered.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
     public class OsuCcPluginAttribute : Attribute
     {
         /// <summary>
@@ -31,6 +37,21 @@ namespace osucc.Plugin
 
         /// <summary>Optional name of an embedded assembly resource used as the plugin icon.</summary>
         public string? IconResource { get; set; }
+
+        /// <summary>
+        /// Optional FontAwesome glyph name (e.g. <c>"FillDrip"</c>) used as the plugin icon.
+        /// Declared so the icon is available even when the plugin is not loaded (disabled/errored),
+        /// unlike the runtime <see cref="osucc.Plugin.IOsuCcIconProvider"/> which requires a live
+        /// instance.
+        /// </summary>
+        public string? Icon { get; set; }
+
+        /// <summary>
+        /// Optional image file icon, relative to the plugin payload folder (e.g. <c>"icon.png"</c>
+        /// or <c>"Assets/icon.webp"</c>). Declared from the <c>PluginIcon</c> project property;
+        /// preferred over <see cref="IconResource"/> at display time.
+        /// </summary>
+        public string? IconPath { get; set; }
 
         /// <summary>
         /// Stable ids of plugins this plugin depends on. Dependencies always load before the

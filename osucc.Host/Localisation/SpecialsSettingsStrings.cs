@@ -50,14 +50,6 @@ namespace osucc.Localisation
 
         public static LocalisableString ProfileFavouriteDownloadButtonHint => OsuCcLocalisation.Get(getKey(nameof(ProfileFavouriteDownloadButtonHint)), "Adds a 'Download all favourites' button to the Beatmaps → Favourites section of user profiles.");
 
-        public static LocalisableString FakeSupporterEnabledCaption => OsuCcLocalisation.Get(getKey(nameof(FakeSupporterEnabledCaption)), "Fake osu! supporter");
-
-        public static LocalisableString FakeSupporterEnabledHint => OsuCcLocalisation.Get(getKey(nameof(FakeSupporterEnabledHint)), "Visually shows the current player with an osu!supporter tag (with the chosen level) everywhere — profile, leaderboards, scores, chat. Local cosmetic only: nothing is sent to the servers.");
-
-        public static LocalisableString FakeSupporterLevelCaption => OsuCcLocalisation.Get(getKey(nameof(FakeSupporterLevelCaption)), "Fake supporter level");
-
-        public static LocalisableString FakeSupporterLevelHint => OsuCcLocalisation.Get(getKey(nameof(FakeSupporterLevelHint)), "How many hearts the fake supporter tag shows (1–10).");
-
         public static LocalisableString ManagePluginsCaption => OsuCcLocalisation.Get(getKey(nameof(ManagePluginsCaption)), "Manage plugins…");
 
         public static LocalisableString ManagePluginsTooltip => OsuCcLocalisation.Get(getKey(nameof(ManagePluginsTooltip)), "Opens the osu!cc plugins overlay, listing every loaded plugin and its status.");

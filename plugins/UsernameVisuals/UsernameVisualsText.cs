@@ -35,6 +35,7 @@ namespace UsernameVisuals
         private IBindable<APIUser>? localUserBindable;
         private bool replacing;
         private bool hide;
+        private UsernameVisualsApi? subscribedResolver;
 
         [Resolved]
         private IAPIProvider api { get; set; } = null!;
@@ -65,8 +66,7 @@ namespace UsernameVisuals
 
         public UsernameVisualsText()
         {
-            if (UsernameVisualsApi.Instance != null)
-                UsernameVisualsApi.Instance.Changed += onResolverChanged;
+            subscribeResolver(UsernameVisualsApi.Instance);
         }
 
         protected override void LoadComplete()
@@ -78,18 +78,44 @@ namespace UsernameVisuals
                 if (TrackLocalUser)
                     User = localUser.NewValue;
                 onResolverChanged();
-            });
+            }, true);
             applyState();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            // The resolver instance is replaced when the plugin is disabled/re-enabled; re-bind so
+            // already-swapped texts follow the live instance (reverting on unload, re-colouring on
+            // re-enable) instead of a stale snapshot.
+            if (!ReferenceEquals(subscribedResolver, UsernameVisualsApi.Instance))
+            {
+                subscribeResolver(UsernameVisualsApi.Instance);
+                onResolverChanged();
+            }
         }
 
         protected override void Dispose(bool isDisposing)
         {
             localUserBindable?.UnbindAll();
-
-            if (UsernameVisualsApi.Instance != null)
-                UsernameVisualsApi.Instance.Changed -= onResolverChanged;
-
+            subscribeResolver(null);
             base.Dispose(isDisposing);
+        }
+
+        /// <summary>Subscribes to the given resolver's <see cref="UsernameVisualsApi.Changed"/>, replacing any existing subscription.</summary>
+        private void subscribeResolver(UsernameVisualsApi? resolver)
+        {
+            if (resolver == subscribedResolver)
+                return;
+
+            if (subscribedResolver != null)
+                subscribedResolver.Changed -= onResolverChanged;
+
+            subscribedResolver = resolver;
+
+            if (resolver != null)
+                resolver.Changed += onResolverChanged;
         }
 
         /// <summary>
@@ -135,8 +161,17 @@ namespace UsernameVisuals
 
         private void applyState()
         {
+            subscribeResolver(UsernameVisualsApi.Instance);
+
             var localUser = api?.LocalUser.Value;
             var visuals = UsernameVisualsApi.Instance;
+
+            // Tracked texts always represent the current local user; re-sync so a user that loaded
+            // before this text subscribed (the toolbar swap can run before login completes) is
+            // picked up instead of leaving the stale placeholder behind.
+            if (TrackLocalUser && localUser != null)
+                user = localUser;
+
             var resolved = visuals?.ResolveColour(user, localUser);
 
             palette = resolved?.Select(c => (Color4)c).ToArray() ?? Array.Empty<Color4>();

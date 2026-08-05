@@ -1,35 +1,22 @@
-using HarmonyLib;
 using osu.Game.Online.API;
-using osucc.Client;
 using osucc.Core;
-using System.Reflection;
+using osucc.Plugin;
+using System;
 
-namespace osucc.Patches
+namespace FakeSupporter
 {
     /// <summary>
-    /// Stamps the current user as a fake supporter inside every API response. Targets the base
+    /// Stamps users as fake supporters inside every API response. Targets the base
     /// <c>APIRequest.Perform()</c> (non-generic, cannot be overridden) — by postfix time the
     /// deserialized <c>Response</c> is available on every <c>APIRequest&lt;T&gt;</c>, so
     /// leaderboards, scores, chat and user lookups all pick up the fake. The /me response is
     /// excluded (handled by <see cref="LocalUserStateSetLocalUserPatch"/>) so the game's own
     /// WasSupporter config write keeps the real value.
     /// </summary>
-    public static class APIRequestPerformPatch
+    internal static class APIRequestPerformPatch
     {
-        public static bool Install()
-        {
-            var perform = Reflection.GetGameType("osu.Game.Online.API.APIRequest")?.GetMethod("Perform", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-
-            if (perform == null)
-            {
-                TimingLog.Error("APIRequestPerformPatch: APIRequest.Perform method not found");
-                return false;
-            }
-
-            HookDependencies.Main.Patch(perform, postfix: Reflection.HarmonyMethod(typeof(APIRequestPerformPatch), nameof(Postfix)));
-            TimingLog.Info("APIRequest.Perform patched (postfix)");
-            return true;
-        }
+        public static IDisposable? Install(IOsuCcPluginHost host)
+            => PatchHelper.AttachPostfix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(APIRequestPerformPatch), nameof(Postfix));
 
         private static void Postfix(APIRequest __instance)
         {
@@ -37,7 +24,7 @@ namespace osucc.Patches
             {
                 // Response is declared on the generic APIRequest<T>; read it reflectively.
                 var response = __instance.GetType().GetProperty("Response")?.GetValue(__instance);
-                ClientSupporter.ApplyToResponse(response);
+                SupporterFakerApi.Instance.ApplyToResponse(response);
             }
             catch (Exception ex)
             {

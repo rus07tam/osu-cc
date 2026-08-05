@@ -53,7 +53,8 @@ Most features are toggles in a dedicated **Specials** section in the game settin
   starts.
 - **Fake osu! supporter**: a local-only supporter tag with a custom level
   (1 to 10 hearts) on the current player, everywhere the profile appears. Nothing
-  is sent to the servers.
+  is sent to the servers. Ships as the **Fake Supporter** plugin, which also adds
+  per-user supporter overrides and a public rule API for other plugins.
 - **Favourite map highlight**: favourited beatmaps get a pink pulsing outline
   in the song select carousel.
 - **Download all favourites**: a button in a user profile's Beatmaps →

@@ -41,7 +41,6 @@ namespace osucc.Client
             ClientConfig.Attach(config);
             TimingLog.Info($"SpecialsConfigManager loaded (branding default: {ClientConfig.Branding.Value})");
 
-            ClientSupporter.Attach();
             ClientFavourites.Attach();
             ClientProfileDownloads.Attach();
 

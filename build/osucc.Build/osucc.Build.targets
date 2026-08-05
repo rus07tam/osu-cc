@@ -2,24 +2,216 @@
 
   <!--
     Shared build logic for osu-cc plugin projects, shipped in the osucc.Build NuGet package.
-    Projects opt in by setting <IsPlugin>true</IsPlugin>: only the plugin's own dll (+ icon.png)
-    is deployed, packed into <AssemblyName>.zip under the output directory.
+    Projects opt in by setting <IsPlugin>true</IsPlugin>.
+
+    Plugin metadata is declared in the project file (PluginId, PluginName, PluginAuthor,
+    PluginDescription, PluginVersion, PluginPriority, PluginIcon, PluginIconGlyph,
+    PluginIconResource and the PluginDependency items) and turned into an assembly-level
+    [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources never write the
+    attribute directly. PackagePluginArchive packs the plugin's own dll (+ optional icon)
+    into <AssemblyName>.zip under the output directory.
   -->
 
   <PropertyGroup Condition="'$(IsPlugin)' == 'true'">
     <!-- Only the plugin's own dll is deployed; osu.* / osucc / 0Harmony resolve from the host. -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <!-- Defaults for the metadata declared in the project file. -->
+    <PluginId Condition="'$(PluginId)' == ''">$(AssemblyName)</PluginId>
+    <PluginName Condition="'$(PluginName)' == ''">$(PluginId)</PluginName>
+    <PluginVersion Condition="'$(PluginVersion)' == ''">$(Version)</PluginVersion>
+    <PluginPriority Condition="'$(PluginPriority)' == ''">0</PluginPriority>
   </PropertyGroup>
+
+  <UsingTask TaskName="GeneratePluginManifest" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <OutputFile ParameterType="System.String" Required="true" />
+      <Id ParameterType="System.String" Required="true" />
+      <Name ParameterType="System.String" Required="true" />
+      <Author ParameterType="System.String" />
+      <Description ParameterType="System.String" />
+      <Version ParameterType="System.String" />
+      <Priority ParameterType="System.String" />
+      <ApiVersion ParameterType="System.String" />
+      <IconPath ParameterType="System.String" />
+      <Icon ParameterType="System.String" />
+      <IconResource ParameterType="System.String" />
+      <Dependencies ParameterType="System.String[]" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs"><![CDATA[
+        #nullable enable
+        using System;
+        using System.Collections.Generic;
+        using System.IO;
+        using Microsoft.Build.Framework;
+        using Microsoft.Build.Utilities;
+
+        public class GeneratePluginManifest : Task
+        {
+            public string OutputFile { get; set; } = string.Empty;
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string? Author { get; set; }
+            public string? Description { get; set; }
+            public string? Version { get; set; }
+            public string? Priority { get; set; }
+            public string? ApiVersion { get; set; }
+            public string? IconPath { get; set; }
+            public string? Icon { get; set; }
+            public string? IconResource { get; set; }
+            public string[]? Dependencies { get; set; }
+
+            public override bool Execute()
+            {
+                if (string.IsNullOrWhiteSpace(Id))
+                {
+                    Log.LogError("Plugin metadata is missing: set <PluginId> in the project file (it defaults to the assembly name, which is empty here).");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Name))
+                {
+                    Log.LogError("Plugin metadata is missing: set <PluginName> in the project file.");
+                    return false;
+                }
+
+                if (Priority != null && !int.TryParse(Priority, out _))
+                {
+                    Log.LogError($"<PluginPriority> must be an integer, got '{Priority}'.");
+                    return false;
+                }
+
+                if (ApiVersion != null && !int.TryParse(ApiVersion, out _))
+                {
+                    Log.LogError($"<PluginApiVersion> must be an integer, got '{ApiVersion}'.");
+                    return false;
+                }
+
+                try
+                {
+                    File.WriteAllText(OutputFile, BuildSource(), new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError($"Failed to write plugin manifest '{OutputFile}': {ex.Message}");
+                    return false;
+                }
+
+                Log.LogMessage(MessageImportance.Low, $"Generated plugin manifest '{OutputFile}' for '{Id}'.");
+                return true;
+            }
+
+            private string BuildSource()
+            {
+                var lines = new List<string>
+                {
+                    "// <auto-generated> Generated from the plugin project file by osucc.Build. Do not edit.</auto-generated>",
+                    "#nullable enable",
+                    "using osucc.Plugin;",
+                    string.Empty,
+                };
+
+                var args = new List<string> { Quote(Id), Quote(Name) };
+
+                if (int.TryParse(Priority, out int priority))
+                    args.Add(priority.ToString());
+
+                if (int.TryParse(ApiVersion, out int apiVersion))
+                {
+                    if (!int.TryParse(Priority, out _))
+                        args.Add("0");
+
+                    args.Add(apiVersion.ToString());
+                }
+
+                var named = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(Author))
+                    named.Add($"Author = {Quote(Author)}");
+
+                if (!string.IsNullOrWhiteSpace(Description))
+                    named.Add($"Description = {Quote(Description)}");
+
+                if (!string.IsNullOrWhiteSpace(Version))
+                    named.Add($"Version = {Quote(Version)}");
+
+                if (!string.IsNullOrWhiteSpace(IconPath))
+                    named.Add($"IconPath = {Quote(IconPath?.Replace('\\', '/'))}");
+
+                if (!string.IsNullOrWhiteSpace(Icon))
+                    named.Add($"Icon = {Quote(Icon)}");
+
+                if (!string.IsNullOrWhiteSpace(IconResource))
+                    named.Add($"IconResource = {Quote(IconResource)}");
+
+                if (Dependencies is { Length: > 0 })
+                    named.Add($"DependsOn = new[] {{ {string.Join(", ", Array.ConvertAll(Dependencies!, Quote))} }}");
+
+                string declaration = "[assembly: OsuCcPlugin(" + string.Join(", ", args)
+                    + (named.Count > 0 ? ", " + string.Join(", ", named) : string.Empty)
+                    + ")]";
+
+                lines.Add(declaration);
+                lines.Add(string.Empty);
+                return string.Join(Environment.NewLine, lines);
+            }
+
+            private static string Quote(string? value)
+            {
+                if (value == null)
+                    return "\"\"";
+
+                return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\"";
+            }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GeneratePluginManifest" BeforeTargets="CoreCompile" Condition="'$(IsPlugin)' == 'true'">
+    <PropertyGroup>
+      <_ManifestFile>$(IntermediateOutputPath)PluginMetadata.g.cs</_ManifestFile>
+      <!-- The declared image icon is copied into the output preserving its relative path, so the
+           manifest's IconPath (e.g. "Assets/icon.webp") resolves inside the plugin folder after
+           the archive is extracted. -->
+      <_IconOutput>$(OutDir)$(PluginIcon)</_IconOutput>
+    </PropertyGroup>
+
+    <Error Condition="'$(PluginIcon)' != '' and !Exists('$(PluginIcon)')" Text="Plugin icon file '$(PluginIcon)' does not exist. Fix &lt;PluginIcon&gt; in the project file." />
+
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_IconOutput)'))" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" />
+    <Copy SourceFiles="$(PluginIcon)" DestinationFiles="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" SkipUnchangedFiles="true" />
+
+    <GeneratePluginManifest
+        OutputFile="$(_ManifestFile)"
+        Id="$(PluginId)"
+        Name="$(PluginName)"
+        Author="$(PluginAuthor)"
+        Description="$(PluginDescription)"
+        Version="$(PluginVersion)"
+        Priority="$(PluginPriority)"
+        ApiVersion="$(PluginApiVersion)"
+        IconPath="$(PluginIcon)"
+        Icon="$(PluginIconGlyph)"
+        IconResource="$(PluginIconResource)"
+        Dependencies="@(PluginDependency)" />
+
+    <ItemGroup>
+      <Compile Include="$(_ManifestFile)" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="PackagePluginArchive" AfterTargets="Build" Condition="'$(IsPlugin)' == 'true'">
     <PropertyGroup>
       <_Staging>$(BaseOutputPath)package\$(Configuration)</_Staging>
       <_Archive>$(OutDir)$(AssemblyName).zip</_Archive>
+      <_IconOutput>$(OutDir)$(PluginIcon)</_IconOutput>
     </PropertyGroup>
 
     <ItemGroup>
       <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
       <_PackageFiles Include="$(OutDir)icon.png" Condition="Exists('$(OutDir)icon.png')" />
+      <_PackageFiles Include="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(_IconOutput)')" />
     </ItemGroup>
 
     <MakeDir Directories="$(_Staging)" />

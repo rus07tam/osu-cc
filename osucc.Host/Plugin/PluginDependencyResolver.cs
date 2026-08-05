@@ -24,7 +24,7 @@ namespace osucc.Plugin
 
             foreach (var candidate in candidates)
             {
-                byId.TryAdd(candidate.Attribute.Id, candidate);
+                byId.TryAdd(candidate.Metadata.Id, candidate);
 
                 if (candidate.IsLoadable)
                     loadable.Add(candidate);
@@ -42,21 +42,21 @@ namespace osucc.Plugin
 
                 foreach (string depId in candidate.Dependencies.Distinct(StringComparer.Ordinal))
                 {
-                    if (depId == candidate.Attribute.Id)
+                    if (depId == candidate.Metadata.Id)
                     {
-                        warnings.Add($"PluginDependencyResolver: '{candidate.Attribute.Name}' depends on itself; dependency ignored");
+                        warnings.Add($"PluginDependencyResolver: '{candidate.Metadata.Name}' depends on itself; dependency ignored");
                         continue;
                     }
 
                     if (!byId.TryGetValue(depId, out PluginCandidate? dependency))
                     {
-                        warnings.Add($"PluginDependencyResolver: '{candidate.Attribute.Name}' depends on missing plugin '{depId}'; it will load without it");
+                        warnings.Add($"PluginDependencyResolver: '{candidate.Metadata.Name}' depends on missing plugin '{depId}'; it will load without it");
                         continue;
                     }
 
                     if (!dependency.IsLoadable)
                     {
-                        warnings.Add($"PluginDependencyResolver: '{candidate.Attribute.Name}' depends on '{depId}', which is disabled or unavailable; it will load without it");
+                        warnings.Add($"PluginDependencyResolver: '{candidate.Metadata.Name}' depends on '{depId}', which is disabled or unavailable; it will load without it");
                         continue;
                     }
 
@@ -86,7 +86,7 @@ namespace osucc.Plugin
                 order.Add(next);
                 placed.Add(next);
 
-                if (!dependents.TryGetValue(next.Attribute.Id, out var dependentsOfNext))
+                if (!dependents.TryGetValue(next.Metadata.Id, out var dependentsOfNext))
                     continue;
 
                 foreach (var dependent in dependentsOfNext)
@@ -101,7 +101,7 @@ namespace osucc.Plugin
             if (order.Count < loadable.Count)
             {
                 var cycle = loadable.Where(c => !placed.Contains(c)).OrderBy(c => c, PriorityComparer.Instance).ToList();
-                warnings.Add($"PluginDependencyResolver: dependency cycle detected among: {string.Join(", ", cycle.Select(c => $"'{c.Attribute.Name}'"))}; the affected plugins load in priority order");
+                warnings.Add($"PluginDependencyResolver: dependency cycle detected among: {string.Join(", ", cycle.Select(c => $"'{c.Metadata.Name}'"))}; the affected plugins load in priority order");
                 order.AddRange(cycle);
             }
 
@@ -138,7 +138,7 @@ namespace osucc.Plugin
                     return 1;
 
                 int byPriority = x.EffectivePriority.CompareTo(y.EffectivePriority);
-                return byPriority != 0 ? byPriority : string.CompareOrdinal(x.Attribute.Name, y.Attribute.Name);
+                return byPriority != 0 ? byPriority : string.CompareOrdinal(x.Metadata.Name, y.Metadata.Name);
             }
         }
     }
