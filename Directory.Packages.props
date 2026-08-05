@@ -11,7 +11,7 @@
          osucc.Build, the osucc dotnet tool and osucc.Templates); the csproj <Version> properties
          and the PackageVersion pins below all read it. To release: bump here, tag vX.Y.Z, CI
          publishes the tag. -->
-    <OsuCcVersion>1.0.0</OsuCcVersion>
+    <OsuCcVersion>2.0.1</OsuCcVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
