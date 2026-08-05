@@ -1,6 +1,6 @@
 {
-  "friends-leaderboard:name": "Лидборд друзей",
-  "friends-leaderboard:description": "Показывает лидборд друзей без тега osu!supporter, собирая лучший скор каждого друга на клиенте.",
+  "friends-leaderboard:name": "Лидерборд друзей",
+  "friends-leaderboard:description": "Показывает лидборд друзей без тега osu!supporter, собирая лучший результат каждого друга на клиенте.",
   "friends-leaderboard:EnableCaption": "Включить",
-  "friends-leaderboard:EnableHint": "Показывать лидборд друзей без тега osu!supporter, построенный по лучшему скору каждого друга на карте."
+  "friends-leaderboard:EnableHint": "Показывать лидборд друзей без тега osu!supporter, построенный по лучшему результату каждого друга на карте."
 }

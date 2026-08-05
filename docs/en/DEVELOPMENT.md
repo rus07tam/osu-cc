@@ -8,7 +8,7 @@ Notes for people hacking on this repo.
 
 ```plaintext
 osucc.Shared/    shared layout/version/staging logic (namespace osucc.Common), the single
-                 source of truth for the launcher, the hook and the updater plugin
+                 source of truth for the launcher, the hook and the update manager plugin
 osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuGet package
   StartupHook.cs     entry point the runtime calls
   Core/              bootstrapper, reflection helpers, logging
@@ -101,7 +101,7 @@ data folder (`plugins/`), where the manager extracts each one into a folder
 named after the plugin `Id`. Disabled plugins stay listed in the overlay but
 aren't loaded.
 
-The **osu-cc Updater** plugin (`plugins/OsuCcUpdater`) is special only in what
+The **Update Manager** plugin (`plugins/OsuCcUpdater`) is special only in what
 it does, not in how it is built: it is a normal plugin with a settings
 subsection and a toolbar button. It keeps the hook and the shipped plugins
 current by fetching the runtime bundle — from GitHub releases or by building it
@@ -158,7 +158,7 @@ version bump is a single edit.
 every plugin archive under `plugins/`. The NuGet-restored `osu.*` copies in
 `bin` are deliberately **not** included, since they would overwrite the
 production assemblies. Deploying is unpacking this bundle into the data folder
-(`hook/` + `plugins/`), which is exactly what the updater plugin stages and
+(`hook/` + `plugins/`), which is exactly what the update manager plugin stages and
 what a fresh install does manually.
 
 The launcher (`osucc run` / `osucc start` / `osucc status`) does none of that:
@@ -171,7 +171,7 @@ names live in `osucc.Shared/OsuCcLayout.cs`.
 
 ### Updating from inside the game
 
-Updating happens in-game through the **osu-cc Updater** plugin, not through the
+Updating happens in-game through the **Update Manager** plugin, not through the
 launcher:
 
 - **GitHub bundle (default):** the plugin queries the repo's latest GitHub
@@ -188,7 +188,7 @@ top-level `hook/` and `plugins/` entries, with a zip-slip guard) and an
 **next** launch of osu! applies the staged files over `hook/` and `plugins/`
 and deletes `staging/` — the running game locks the hook files on Windows, so
 an in-place swap is not possible. `osucc status` shows a waiting staged update,
-and the updater's settings subsection and toolbar button show the current /
+and the update manager's settings subsection and toolbar button show the current /
 latest / staged versions. Auto-check runs on startup and is throttled to once
 per six hours; it notifies but never stages automatically.
 
@@ -248,7 +248,7 @@ any osucc source; drop the resulting `MyPlugin.zip` into the game's
   via trusted publishing (OIDC — the job gets `id-token: write` and exchanges the
   GitHub token for a short-lived API key through `NuGet/login@v1`, no repository
   secrets involved) and creates a GitHub release with all artifacts attached,
-  including the runtime bundle the updater plugin pulls.
+  including the runtime bundle the update manager plugin pulls.
   The trust policy is set up once on nuget.org
   (`account/trustedpublishing`, owner `rus07tam`, repo `osu-cc`).
 

@@ -1,12 +1,12 @@
 {
-  "osucc-debug:name": "Дебаг-оверлей",
-  "osucc-debug:description": "Дебаг-оверлей: кастомні тестові оверлеї та сповіщення.",
+  "osucc-debug:name": "Налагоджувальний оверлей",
+  "osucc-debug:description": "Налагоджувальний оверлей: власні тестові панелі та сповіщення.",
   "osucc-debug:OverlayTitle": "osu!cc debug",
   "osucc-debug:OverlayDescription": "Кастомні тестові оверлеї та сповіщення",
   "osucc-debug:TooltipMain": "osu!cc debug",
   "osucc-debug:TooltipSub": "Кастомні тестові оверлеї та сповіщення",
   "osucc-debug:NotificationsPanelTitle": "Сповіщення",
-  "osucc-debug:CelebrationsPanelTitle": "Святкування",
+  "osucc-debug:PersonalBestPanelTitle": "Особисті рекорди",
   "osucc-debug:NotificationMessageLabel": "Текст сповіщення",
   "osucc-debug:NotificationKindLabel": "Тип сповіщення",
   "osucc-debug:PostNotificationButton": "Надіслати сповіщення",
@@ -16,5 +16,5 @@
   "osucc-debug:BackgroundDimLabel": "Затемнення фону",
   "osucc-debug:TotalDurationLabel": "Повна тривалість (мс)",
   "osucc-debug:ParticleDurationLabel": "Тривалість частинок (мс)",
-  "osucc-debug:ShowCelebrationButton": "Показати святкування"
+  "osucc-debug:ShowPersonalBestButton": "Показати особистий рекорд"
 }

@@ -54,7 +54,7 @@ namespace OsuCcUpdater
         public string CurrentVersion => OsuCcVersionReader.Read(hookDllPath) ?? string.Empty;
 
         /// <summary>The newest version known from the last check, if any.</summary>
-        public string? LatestVersion => settings.Get<string>("latestVersion");
+        public string? LatestVersion => settings.Get<string>("latest_version");
 
         /// <summary>The staged update's version, if an update is waiting for the next launch.</summary>
         public string? StagedVersion => UpdateMarker.TryRead(stagingDirectory)?.Version;
@@ -76,7 +76,7 @@ namespace OsuCcUpdater
         public Bindable<UpdateSource> Source => source;
 
         /// <summary>Whether to auto-check on game start (persisted).</summary>
-        public Bindable<bool> AutoCheck => settings.Bind("autoCheck", true);
+        public Bindable<bool> AutoCheck => settings.Bind("auto_check", true);
 
         /// <summary>Raised whenever the busy flag or the staged/latest state may have changed.</summary>
         public event Action? StateChanged;
@@ -123,9 +123,9 @@ namespace OsuCcUpdater
                 // Remember the newest version we saw, and when we last checked, so the UI and the
                 // auto-check throttle have something to read without hitting GitHub again.
                 if (!string.IsNullOrEmpty(result.Version))
-                    settings.Bind("latestVersion", string.Empty).Value = result.Version!;
+                    settings.Bind("latest_version", string.Empty).Value = result.Version!;
 
-                settings.Bind("lastCheck", string.Empty).Value = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
+                settings.Bind("last_check", string.Empty).Value = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
 
                 return result;
             }
@@ -174,8 +174,8 @@ namespace OsuCcUpdater
             if (!AutoCheck.Value)
                 return;
 
-            if (!string.IsNullOrEmpty(settings.Bind("lastCheck", string.Empty).Value)
-                && DateTimeOffset.TryParse(settings.Bind("lastCheck", string.Empty).Value, out DateTimeOffset lastCheck)
+            if (!string.IsNullOrEmpty(settings.Bind("last_check", string.Empty).Value)
+                && DateTimeOffset.TryParse(settings.Bind("last_check", string.Empty).Value, out DateTimeOffset lastCheck)
                 && DateTimeOffset.UtcNow - lastCheck < TimeSpan.FromHours(6))
             {
                 return;

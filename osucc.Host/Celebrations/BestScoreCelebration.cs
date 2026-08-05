@@ -16,7 +16,7 @@ namespace osucc.Celebrations
             : base(new CelebrationOptions
             {
                 TitleText = titleText,
-                SubtitleText = CelebrationStrings.BestScore(totalScore),
+                SubtitleText = PersonalBestStrings.Score(totalScore),
                 AccentColour = particleColour,
                 SubtitleColour = subtitleColour,
                 BackgroundDim = 0.7f,

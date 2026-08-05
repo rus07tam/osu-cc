@@ -10,7 +10,7 @@ namespace OsuCcUpdater
 
         private static string getKey(string name) => $"{prefix}:{name}";
 
-        public static LocalisableString Name => OsuCcLocalisation.Get($"{prefix}:name", "Updater");
+        public static LocalisableString Name => OsuCcLocalisation.Get($"{prefix}:name", "Update Manager");
 
         public static LocalisableString Description => OsuCcLocalisation.Get($"{prefix}:description", "Checks the official osu-cc repository for a new build and stages it for the next launch.");
 
@@ -32,7 +32,7 @@ namespace OsuCcUpdater
 
         public static LocalisableString BuildButton => OsuCcLocalisation.Get(getKey(nameof(BuildButton)), "Build and stage locally");
 
-        public static LocalisableString TooltipMain => OsuCcLocalisation.Get(getKey(nameof(TooltipMain)), "osu-cc updater");
+        public static LocalisableString TooltipMain => OsuCcLocalisation.Get(getKey(nameof(TooltipMain)), "osu-cc update manager");
 
         public static LocalisableString TooltipSub => OsuCcLocalisation.Get(getKey(nameof(TooltipSub)), "Check for updates");
 

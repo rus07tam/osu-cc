@@ -33,12 +33,12 @@ namespace UsernameVisuals
     /// </summary>
     public sealed class UsernameVisualsApi : IUsernameVisualsApi
     {
-        private const string gradientEnabledKey = "gradient_enabled";
+        private const string gradientEnabledKey = "enabled";
         private const string selfPaletteKey = "self_palette";
         private const string othersPaletteKey = "others_palette";
-        private const string replaceEnabledKey = "own_replace_enabled";
-        private const string replaceNameKey = "own_replace_name";
-        private const string hideEnabledKey = "own_hide_enabled";
+        private const string replaceEnabledKey = "replace_enabled";
+        private const string replaceNameKey = "replace_name";
+        private const string hideEnabledKey = "hide_enabled";
         private const string userOverridesKey = "user_overrides";
 
         private const int selfPriority = 0;

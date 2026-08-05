@@ -23,7 +23,7 @@ namespace osuccDebug
 
         public static LocalisableString NotificationsPanelTitle => OsuCcLocalisation.Get(getKey(nameof(NotificationsPanelTitle)), "Notifications");
 
-        public static LocalisableString CelebrationsPanelTitle => OsuCcLocalisation.Get(getKey(nameof(CelebrationsPanelTitle)), "Celebrations");
+        public static LocalisableString PersonalBestPanelTitle => OsuCcLocalisation.Get(getKey(nameof(PersonalBestPanelTitle)), "Personal best");
 
         public static LocalisableString NotificationMessageLabel => OsuCcLocalisation.Get(getKey(nameof(NotificationMessageLabel)), "Notification message");
 
@@ -43,6 +43,6 @@ namespace osuccDebug
 
         public static LocalisableString ParticleDurationLabel => OsuCcLocalisation.Get(getKey(nameof(ParticleDurationLabel)), "Particle duration (ms)");
 
-        public static LocalisableString ShowCelebrationButton => OsuCcLocalisation.Get(getKey(nameof(ShowCelebrationButton)), "Show celebration");
+        public static LocalisableString ShowPersonalBestButton => OsuCcLocalisation.Get(getKey(nameof(ShowPersonalBestButton)), "Show personal best");
     }
 }

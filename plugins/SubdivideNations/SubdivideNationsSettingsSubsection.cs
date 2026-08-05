@@ -11,7 +11,7 @@ namespace SubdivideNations
 
         public SubdivideNationsSettingsSubsection(PluginSettings settings)
         {
-            this.AddCheckbox(settings, "subdivide_enabled", true, SubdivideNationsStrings.ShowRegionsCaption, SubdivideNationsStrings.ShowRegionsHint);
+            this.AddCheckbox(settings, "enabled", true, SubdivideNationsStrings.ShowRegionsCaption, SubdivideNationsStrings.ShowRegionsHint);
             this.AddCheckbox(settings, "show_flags", true, SubdivideNationsStrings.ShowFlagsCaption, SubdivideNationsStrings.ShowFlagsHint);
         }
     }

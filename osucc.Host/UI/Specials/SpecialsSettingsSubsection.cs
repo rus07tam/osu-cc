@@ -24,7 +24,7 @@ namespace osucc.UI.Specials
             addCheckbox(ClientConfig.AllowIncompatibleMods, SpecialsSettingsStrings.AllowIncompatibleModsCaption, SpecialsSettingsStrings.AllowIncompatibleModsHint);
             addCheckbox(ClientConfig.ShowSystemMods, SpecialsSettingsStrings.ShowSystemModsCaption, SpecialsSettingsStrings.ShowSystemModsHint);
             addCheckbox(ClientConfig.FirstRunSetupComplete, SpecialsSettingsStrings.FirstRunSetupCompleteCaption, SpecialsSettingsStrings.FirstRunSetupCompleteHint);
-            addCheckbox(ClientConfig.CelebrateNewRecord, SpecialsSettingsStrings.CelebrateNewRecordCaption, SpecialsSettingsStrings.CelebrateNewRecordHint);
+            addCheckbox(ClientConfig.CelebrateNewRecord, SpecialsSettingsStrings.PersonalBestCaption, SpecialsSettingsStrings.PersonalBestHint);
             addCheckbox(ClientConfig.DisableSoloScoreSubmission, SpecialsSettingsStrings.DisableSoloScoreSubmissionCaption, SpecialsSettingsStrings.DisableSoloScoreSubmissionHint);
             addCheckbox(ClientConfig.ShowRandomModsButton, SpecialsSettingsStrings.RandomModsButtonCaption, SpecialsSettingsStrings.RandomModsButtonHint);
             addCheckbox(ClientConfig.SentryErrorReporting, SpecialsSettingsStrings.SentryErrorReportingCaption, SpecialsSettingsStrings.SentryErrorReportingHint);

@@ -68,7 +68,7 @@ namespace osuccDebug
             {
                 PanelContent = new NotificationTestPanel(notify),
             });
-            panels.Add(new SectionPanel(osuccDebugStrings.CelebrationsPanelTitle)
+            panels.Add(new SectionPanel(osuccDebugStrings.PersonalBestPanelTitle)
             {
                 PanelContent = new CelebrationTestPanel(),
             });

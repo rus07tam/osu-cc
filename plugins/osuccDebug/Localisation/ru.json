@@ -1,12 +1,12 @@
 {
-  "osucc-debug:name": "Дебаг-оверлей",
-  "osucc-debug:description": "Дебаг-оверлей: кастомные тестовые оверлеи и уведомления.",
+  "osucc-debug:name": "Отладочный оверлей",
+  "osucc-debug:description": "Отладочный оверлей: собственные тестовые панели и уведомления.",
   "osucc-debug:OverlayTitle": "osu!cc debug",
-  "osucc-debug:OverlayDescription": "Кастомные тестовые оверлеи и уведомления",
+  "osucc-debug:OverlayDescription": "Собственные тестовые панели и уведомления",
   "osucc-debug:TooltipMain": "osu!cc debug",
-  "osucc-debug:TooltipSub": "Кастомные тестовые оверлеи и уведомления",
+  "osucc-debug:TooltipSub": "Собственные тестовые панели и уведомления",
   "osucc-debug:NotificationsPanelTitle": "Уведомления",
-  "osucc-debug:CelebrationsPanelTitle": "Празднования",
+  "osucc-debug:PersonalBestPanelTitle": "Личные рекорды",
   "osucc-debug:NotificationMessageLabel": "Текст уведомления",
   "osucc-debug:NotificationKindLabel": "Тип уведомления",
   "osucc-debug:PostNotificationButton": "Отправить уведомление",
@@ -16,5 +16,5 @@
   "osucc-debug:BackgroundDimLabel": "Затемнение фона",
   "osucc-debug:TotalDurationLabel": "Полная длительность (мс)",
   "osucc-debug:ParticleDurationLabel": "Длительность частиц (мс)",
-  "osucc-debug:ShowCelebrationButton": "Показать празднование"
+  "osucc-debug:ShowPersonalBestButton": "Показать личный рекорд"
 }

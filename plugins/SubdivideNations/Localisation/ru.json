@@ -1,8 +1,8 @@
 {
   "subdivide-nations:name": "Subdivide Nations",
-  "subdivide-nations:description": "Показывает субнациональный регион каждого пользователя в профиле и на карточках игроков.",
+  "subdivide-nations:description": "Показывает субнациональный регион каждого игрока в профиле и на карточках игроков.",
   "subdivide-nations:ShowRegionsCaption": "Показывать регионы",
-  "subdivide-nations:ShowRegionsHint": "Отображать субнациональный регион каждого пользователя в профиле и на карточках игроков.",
+  "subdivide-nations:ShowRegionsHint": "Отображать субнациональный регион каждого игрока в профиле и на карточках игроков.",
   "subdivide-nations:ShowFlagsCaption": "Флаги регионов",
   "subdivide-nations:ShowFlagsHint": "Загружать изображения флагов регионов рядом с флагом страны (название региона всё равно показывается, если флаг недоступен)."
 }

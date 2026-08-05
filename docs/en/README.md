@@ -23,7 +23,7 @@ just deleting that folder.
 
 ![Settings section and mod selector](../assets/SETTINGS_AND_MOD_PANEL.png)
 
-![New personal best celebration](../assets/NEW_SCORE_CELEBRATION.png)
+![New personal best](../assets/NEW_SCORE_CELEBRATION.png)
 
 ![Fake supporter tag and extended level](../assets/FAKE_AND_EXTENDED_OSU_SUPPORTER.png)
 
@@ -46,7 +46,7 @@ Most features are toggles in a dedicated **Specials** section in the game settin
   random set of valid mods.
 - **System mods column**: the usually-hidden `System` mod column (score v2,
   touch device, ...) shows up in the mod selector.
-- **New record celebration**: a full-screen particle show when you set a new
+- **New personal best**: a full-screen particle show when you set a new
   personal best.
 - **Disable score submission**: block solo scores from being submitted to the
   osu! servers; local scores are still saved, and a reminder shows when a play
@@ -77,17 +77,17 @@ These ship with the client and can be disabled from the plugins overlay:
   profiles.
 - **Friends leaderboard**: shows the friend leaderboard without an osu!supporter
   tag, built client-side from each friend's best score on the beatmap.
-- **Debug overlay**: test panels for the notification and celebration systems.
+- **Debug overlay**: test panels for the notification and personal-best systems.
 - **ExamplePlugin**: a reference implementation that demonstrates the plugin
   API. It is meant for developers; delete it if you do not need it.
-- **osu-cc Updater**: keeps the hook and the shipped plugins up to date without
+- **Update Manager**: keeps the hook and the shipped plugins up to date without
   touching the install. It downloads the latest runtime bundle from GitHub
   releases, or builds it locally from the official repository (needs the .NET
   SDK and git), stages it and applies it on the next launch. It runs from a
   settings subsection, a toolbar button and a toggleable auto-check on startup.
   Removing it does not remove the hook — it only stops automatic updates.
 
-The **osu-cc Updater** is the recommended way to update from now on.
+The **Update Manager** is the recommended way to update from now on.
 
 Planned:
 
@@ -141,7 +141,7 @@ Then launch the game with the hook loaded:
 dotnet osucc/bin/Release/net8.0/osucc.dll run
 ```
 
-The first run also gives you the **osu-cc Updater** plugin, which handles all
+The first run also gives you the **Update Manager** plugin, which handles all
 future updates in-game — rebuild the bundle (`dotnet build osucc.build.proj
 -t:PackRuntimeBundle -c Release`), or let it pull the latest from GitHub
 releases.
@@ -172,7 +172,7 @@ No checkout or .NET SDK needed. Available once the first public release
    osucc run
    ```
 
-The in-game **osu-cc Updater** keeps everything up to date from then on
+The in-game **Update Manager** keeps everything up to date from then on
 (rebuild locally or pull the newest release). If there is no hook deployed yet,
 `osucc run` / `osucc start` refuse to start and point you at the release —
 the launcher never installs anything on its own.
@@ -192,7 +192,7 @@ Options: `--osu-dir <path>`, `--verbose|-v`.
 The launcher is deliberately minimal: it **never builds** and **never writes**
 to the install. If the hook is missing it fails with a message pointing at the
 runtime bundle. Keep the hook and plugins current from inside the game with the
-**osu-cc Updater** plugin instead.
+**Update Manager** plugin instead.
 
 ## Development
 

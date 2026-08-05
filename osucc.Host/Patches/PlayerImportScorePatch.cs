@@ -97,7 +97,7 @@ namespace osucc.Patches
             try
             {
                 long totalScore = __state.Value;
-                ClientCelebrations.Show(new BestScoreCelebration(CelebrationStrings.NewBestScore, totalScore));
+                ClientCelebrations.Show(new BestScoreCelebration(PersonalBestStrings.Title, totalScore));
             }
             catch (Exception ex)
             {

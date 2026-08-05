@@ -1,7 +1,7 @@
 {
-  "username-visuals:name": "Визуализация имён",
-  "username-visuals:description": "Визуализация имён игроков плюс переопределение отображения своего имени (свой текст / скрытие).",
-  "username-visuals:GradientEnabledCaption": "Визуализация имён",
+  "username-visuals:name": "Имена пользователей",
+  "username-visuals:description": "Окрашивает имена игроков градиентом и позволяет настроить отображение собственного имени (свой текст / скрытие).",
+  "username-visuals:GradientEnabledCaption": "Имена пользователей",
   "username-visuals:GradientEnabledHint": "Отображать имена игроков с горизонтальным градиентом везде.",
   "username-visuals:SelfPaletteCaption": "Моё имя",
   "username-visuals:SelfPaletteHint": "Цвета градиента для вашего собственного имени.",

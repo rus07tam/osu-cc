@@ -83,7 +83,7 @@ namespace osuccDebug
                 },
                 new SettingsButtonV2
                 {
-                    Text = osuccDebugStrings.ShowCelebrationButton,
+                    Text = osuccDebugStrings.ShowPersonalBestButton,
                     Action = showCelebration,
                 },
             };

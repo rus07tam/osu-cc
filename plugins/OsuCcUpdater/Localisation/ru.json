@@ -1,5 +1,5 @@
 {
-  "osucc-updater:name": "Обновлятор",
+  "osucc-updater:name": "Менеджер обновлений",
   "osucc-updater:description": "Проверяет официальный репозиторий osu-cc на наличие новой сборки и подготавливает её к следующему запуску.",
   "osucc-updater:StatusCaption": "Статус",
   "osucc-updater:SourceLabel": "Источник обновлений",
@@ -7,9 +7,9 @@
   "osucc-updater:SourceGithub": "Сборка из GitHub Releases",
   "osucc-updater:SourceLocalBuild": "Локальная сборка dotnet",
   "osucc-updater:AutoCheckCaption": "Проверять обновления автоматически",
-  "osucc-updater:AutoCheckHint": "Проверяет GitHub Releases при запуске игры и молча подготавливает обновление, если оно есть.",
+  "osucc-updater:AutoCheckHint": "Проверяет GitHub Releases при запуске игры и незаметно подготавливает обновление, если оно есть.",
   "osucc-updater:CheckButton": "Проверить и подготовить обновление",
   "osucc-updater:BuildButton": "Собрать и подготовить локально",
-  "osucc-updater:TooltipMain": "Обновлятор osu-cc",
+  "osucc-updater:TooltipMain": "Менеджер обновлений osu-cc",
   "osucc-updater:TooltipSub": "Проверить обновления"
 }

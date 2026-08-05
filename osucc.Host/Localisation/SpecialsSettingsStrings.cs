@@ -16,7 +16,7 @@ namespace osucc.Localisation
 
         public static LocalisableString AllowIncompatibleModsCaption => OsuCcLocalisation.Get(getKey(nameof(AllowIncompatibleModsCaption)), "Allow incompatible mods");
 
-        public static LocalisableString AllowIncompatibleModsHint => OsuCcLocalisation.Get(getKey(nameof(AllowIncompatibleModsHint)), "Permits selecting mods that are normally incompatible with each-other (e.g. autoplay + touch device). The red 'incompatible' hint on mod panels is kept as a visual warning.");
+        public static LocalisableString AllowIncompatibleModsHint => OsuCcLocalisation.Get(getKey(nameof(AllowIncompatibleModsHint)), "Permits selecting mods that are normally incompatible with each other (e.g. autoplay + touch device). The red 'incompatible' hint on mod panels is kept as a visual warning.");
 
         public static LocalisableString ShowSystemModsCaption => OsuCcLocalisation.Get(getKey(nameof(ShowSystemModsCaption)), "Show System mods in mod selector");
 
@@ -26,9 +26,9 @@ namespace osucc.Localisation
 
         public static LocalisableString FirstRunSetupCompleteHint => OsuCcLocalisation.Get(getKey(nameof(FirstRunSetupCompleteHint)), "Whether the first-run disclaimer has been shown and acknowledged. Auto-enabled after the disclaimer is dismissed; uncheck to show it again on next launch.");
 
-        public static LocalisableString CelebrateNewRecordCaption => OsuCcLocalisation.Get(getKey(nameof(CelebrateNewRecordCaption)), "Celebrate on new personal best");
+        public static LocalisableString PersonalBestCaption => OsuCcLocalisation.Get(getKey(nameof(PersonalBestCaption)), "Celebrate a new personal best");
 
-        public static LocalisableString CelebrateNewRecordHint => OsuCcLocalisation.Get(getKey(nameof(CelebrateNewRecordHint)), "Shows a full-screen particle celebration when a completed play sets a new local personal best on a beatmap.");
+        public static LocalisableString PersonalBestHint => OsuCcLocalisation.Get(getKey(nameof(PersonalBestHint)), "Shows a full-screen particle celebration when a completed play sets a new local personal best on a beatmap.");
 
         public static LocalisableString DisableSoloScoreSubmissionCaption => OsuCcLocalisation.Get(getKey(nameof(DisableSoloScoreSubmissionCaption)), "Disable score submission");
 

@@ -1,17 +1,17 @@
 {
   "example:name": "Пример плагина",
-  "example:description": "Демонстрирует API плагинов osu!cc: кнопка тулбара, уведомления, целебрации, настройки, патч Harmony, lifecycle-хуки и миграция данных.",
+  "example:description": "Демонстрирует API плагинов osu!cc: кнопка тулбара, уведомления, эффекты личного рекорда, настройки, патч Harmony, lifecycle-хуки и миграция данных.",
   "example:TooltipMain": "Пример плагина",
-  "example:TooltipSub": "Показывает празднование",
+  "example:TooltipSub": "Показывает личный рекорд",
   "example:CelebrationTitle": "ПРИМЕР ПЛАГИНА",
-  "example:CelebrationSubtitle": "празднования работают из плагинов",
-  "example:CelebrationsDisabled": "празднования отключены в настройках плагина",
+  "example:CelebrationSubtitle": "эффект личного рекорда из плагина",
+  "example:CelebrationsDisabled": "эффект личного рекорда отключён в настройках плагина",
   "example:Attached": "Пример плагина подключён",
   "example:Installed": "Пример плагина установлен",
   "example:Uninstalled": "Пример плагина удалён",
   "example:Updated": "Пример плагина обновлён: {0} -> {1}",
-  "example:CelebrateCaption": "Праздновать из кнопки тулбара",
-  "example:CelebrateHint": "Показывать ли полноэкранное празднование при нажатии кнопки примера на тулбаре.",
+  "example:CelebrateCaption": "Отмечать рекорд из кнопки тулбара",
+  "example:CelebrateHint": "Показывать ли полноэкранный эффект личного рекорда при нажатии кнопки примера на тулбаре.",
   "example:UsernameVisualsIntegrationCaption": "Интеграция с Username Visuals",
   "example:UsernameVisualsIntegrationHint": "Регистрирует демонстрационные правила цвета и ника через API плагина Username Visuals; тумблер включает и отзывает их на лету."
 }

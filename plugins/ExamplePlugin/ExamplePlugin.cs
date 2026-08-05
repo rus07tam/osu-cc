@@ -34,7 +34,7 @@ namespace ExamplePlugin
             // Defaults can be registered before the game exists; persisted values are loaded
             // from disk on AttachToGame.
             settings = Host.GetSettings();
-            celebrateToggle = settings.Bind("celebration", true);
+            celebrateToggle = settings.Bind("celebrate", true);
 
             // Factories are invoked later, on the update thread (when the toolbar / settings
             // overlay is built), so constructing osu drawables here is safe.
@@ -108,7 +108,7 @@ namespace ExamplePlugin
                 string? persisted = settings.ReadPersisted("celebrate");
                 bool celebrate = persisted == null || bool.TryParse(persisted, out bool parsed) && parsed;
 
-                settings.Bind("celebration", celebrate).Value = celebrate;
+                settings.Bind("celebrate", celebrate).Value = celebrate;
                 settings.Remove("celebrate");
 
                 log("schema v2: renamed setting 'celebrate' -> 'celebration'");

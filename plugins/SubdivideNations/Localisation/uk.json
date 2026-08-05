@@ -1,8 +1,8 @@
 {
   "subdivide-nations:name": "Subdivide Nations",
-  "subdivide-nations:description": "Показує субнаціональний регіон кожного користувача в профілі та на картках гравців.",
+  "subdivide-nations:description": "Показує субнаціональний регіон кожного гравця в профілі та на картках гравців.",
   "subdivide-nations:ShowRegionsCaption": "Показувати регіони",
-  "subdivide-nations:ShowRegionsHint": "Відображати субнаціональний регіон кожного користувача в профілі та на картках гравців.",
+  "subdivide-nations:ShowRegionsHint": "Відображати субнаціональний регіон кожного гравця в профілі та на картках гравців.",
   "subdivide-nations:ShowFlagsCaption": "Прапори регіонів",
   "subdivide-nations:ShowFlagsHint": "Завантажувати зображення прапорів регіонів поруч із прапором країни (назва регіону все одно показується, якщо прапор недоступний)."
 }

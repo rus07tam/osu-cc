@@ -24,7 +24,7 @@ namespace SubdivideNations
             this.host = host;
 
             settings = host.GetSettings();
-            enabled = settings.Bind("subdivide_enabled", true);
+            enabled = settings.Bind("enabled", true);
             showFlags = settings.Bind("show_flags", true);
 
             RegionService.SetEnabled(() => enabled.Value);
