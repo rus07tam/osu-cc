@@ -13,7 +13,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>osucc.Shared</PackageId>
-    <Version>$(OsuCcVersion)</Version>
+    <Version>$(OsuCcSharedVersion)</Version>
     <Authors>osu-cc</Authors>
     <Description>Framework-free shared layout/version logic for osu-cc (data-root resolution, update-marker contract), shared by the launcher, the hook and the updater plugin.</Description>
     <PackageTags>osu osucc</PackageTags>

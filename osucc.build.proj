@@ -1,7 +1,7 @@
 <Project DefaultTargets="Build">
 
   <!-- Classic (non-SDK) project, so Directory.Packages.props is not auto-imported; pull in the
-       central OsuCcVersion the bundle name and package versions read. -->
+       per-component versions (Directory.Packages.props) the bundle name reads. -->
   <Import Project="$(MSBuildThisFileDirectory)Directory.Packages.props" />
 
   <!--
@@ -80,15 +80,17 @@
   <!--
     Assembles the distributable runtime bundle: the hook payload (osucc.dll + its runtime blobs)
     under hook/ and every plugin archive under plugins/, zipped as
-    artifacts/runtime/osucc-runtime-<OsuCcVersion>.zip. This is the single artifact both the CI
-    GitHub release and the in-game updater plugin's GitHub source work with, so the updater
-    downloads exactly what a local build produced. Invoked as
+    artifacts/runtime/osucc-runtime-<OsuCcHostVersion>.zip. The bundle carries the hook, so it is
+    named after the osu-cc client (osucc.Host) version — which is also the version the updater
+    plugin reports as the current client version. This is the single artifact both the CI GitHub
+    release and the in-game updater plugin's GitHub source work with, so the updater downloads
+    exactly what a local build produced. Invoked as
     `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`.
   -->
   <Target Name="PackRuntimeBundle" DependsOnTargets="Build">
     <PropertyGroup>
       <RuntimeStaging>$(OsuCcRoot)artifacts/runtime/staging</RuntimeStaging>
-      <RuntimeArchive>$(OsuCcRoot)artifacts/runtime/osucc-runtime-$(OsuCcVersion).zip</RuntimeArchive>
+      <RuntimeArchive>$(OsuCcRoot)artifacts/runtime/osucc-runtime-$(OsuCcHostVersion).zip</RuntimeArchive>
       <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
     </PropertyGroup>
 

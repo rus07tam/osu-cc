@@ -7,6 +7,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "1"
@@ -16,12 +19,48 @@ jobs:
   build:
     name: Build (linux-x64)
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+      bump: ${{ steps.detect.outputs.bump }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Detect changed components
+        id: detect
+        run: |
+          set -euo pipefail
+          # Base ref: previous release tag on a tag push, the base branch on a PR, else the
+          # previous commit. Everything published depends on which packages actually changed.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            base="origin/${GITHUB_BASE_REF:-main}"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            base="$(git describe --tags --abbrev=0 "$GITHUB_SHA^" 2>/dev/null || echo "HEAD^")"
+          else
+            base="HEAD^"
+          fi
+          changed="$(.github/scripts/changed-packages.sh "$base")"
+          {
+            echo "changed<<EOF"
+            printf '%s\n' "$changed"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          bump="$(printf '%s\n' "$changed" | while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            id="${line%%=*}"; ver="${line##*=}"
+            echo "- **$id**: $ver"
+          done)"
+          {
+            echo "bump<<EOF"
+            printf '%s\n' "$bump"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build hook, plugins and packages (Release)
         run: dotnet build osucc.build.proj -c Release --nologo
@@ -35,12 +74,27 @@ jobs:
       - name: Publish standalone launcher (linux-x64)
         run: dotnet publish osucc/osucc.csproj -c Release /p:PublishProfile=linux-x64 --nologo
 
-      - name: Upload NuGet packages
+      - name: Stage changed NuGet packages
+        run: |
+          mkdir -p staging/packages
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            id="${line%%=*}"; ver="${line##*=}"
+            pkg="artifacts/nuget/$id.$ver.nupkg"
+            if [ -f "$pkg" ]; then
+              cp "$pkg" staging/packages/
+              echo "staged $pkg"
+            else
+              echo "missing package: $pkg"
+            fi
+          done <<< "${{ steps.detect.outputs.changed }}"
+
+      - name: Upload NuGet packages (changed only)
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-packages
-          path: artifacts/nuget/*.nupkg
-          if-no-files-found: error
+          path: staging/packages/*.nupkg
+          if-no-files-found: warn
 
       - name: Upload plugin archives
         uses: actions/upload-artifact@v4
@@ -114,6 +168,10 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          body: |
+            ## Component versions
+
+            ${{ needs.build.outputs.bump }}
           files: |
             artifacts/ci/dotnet-packages/*.nupkg
             artifacts/ci/plugin-zips/**/*.zip

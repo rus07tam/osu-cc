@@ -13,7 +13,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>osucc.Build</PackageId>
-    <Version>$(OsuCcVersion)</Version>
+    <Version>$(OsuCcBuildVersion)</Version>
     <Authors>osu-cc</Authors>
     <Description>Shared MSBuild props/targets for building osu-cc plugins into deployable .zip archives.</Description>
     <PackageTags>osu osucc msbuild plugin</PackageTags>

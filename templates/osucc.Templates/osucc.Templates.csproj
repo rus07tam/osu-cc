@@ -10,7 +10,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <PackageType>Template</PackageType>
     <PackageId>osucc.Templates</PackageId>
-    <Version>$(OsuCcVersion)</Version>
+    <Version>$(OsuCcTemplatesVersion)</Version>
     <Authors>osu-cc</Authors>
     <Description>Templates for osu-cc plugins: `dotnet new osucc-plugin` creates a standalone plugin project that builds to a deployable .zip.</Description>
     <PackageTags>osu osucc plugin template</PackageTags>

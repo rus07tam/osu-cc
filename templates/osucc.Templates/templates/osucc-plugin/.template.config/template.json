@@ -17,14 +17,14 @@
       "type": "parameter",
       "dataType": "string",
       "replaces": "OSUCC_HOST_VERSION",
-      "defaultValue": "1.0.0",
+      "defaultValue": "2.0.1",
       "description": "Version of the osucc.Host package to reference."
     },
     "buildVersion": {
       "type": "parameter",
       "dataType": "string",
       "replaces": "OSUCC_BUILD_VERSION",
-      "defaultValue": "1.0.0",
+      "defaultValue": "2.0.1",
       "description": "Version of the osucc.Build package to reference."
     }
   }

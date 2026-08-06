@@ -11,7 +11,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>osucc</ToolCommandName>
     <PackageId>osucc</PackageId>
-    <Version>$(OsuCcVersion)</Version>
+    <Version>$(OsuCcLauncherVersion)</Version>
     <PackageType>DotnetTool</PackageType>
     <Authors>osu-cc</Authors>
     <Description>osu-cc launcher: launches osu! with DOTNET_STARTUP_HOOKS pointing at the hook deployed in the osu-cc data root. Never builds, never touches the install dir; the hook is installed and updated by the in-game updater plugin.</Description>
