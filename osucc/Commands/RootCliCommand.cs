@@ -5,17 +5,15 @@ namespace osucc.App.Commands;
 
 /// <summary>
 /// osu-cc launcher: launches osu! with the startup hook deployed in the osu-cc data root. Bare
-/// <c>osucc</c> shows help (no default action); <c>osucc start</c>/<c>osucc run</c> apply any
-/// staged update and launch, <c>osucc status</c> inspects the installation. The launcher never
-/// builds and never touches the install dir; the hook is installed and updated by the in-game
-/// updater plugin. The options are recursive, so they apply to every subcommand.
+/// <c>osucc</c> applies any staged update and launches (the default action); <c>osucc status</c>
+/// inspects the installation. The launcher never builds and never touches the install dir; the
+/// hook is installed and updated by the in-game updater plugin. The options are recursive, so
+/// they apply to every subcommand.
 /// </summary>
 [CliCommand(
     Description = "osu-cc launcher: launch osu! with the startup hook from the osu-cc data root (never builds, never touches the install dir).",
     Children = new[]
     {
-        typeof(RunCommand),
-        typeof(StartCommand),
         typeof(StatusCommand),
     })]
 public class RootCliCommand
@@ -27,6 +25,8 @@ public class RootCliCommand
     /// <summary>Print extra diagnostics while working.</summary>
     [CliOption(Description = "Print extra diagnostics while working.", Alias = "-v", Recursive = true)]
     public bool Verbose { get; set; }
+
+    public int Run() => LauncherPipeline.Run(ResolvePaths());
 
     public ResolvedPaths ResolvePaths()
     {

@@ -2,9 +2,8 @@ using osucc.Common;
 
 namespace osucc.App;
 
-/// <summary>The shared run routine behind <c>osucc run</c> and <c>osucc start</c>: apply any staged
-/// update, then launch osu! with the hook. Returns the osu! exit code, or a non-zero code when the
-/// hook is missing.</summary>
+/// <summary>The default run routine: apply any staged update, then launch osu! with the hook.
+/// Returns the osu! exit code, or a non-zero code when the hook is missing.</summary>
 internal static class LauncherPipeline
 {
     public static int Run(ResolvedPaths paths)

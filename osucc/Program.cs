@@ -5,8 +5,7 @@ using osucc.App.Commands;
 // hook is active solely when started through osucc. The hook never goes into the osu install dir;
 // it lives in <osu-cc data root>/hook and is installed/updated by the in-game updater plugin.
 //
-//   osucc                  show help (no default action; use: osucc start)
-//   osucc start|run        apply any staged update, then launch osu with the hook
+//   osucc                  (default) apply any staged update, then launch osu with the hook
 //   osucc status           print resolved paths, deployed hook/plugins and staged update
 //
 // The launcher never builds, never deploys and never updates anything itself: those duties belong

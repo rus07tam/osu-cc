@@ -39,7 +39,7 @@ public class StatusCommand
         var marker = UpdateMarker.TryRead(paths.StagingDirectory);
 
         if (marker != null)
-            Console.WriteLine($"Update        : v{marker.Version} staged ({marker.Source}) - run 'osucc start' to apply");
+            Console.WriteLine($"Update        : v{marker.Version} staged ({marker.Source}) - run 'osucc' to apply");
 
         return 0;
     }
