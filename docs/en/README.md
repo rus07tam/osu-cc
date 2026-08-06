@@ -138,7 +138,7 @@ unzip artifacts/runtime/osucc-runtime-1.0.0.zip -d <data>/osu-cc
 Then launch the game with the hook loaded:
 
 ```shell
-dotnet osucc/bin/Release/net8.0/osucc.dll run
+dotnet osucc/bin/Release/net8.0/osucc.dll
 ```
 
 The first run also gives you the **Update Manager** plugin, which handles all
@@ -166,25 +166,26 @@ No checkout or .NET SDK needed. Available once the first public release
    # Windows: %APPDATA%\osu\osu-cc ; Linux/macOS: ~/.local/share/osu/osu-cc
    unzip osucc-runtime-1.0.0.zip -d <data>/osu-cc
    ```
+
 3. Start the game:
 
    ```shell
-   osucc run
+   osucc
    ```
 
 The in-game **Update Manager** keeps everything up to date from then on
 (rebuild locally or pull the newest release). If there is no hook deployed yet,
-`osucc run` / `osucc start` refuse to start and point you at the release —
+`osucc` refuses to start and points you at the release —
 the launcher never installs anything on its own.
 
 ## Commands
 
-Bare `osucc` prints the help; every action is an explicit subcommand:
+Bare `osucc` launches the game (the default action); `osucc status` inspects the
+installation:
 
 | Command            | What it does                                |
 | ---                | ---                                         |
-| `osucc run`        | launch osu! with the deployed hook, applying a staged update first if one is waiting |
-| `osucc start`      | alias for `osucc run`                       |
+| `osucc`            | launch osu! with the deployed hook, applying a staged update first if one is waiting |
 | `osucc status`     | show the osu install, data root, hook version, plugins and any staged update |
 
 Options: `--osu-dir <path>`, `--verbose|-v`.

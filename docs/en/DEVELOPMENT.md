@@ -16,7 +16,7 @@ osucc.Host/     the startup hook DLL (classlib, net8.0), also the osucc.Host NuG
   Patches/           the Harmony patches
   UI/                overlays, settings section, mod UI
   Plugin/            plugin manager and the host API
-osucc/          the launcher CLI (run / start / status only — never builds, never writes to the install)
+osucc/          the launcher CLI (status only; bare osucc launches — never builds, never writes to the install)
 plugins/        the built-in plugins (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, OsuCcUpdater, SubdivideNations, UsernameVisuals)
 docs/           screenshots (assets/), per-language docs (en/, ru/)
 ```
@@ -136,13 +136,61 @@ removed, so a re-install fires `OnInstall` again. Version diffs compare the
 `<PluginVersion>` declared in the project file, so bump it on every release that changes
 behaviour or data, otherwise `OnUpdate` will not fire.
 
+### Building & deploying a plugin
+
+A plugin is a classlib whose `osucc.Build` targets pack the plugin's own dll (+ optional
+icon) into a single `<AssemblyName>.zip` archive. There are two ways to get one.
+
+**Inside the monorepo** — the development loop for the built-in plugins:
+
+```shell
+dotnet build osucc.build.proj -c Debug   # packs the local feed, then builds hook + all plugins
+```
+
+Every plugin's `PackagePluginArchive` target writes its archive into its own output folder:
+
+```
+plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip
+```
+
+To rebuild just one plugin after the feed exists, the per-project build is much faster:
+
+```shell
+dotnet build plugins/MyPlugin/MyPlugin.csproj -c Debug
+```
+
+**Standalone** (no osu-cc checkout) — via the `dotnet new` template. First build once so the
+packed packages exist in `artifacts/nuget`, or pull `osucc.Host` / `osucc.Build` from nuget.org:
+
+```shell
+dotnet new install artifacts/nuget/osucc.Templates.1.0.0.nupkg
+dotnet new osucc-plugin -n MyPlugin -o MyPlugin
+dotnet build MyPlugin -c Debug
+```
+
+The generated project references `osucc.Host` / `osucc.Build` from NuGet and produces the same
+`MyPlugin.zip` in `bin/Debug/net8.0/`.
+
+**Deploying** in both cases is dropping the zip into the game's `osu-cc/plugins` folder; the
+manager extracts it into a folder named after the plugin `Id` and lists it in the overlay:
+
+```
+# Linux:  ~/.local/share/osu/osu-cc/plugins
+# Windows: %APPDATA%\osu\osu-cc\plugins
+cp plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip ~/.local/share/osu/osu-cc/plugins/
+```
+
+Restart the game and toggle the plugin in the plugin overlay. Bump `PluginVersion` in the
+project file on every release that changes behaviour or data so `OnUpdate` fires for users
+who already have the plugin installed.
+
 ## Build & run
 
 ```shell
 dotnet build osucc.build.proj -c Debug        # hook + plugins (+ local NuGet feed)
 dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release   # artifacts/runtime/osucc-runtime-<ver>.zip
 dotnet osucc/bin/Debug/net8.0/osucc.dll status # where everything is / would go
-dotnet osucc/bin/Debug/net8.0/osucc.dll run    # launch osu! with the deployed hook
+dotnet osucc/bin/Debug/net8.0/osucc.dll        # launch osu! with the deployed hook (default action)
 ```
 
 `osucc.build.proj` is the repo's single MSBuild entry point: it packs
@@ -161,7 +209,7 @@ production assemblies. Deploying is unpacking this bundle into the data folder
 (`hook/` + `plugins/`), which is exactly what the update manager plugin stages and
 what a fresh install does manually.
 
-The launcher (`osucc run` / `osucc start` / `osucc status`) does none of that:
+The launcher (`osucc` / `osucc status`) does none of that:
 it locates the osu install and the data root, applies a staged update if one is
 waiting, and launches the game. If the hook is missing it fails with a pointer
 to the runtime bundle — it never builds or writes to the install, so it works
@@ -205,7 +253,8 @@ dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publ
 
 `PublishTrimmed` stays off (the path resolver relies on `AppContext.BaseDirectory`,
 which is empty under trimming-unsafe reflection patterns). A standalone binary
-without a checkout can still `osucc run` an already-deployed hook or `osucc status`.
+without a checkout can still launch an already-deployed hook (bare `osucc`) or
+`osucc status`.
 
 ### Publishing to NuGet
 
@@ -215,7 +264,7 @@ Everything the distribution needs is produced by `dotnet build osucc.build.proj`
 - `osucc.Host` — the plugin API (and the runtime hook assembly);
 - `osucc.Build` — shared MSBuild props/targets for plugins;
 - `osucc` — the launcher as a [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc` sets `PackAsTool`), so `osucc status` / `run` / `start` work without a
+  (`osucc` sets `PackAsTool`), so bare `osucc` and `osucc status` work without a
   checkout or a build;
 - `osucc.Shared` — the shared layout/version logic, pulled in by plugins from NuGet
   (its code lives in the `osucc.Shared` project, namespace `osucc.Common`);

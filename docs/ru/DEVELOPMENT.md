@@ -16,7 +16,7 @@ osucc.Host/     DLL стартап-хука (classlib, net8.0), он же NuGet-
   Patches/           Harmony-патчи
   UI/                оверлеи, секция настроек, мод-UI
   Plugin/            менеджер плагинов и host API
-osucc/          лаунчер CLI (только run / start / status — ничего не собирает, не пишет в установку)
+osucc/          лаунчер CLI (только status; голый osucc запускает — ничего не собирает, не пишет в установку)
 plugins/        встроенные плагины (ExamplePlugin, FakeSupporter, FriendsLeaderboard, Oii, osuccDebug, OsuCcUpdater, SubdivideNations, UsernameVisuals)
 docs/           скриншоты (assets/), доки по языкам (en/, ru/)
 ```
@@ -138,13 +138,63 @@ instance-члены базовых классов. Читайте их чере�
 сравнивает `PluginVersion`, объявленный в проектном файле, поэтому бампайте его при каждом
 релизе, меняющем поведение или данные, иначе `OnUpdate` не сработает.
 
+### Сборка и деплой плагина
+
+Плагин это classlib, чьи таргеты `osucc.Build` пакуют собственную dll (и опциональную
+иконку) в единый zip-архив `<AssemblyName>.zip`. Есть два пути его получить.
+
+**В монорепе** — цикл разработки встроенных плагинов:
+
+```shell
+dotnet build osucc.build.proj -c Debug   # пакует локальный фид, затем собирает хук + все плагины
+```
+
+Таргет `PackagePluginArchive` каждого плагина кладёт архив в свою папку вывода:
+
+```
+plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip
+```
+
+Чтобы пересобрать только один плагин после того, как фид существует, гораздо быстрее
+собрать его проект отдельно:
+
+```shell
+dotnet build plugins/MyPlugin/MyPlugin.csproj -c Debug
+```
+
+**Standalone** (без чекаута osu-cc) — через шаблон `dotnet new`. Сначала один раз соберите,
+чтобы упакованные пакеты появились в `artifacts/nuget`, либо тяните
+`osucc.Host` / `osucc.Build` с nuget.org:
+
+```shell
+dotnet new install artifacts/nuget/osucc.Templates.1.0.0.nupkg
+dotnet new osucc-plugin -n MyPlugin -o MyPlugin
+dotnet build MyPlugin -c Debug
+```
+
+Сгенерированный проект ссылается на `osucc.Host` / `osucc.Build` с NuGet и даёт тот же
+`MyPlugin.zip` в `bin/Debug/net8.0/`.
+
+**Деплой** в обоих случаях — это бросок zip в папку игры `osu-cc/plugins`; менеджер
+распаковывает его в папку, названную по `Id` плагина, и показывает его в оверлее:
+
+```
+# Linux:  ~/.local/share/osu/osu-cc/plugins
+# Windows: %APPDATA%\osu\osu-cc\plugins
+cp plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip ~/.local/share/osu/osu-cc/plugins/
+```
+
+Перезапустите игру и включите плагин в оверлее плагинов. Бампьте `PluginVersion` в проектном
+файле на каждом релизе, меняющем поведение или данные, чтобы у уже установивших плагин
+пользователей сработал `OnUpdate`.
+
 ## Сборка и запуск
 
 ```shell
 dotnet build osucc.build.proj -c Debug        # хук + плагины (+ локальный NuGet-фид)
 dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release   # artifacts/runtime/osucc-runtime-<версия>.zip
 dotnet osucc/bin/Debug/net8.0/osucc.dll status # где что лежит / куда пойдёт
-dotnet osucc/bin/Debug/net8.0/osucc.dll run    # запуск osu! с развёрнутым хуком
+dotnet osucc/bin/Debug/net8.0/osucc.dll        # запуск osu! с развёрнутым хуком (действие по умолчанию)
 ```
 
 `osucc.build.proj` это единая MSBuild-точка входа: он пакует
@@ -162,7 +212,7 @@ dotnet osucc/bin/Debug/net8.0/osucc.dll run    # запуск osu! с развё
 этого бандла в папку данных (`hook/` + `plugins/`), что ровно и делает плагин
 менеджера обновлений при стейджинге и что делают вручную при свежей установке.
 
-Лаунчер (`osucc run` / `osucc start` / `osucc status`) ничего из этого не делает:
+Лаунчер (`osucc` / `osucc status`) ничего из этого не делает:
 он находит установку osu! и корень данных, применяет отложенное обновление,
 если оно ждёт, и запускает игру. Если хука нет, он завершается с ошибкой и
 указывает на рантайм-бандл — он никогда не собирает и не пишет в установку, так
@@ -203,8 +253,8 @@ dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publ
 ```
 
 `PublishTrimmed` выключен (резолвер путей опирается на `AppContext.BaseDirectory`, который пуст
-при unsafed-для-тримминга reflection). Standalone-бинарник без чекаута может `osucc run` уже
-задеплоенного хука или `osucc status`.
+при unsafed-для-тримминга reflection). Standalone-бинарник без чекаута может запустить уже
+задеплоенный хук (голый `osucc`) или `osucc status`.
 
 ### Публикация на NuGet
 
@@ -213,7 +263,7 @@ dotnet publish osucc/osucc.csproj -p:PublishProfile=win-x64     # artifacts/publ
 - `osucc.Host` — API плагинов (и сама сборка хука);
 - `osucc.Build` — общие MSBuild props/targets для плагинов;
 - `osucc` — лаунчер как [dotnet tool](https://learn.microsoft.com/dotnet/core/tools/global-tools)
-  (`osucc` ставит `PackAsTool`), поэтому `osucc status` / `run` / `start` работают без чекаута
+  (`osucc` ставит `PackAsTool`), поэтому голый `osucc` и `osucc status` работают без чекаута
   и сборки;
 - `osucc.Shared` — общая логика layout/версий, подтягивается плагинами с NuGet (код лежит в
   проекте `osucc.Shared`, namespace `osucc.Common`);
