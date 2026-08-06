@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="leaderboard" />
   </ItemGroup>
 
   <ItemGroup>

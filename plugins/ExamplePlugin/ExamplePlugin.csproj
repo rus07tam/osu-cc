@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="example" />
+    <PluginTag Include="dev" />
   </ItemGroup>
 
   <ItemGroup>

@@ -58,10 +58,32 @@ UI renders as a clickable username opening the profile **in-game** (routed throu
 </ItemGroup>
 ```
 
-The legacy single `<PluginAuthor>nickname</PluginAuthor>` property is still supported as one
-plain nickname. Legacy archives whose attribute lives on the plugin class
-are still discovered, with a deprecation log. Through `IOsuCcPluginHost` a
-plugin can:
+Display tags are declared as `<PluginTag>` items — they are rendered as
+clickable chips in the plugins UI, and the overlay's search box (filtering by name, author, id
+or tag) selects the matching plugins:
+
+```xml
+<ItemGroup>
+  <PluginTag Include="profile" />
+  <PluginTag Include="library" />
+</ItemGroup>
+```
+
+Tags are free-form lowercase strings. The recommended vocabulary below keeps
+tags consistent across plugins and makes the search predictable:
+
+- **Classifiers** (apply when true):
+  - `library` — the plugin exposes a public API to other plugins via
+    `host.ExportApi(...)` (consumed with `host.GetApi<T>(...)`)
+  - `integration` — the plugin integrates with a third-party service/external API
+- **Scope** (where in the game the plugin surfaces): `profile`, `menu`, `playfield`,
+  `settings`, ... — other scopes (e.g. `song-select`, `leaderboard`, `chat`) are welcome
+- **Minor / descriptive**: `tools`, `fun`, `dev`, `ui`, `visual`, `audio`
+
+A plugin usually carries at least one scope tag, plus a classifier and/or a descriptive tag
+when relevant.
+
+Through `IOsuCcPluginHost` a plugin can:
 
 - add toolbar buttons (`AddToolbarButton(factory, placement, layoutPosition)`)
 - add settings subsections

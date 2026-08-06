@@ -70,6 +70,12 @@ namespace osucc.Localisation
 
         public static LocalisableString DetailsAuthor => OsuCcLocalisation.Get(getKey(nameof(DetailsAuthor)), "Author");
 
+        public static LocalisableString DetailsTags => OsuCcLocalisation.Get(getKey(nameof(DetailsTags)), "Tags");
+
+        public static LocalisableString SearchPlaceholder => OsuCcLocalisation.Get(getKey(nameof(SearchPlaceholder)), "Search by name, author, id or tag");
+
+        public static LocalisableString SearchNoResults => OsuCcLocalisation.Get(getKey(nameof(SearchNoResults)), "No plugins match your search");
+
         public static LocalisableString DetailsVersion => OsuCcLocalisation.Get(getKey(nameof(DetailsVersion)), "Version");
 
         public static LocalisableString DetailsApiVersion => OsuCcLocalisation.Get(getKey(nameof(DetailsApiVersion)), "API version");

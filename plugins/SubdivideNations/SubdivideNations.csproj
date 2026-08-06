@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="profile" />
+    <PluginTag Include="region" />
   </ItemGroup>
 
   <ItemGroup>

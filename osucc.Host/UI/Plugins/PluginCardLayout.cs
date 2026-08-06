@@ -296,6 +296,38 @@ namespace osucc.UI.Plugins
         public static string FormatAuthorNames(PluginEntry entry)
             => string.Join(", ", entry.Authors.Select(a => a.Name));
 
+        public static FillFlowContainer CreateTagsValue(PluginEntry entry, Action<string>? onSelected = null, float fontSize = 12, int maxShown = int.MaxValue)
+        {
+            var flow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(6, 0),
+            };
+
+            int shown = 0;
+
+            foreach (string tag in entry.Tags)
+            {
+                if (shown >= maxShown)
+                    break;
+
+                flow.Add(new TagChip(tag, fontSize)
+                {
+                    OnSelected = onSelected,
+                });
+
+                shown++;
+            }
+
+            int hidden = entry.Tags.Count - shown;
+
+            if (hidden > 0)
+                flow.Add(new TagChip($"+{hidden}", fontSize));
+
+            return flow;
+        }
+
         /// <summary>
         /// Minimal <see cref="IUser"/> carrying just what the profile link needs: the osu! id and
         /// the username to display. The profile overlay fetches the full profile from the API by id.

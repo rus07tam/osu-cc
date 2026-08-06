@@ -18,6 +18,9 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="updater" />
+    <PluginTag Include="system" />
+    <PluginTag Include="library" />
   </ItemGroup>
 
   <ItemGroup>

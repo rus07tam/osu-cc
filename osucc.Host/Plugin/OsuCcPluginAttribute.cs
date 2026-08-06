@@ -42,6 +42,13 @@ namespace osucc.Plugin
         /// </summary>
         public int[]? AuthorOsuIds { get; set; }
 
+        /// <summary>
+        /// Display categories/tags for the plugin (e.g. <c>"osu"</c>, <c>"theme"</c>, <c>"api"</c>),
+        /// shown as clickable chips in the plugins UI. Filtering the search box by a tag, name,
+        /// author or id selects the matching plugins in the list overlay.
+        /// </summary>
+        public string[] Tags { get; set; } = Array.Empty<string>();
+
         public string? Description { get; set; }
 
         public string Version { get; set; } = "1.0.0";

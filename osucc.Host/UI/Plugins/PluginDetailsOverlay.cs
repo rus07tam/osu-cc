@@ -160,6 +160,7 @@ namespace osucc.UI.Plugins
             {
                 CreateMetadataRow(PluginsOverlayStrings.DetailsId, entry.Id),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsAuthor, PluginCardLayout.CreateAuthorValue(entry)),
+                CreateMetadataRow(PluginsOverlayStrings.DetailsTags, PluginCardLayout.CreateTagsValue(entry, tag => PluginsOverlayComponent.Instance?.SearchTag(tag))),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsVersion, entry.Version),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsApiVersion, entry.ApiVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsPriority, entry.Priority.ToString(System.Globalization.CultureInfo.InvariantCulture)),

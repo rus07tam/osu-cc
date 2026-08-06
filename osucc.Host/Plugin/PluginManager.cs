@@ -394,6 +394,7 @@ namespace osucc.Plugin
                 Id = attribute.Id,
                 Name = attribute.Name,
                 Authors = resolveAuthors(attribute),
+                Tags = attribute.Tags,
                 Description = attribute.Description,
                 Version = attribute.Version,
                 IconResource = attribute.IconResource,

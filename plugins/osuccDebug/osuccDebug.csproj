@@ -16,6 +16,9 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="debug" />
+    <PluginTag Include="dev" />
+    <PluginTag Include="tools" />
   </ItemGroup>
 
   <ItemGroup>

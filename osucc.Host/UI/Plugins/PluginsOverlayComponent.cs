@@ -94,6 +94,17 @@ namespace osucc.UI.Plugins
             detailsOverlay.ShowPlugin(entry);
         }
 
+        /// <summary>
+        /// Opens the plugins list overlay with its search box pre-filled with the given tag, so
+        /// only the plugins carrying it are shown. Showing the list overlay hides any other
+        /// osu!cc overlay (including the details card) via the overlay mutual exclusion.
+        /// </summary>
+        public void SearchTag(string tag)
+        {
+            overlay.SetFilter(tag);
+            TimingLog.Info($"Plugins overlay shown with tag filter '{tag}'");
+        }
+
         protected override void Dispose(bool isDisposing)
         {
             base.Dispose(isDisposing);

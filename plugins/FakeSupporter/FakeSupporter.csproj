@@ -17,6 +17,10 @@
 
   <ItemGroup>
     <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="supporter" />
+    <PluginTag Include="profile" />
+    <PluginTag Include="fun" />
+    <PluginTag Include="library" />
   </ItemGroup>
 
   <ItemGroup>

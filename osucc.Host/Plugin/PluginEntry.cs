@@ -14,6 +14,8 @@ namespace osucc.Plugin
 
         public IReadOnlyList<PluginAuthor> Authors { get; init; } = Array.Empty<PluginAuthor>();
 
+        public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
+
         public string? Description { get; init; }
 
         public string Version { get; init; } = string.Empty;

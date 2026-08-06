@@ -36,6 +36,12 @@ Metadata lives in the project file, not in source:
   `<PluginIconGlyph>FillDrip</PluginIconGlyph>` — a FontAwesome glyph icon;
   `<PluginIconResource>` — an embedded resource
 - `<PluginDependency Include="other-plugin-id" />` items — plugin dependencies
+- `<PluginTag Include="category" />` items — display tags: shown as clickable chips in the
+  Plugins overlay; clicking a chip (or typing a name/author/id/tag in the overlay's search box)
+  filters the list to the matching plugins. Recommended values: classifiers `library`
+  (exposes a public API) and `integration` (third-party service), scope tags such as `profile`,
+  `menu`, `playfield`, `settings`, and descriptive tags `tools`, `fun`, `dev`, `ui`, `visual`,
+  `audio`.
 
 ## Plugin lifecycle
 
