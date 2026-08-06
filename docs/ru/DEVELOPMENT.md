@@ -201,9 +201,10 @@ dotnet osucc/bin/Debug/net8.0/osucc.dll        # запуск osu! с развё
 `osucc.Host` / `osucc.Build` / `osucc` (dotnet tool) / `osucc.Shared` /
 `osucc.Templates` в репозиторий-локальный фид (`artifacts/nuget`), чистит их
 устаревшие копии в глобальном NuGet-кэше, затем собирает хук и все
-`plugins/*/*.csproj` в одном параллельном MSBuild-процессе. Все дистрибутивные
-пакеты разделяют одну версию (`OsuCcVersion`), централизованную в
-`Directory.Packages.props` (CPM), поэтому бамп версии это одна правка.
+`plugins/*/*.csproj` в одном параллельном MSBuild-процессе. Каждый дистрибутивный пакет версионируется
+независимо (`OsuCcHostVersion`/`OsuCcBuildVersion`/`OsuCcSharedVersion`/`OsuCcLauncherVersion`/`OsuCcTemplatesVersion`), централизованно в
+`Directory.Packages.props`, поэтому бамп трогает только реально изменённый
+компонент.
 
 `PackRuntimeBundle` собирает деплоимый вывод в один zip: `osucc.dll`,
 `0Harmony.dll`, `SharpCompress.dll` и `osucc.Shared.dll` в `hook/`, плюс каждый
@@ -290,17 +291,23 @@ dotnet new osucc-plugin -n MyPlugin -o /tmp/MyPlugin && dotnet build /tmp/MyPlug
   публикуют standalone-лаунчеры и выполняют `PackRuntimeBundle`, получая единый
   рантайм-zip. Всё прикрепляется как CI-artifacts: файлы `.nupkg`, архивы плагинов
   `.zip`, бинарники `linux-x64` / `win-x64` и бандл `osucc-runtime-*.zip`.
-- **publish** работает только на тегах `v*`: пушит пакеты на nuget.org через
+  Для публикации стейджатся только те пакеты, чьи компоненты изменились относительно
+  base-ref (`.github/scripts/changed-packages.sh`: для PR — базовой ветки, для тега
+  `v*` — предыдущего тега, иначе — предыдущего коммита; изменение `osucc.Shared`
+  дополнительно репаблишит зависящие от него `osucc.Host` и `osucc`).
+- **publish** работает только на тегах `v*`: пушит изменённые пакеты на nuget.org через
   **trusted publishing** (OIDC — джоба получает `id-token: write` и обменивает GitHub-токен
   на короткоживущий API-ключ через `NuGet/login@v1`, никаких секретов в репозитории)
   и создаёт GitHub Release со всеми ассетами, включая рантайм-бандл, который тянет плагин
-  менеджера обновлений. Политика доверия настраивается один раз на
+  менеджера обновлений. В теле релиза указаны бампы версий пакетов, определённые build-джобой.
+  Политика доверия настраивается один раз на
   nuget.org (`account/trustedpublishing`, owner `rus07tam`, repo `osu-cc`).
 
-Релиз: бампните `OsuCcVersion` в `Directory.Packages.props` (все пакеты её разделяют)
-и дефолты шаблона в `templates/osucc.Templates/.../template.json`, затем затегайте `vX.Y.Z`.
-Форма лаунчера на NuGet это dotnet tool `osucc`; standalone-бинарники это ассеты релиза,
-а не пакеты.
+Релиз: бампните только те версии компонентов в `Directory.Packages.props`, что реально
+изменились (и соответствующие дефолты шаблона в `templates/osucc.Templates/.../template.json`),
+затем затегайте `vX.Y.Z`. CI опубликует ровно эти пакеты, а менеджер обновлений получит
+бандл, названный по версии хоста. Форма лаунчера на NuGet это dotnet tool `osucc`;
+standalone-бинарники это ассеты релиза, а не пакеты.
 
 Форматирование: `dotnet format osucc.sln` и
 `dotnet format osucc.sln --verify-no-changes`. Правила стиля задаются в `.editorconfig`
