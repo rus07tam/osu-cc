@@ -9,7 +9,7 @@
     PluginIconResource and the PluginDependency items) and turned into an assembly-level
     [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources never write the
     attribute directly. PackagePluginArchive packs the plugin's own dll (+ optional icon)
-    into <AssemblyName>.zip under the output directory.
+    into <PluginId>.zip under the output directory.
   -->
 
   <PropertyGroup Condition="'$(IsPlugin)' == 'true'">
@@ -204,7 +204,7 @@
   <Target Name="PackagePluginArchive" AfterTargets="Build" Condition="'$(IsPlugin)' == 'true'">
     <PropertyGroup>
       <_Staging>$(BaseOutputPath)package\$(Configuration)</_Staging>
-      <_Archive>$(OutDir)$(AssemblyName).zip</_Archive>
+      <_Archive>$(OutDir)$(PluginId).zip</_Archive>
       <_IconOutput>$(OutDir)$(PluginIcon)</_IconOutput>
     </PropertyGroup>
 

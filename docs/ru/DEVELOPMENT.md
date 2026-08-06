@@ -141,7 +141,7 @@ instance-члены базовых классов. Читайте их чере�
 ### Сборка и деплой плагина
 
 Плагин это classlib, чьи таргеты `osucc.Build` пакуют собственную dll (и опциональную
-иконку) в единый zip-архив `<AssemblyName>.zip`. Есть два пути его получить.
+иконку) в единый zip-архив `<PluginId>.zip`. Есть два пути его получить.
 
 **В монорепе** — цикл разработки встроенных плагинов:
 
@@ -152,7 +152,7 @@ dotnet build osucc.build.proj -c Debug   # пакует локальный фи�
 Таргет `PackagePluginArchive` каждого плагина кладёт архив в свою папку вывода:
 
 ```
-plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip
+plugins/MyPlugin/bin/Debug/net8.0/my-plugin.zip
 ```
 
 Чтобы пересобрать только один плагин после того, как фид существует, гораздо быстрее
@@ -173,7 +173,7 @@ dotnet build MyPlugin -c Debug
 ```
 
 Сгенерированный проект ссылается на `osucc.Host` / `osucc.Build` с NuGet и даёт тот же
-`MyPlugin.zip` в `bin/Debug/net8.0/`.
+`my-plugin.zip` в `bin/Debug/net8.0/`.
 
 **Деплой** в обоих случаях — это бросок zip в папку игры `osu-cc/plugins`; менеджер
 распаковывает его в папку, названную по `Id` плагина, и показывает его в оверлее:
@@ -280,7 +280,7 @@ dotnet new osucc-plugin -n MyPlugin -o /tmp/MyPlugin && dotnet build /tmp/MyPlug
 ```
 
 Сгенерированный проект ссылается на `osucc.Host` с NuGet и собирается без исходников osucc;
-результирующий `MyPlugin.zip` дропается в папку игры `osu-cc/plugins`.
+результирующий `my-plugin.zip` дропается в папку игры `osu-cc/plugins`.
 
 ### CI и релизы
 

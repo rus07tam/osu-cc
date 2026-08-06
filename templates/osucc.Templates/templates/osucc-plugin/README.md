@@ -8,13 +8,13 @@ An [osu-cc](https://github.com/osucc/osucc) plugin generated with `dotnet new os
 dotnet build -c Release
 ```
 
-This produces `bin/Release/net8.0/MyPlugin.zip` containing only the plugin's dll (and your
+This produces `bin/Release/net8.0/my-plugin.zip` containing only the plugin's dll (and your
 `PluginIcon` image if you declare one in the csproj). `osu.*` / `osucc` / `0Harmony` resolve
 from the host process, so they are never packaged.
 
 ## Deploy
 
-Drop `MyPlugin.zip` into the game's plugin folder:
+Drop `my-plugin.zip` into the game's plugin folder:
 
 - Windows: `%APPDATA%\osu\osu-cc\plugins\`
 - Linux: `~/.local/share/osu/osu-cc/plugins/`

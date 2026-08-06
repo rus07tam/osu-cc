@@ -24,7 +24,7 @@
       "type": "parameter",
       "dataType": "string",
       "replaces": "OSUCC_BUILD_VERSION",
-      "defaultValue": "2.0.1",
+      "defaultValue": "2.0.2",
       "description": "Version of the osucc.Build package to reference."
     }
   }

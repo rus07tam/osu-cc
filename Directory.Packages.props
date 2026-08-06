@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <OsuCcHostVersion>2.0.1</OsuCcHostVersion>
-    <OsuCcBuildVersion>2.0.1</OsuCcBuildVersion>
+    <OsuCcBuildVersion>2.0.2</OsuCcBuildVersion>
     <OsuCcSharedVersion>2.0.1</OsuCcSharedVersion>
     <OsuCcLauncherVersion>2.0.1</OsuCcLauncherVersion>
     <OsuCcTemplatesVersion>2.0.1</OsuCcTemplatesVersion>

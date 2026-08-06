@@ -139,7 +139,7 @@ behaviour or data, otherwise `OnUpdate` will not fire.
 ### Building & deploying a plugin
 
 A plugin is a classlib whose `osucc.Build` targets pack the plugin's own dll (+ optional
-icon) into a single `<AssemblyName>.zip` archive. There are two ways to get one.
+icon) into a single `<PluginId>.zip` archive. There are two ways to get one.
 
 **Inside the monorepo** — the development loop for the built-in plugins:
 
@@ -150,7 +150,7 @@ dotnet build osucc.build.proj -c Debug   # packs the local feed, then builds hoo
 Every plugin's `PackagePluginArchive` target writes its archive into its own output folder:
 
 ```
-plugins/MyPlugin/bin/Debug/net8.0/MyPlugin.zip
+plugins/MyPlugin/bin/Debug/net8.0/my-plugin.zip
 ```
 
 To rebuild just one plugin after the feed exists, the per-project build is much faster:
@@ -169,7 +169,7 @@ dotnet build MyPlugin -c Debug
 ```
 
 The generated project references `osucc.Host` / `osucc.Build` from NuGet and produces the same
-`MyPlugin.zip` in `bin/Debug/net8.0/`.
+`my-plugin.zip` in `bin/Debug/net8.0/`.
 
 **Deploying** in both cases is dropping the zip into the game's `osu-cc/plugins` folder; the
 manager extracts it into a folder named after the plugin `Id` and lists it in the overlay:
@@ -281,7 +281,7 @@ dotnet new osucc-plugin -n MyPlugin -o /tmp/MyPlugin && dotnet build /tmp/MyPlug
 ```
 
 The generated project references `osucc.Host` from NuGet, so it builds without
-any osucc source; drop the resulting `MyPlugin.zip` into the game's
+any osucc source; drop the resulting `my-plugin.zip` into the game's
 `osu-cc/plugins` folder.
 
 ### CI and releases

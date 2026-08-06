@@ -121,7 +121,7 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Deletes old-scheme payload folders that have a same-named fresh copy now in staging
-        /// (e.g. <c>ExamplePlugin\</c> after <c>ExamplePlugin.zip</c> was extracted). Runs here,
+        /// (e.g. <c>example\</c> after <c>example.zip</c> was extracted). Runs here,
         /// before anything is loaded, while the dlls are still unlocked. Folders with a
         /// <c>plugin.ini</c> are left alone (settings survive a scheme migration).
         /// </summary>
