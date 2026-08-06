@@ -20,6 +20,7 @@
             packages = [ sdk ];
 
             env = {
+              DOTNET_ROOT = "${sdk}/share/dotnet";
               DOTNET_NOLOGO = "1";
               DOTNET_CLI_TELEMETRY_OPTOUT = "1";
             };
@@ -49,7 +50,7 @@
             dotnet-runtime = dotnet-runtime_8;
 
             meta = {
-              description = "osu-cc launcher: builds, deploys and starts the osu!lazer custom client hook";
+              description = "osu-cc launcher: starts the osu!lazer client with the deployed startup hook (never builds, never touches the install dir)";
               platforms = [ "x86_64-linux" ];
             };
           };

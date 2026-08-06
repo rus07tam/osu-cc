@@ -1,7 +1,6 @@
 using osucc.Common;
 using osucc.Core;
 using osucc.Plugin;
-using System.Runtime.Loader;
 
 /// <summary>
 /// .NET startup hook: <see cref="Initialize"/> runs before <c>Main()</c> and before
@@ -31,14 +30,9 @@ public class StartupHook
         // version-specific patch target.
         SentryPreference.ApplyBeforeSentryLogger();
 
-        // Plugin payloads carry an AssemblyRef to the osucc version they were compiled against.
-        // That version can lag the deployed hook (e.g. a stale archive from before a version bump),
-        // and the default ALC binds by exact version, which would silently drop every plugin type.
-        // Bind any requested 'osucc' to the already-loaded hook assembly instead, so a payload
-        // referencing any osucc version loads against the deployed hook.
-        AssemblyLoadContext.Default.Resolving += (_, name) =>
-            name.Name == "osucc" ? typeof(StartupHook).Assembly : null;
-
+        // Plugin payloads carry an AssemblyRef to the osucc version they were compiled against; the
+        // deployed hook and its sibling blobs (osucc.Shared.dll) are resolved from this assembly's
+        // own directory by HookAssemblyResolver's module initializer, which runs before this method.
         AppDomain.CurrentDomain.AssemblyLoad += (_, args) =>
         {
             try

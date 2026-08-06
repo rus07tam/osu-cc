@@ -31,7 +31,7 @@ public static class OsuCcLayout
     {
         "0Harmony.dll",
         "SharpCompress.dll",
-        "osucc.Common.dll",
+        "osucc.Shared.dll",
     };
 
     /// <summary>Every file that makes up the hook payload.</summary>
