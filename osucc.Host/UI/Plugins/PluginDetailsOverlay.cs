@@ -72,7 +72,9 @@ namespace osucc.UI.Plugins
             fallbackIcon = null;
 
             Header.Title = OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name);
-            Header.Description = LocalisableString.Format("{0} \u2022 v{1}", entry.Author ?? (LocalisableString)OsuCcStrings.UnknownAuthor, entry.Version);
+
+            string? authorSummary = entry.Authors.Count > 0 ? PluginCardLayout.FormatAuthorNames(entry) : null;
+            Header.Description = LocalisableString.Format("{0} \u2022 v{1}", authorSummary ?? (LocalisableString)OsuCcStrings.UnknownAuthor, entry.Version);
 
             content.Add(CreateSummarySection(entry));
 
@@ -157,7 +159,7 @@ namespace osucc.UI.Plugins
             var rows = new List<Drawable>
             {
                 CreateMetadataRow(PluginsOverlayStrings.DetailsId, entry.Id),
-                CreateMetadataRow(PluginsOverlayStrings.DetailsAuthor, entry.Author ?? (LocalisableString)OsuCcStrings.UnknownAuthor),
+                CreateMetadataRow(PluginsOverlayStrings.DetailsAuthor, PluginCardLayout.CreateAuthorValue(entry)),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsVersion, entry.Version),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsApiVersion, entry.ApiVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsPriority, entry.Priority.ToString(System.Globalization.CultureInfo.InvariantCulture)),

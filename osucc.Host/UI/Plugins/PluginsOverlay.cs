@@ -321,11 +321,21 @@ namespace osucc.UI.Plugins
                     Font = OsuFont.Torus.With(size: 18, weight: FontWeight.Bold),
                 };
 
-                var meta = new OsuSpriteText
+                var meta = new FillFlowContainer
                 {
-                    Text = LocalisableString.Format("{0} \u2022 v{1}", Entry.Author ?? (LocalisableString)OsuCcStrings.UnknownAuthor, Entry.Version),
-                    Font = OsuFont.Default.With(size: 12),
-                    Colour = Color4.White.Opacity(0.55f),
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(0, 0),
+                    Children = new Drawable[]
+                    {
+                        PluginCardLayout.CreateAuthorValue(Entry, fontSize: 12),
+                        new OsuSpriteText
+                        {
+                            Text = LocalisableString.Format(" \u2022 v{0}", Entry.Version),
+                            Font = OsuFont.Default.With(size: 12),
+                            Colour = Color4.White.Opacity(0.55f),
+                        },
+                    },
                 };
 
                 return new GridContainer

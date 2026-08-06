@@ -46,8 +46,21 @@ instance-члены базовых классов. Читайте их чере�
 `PluginIcon` (файл-картинка), `PluginIconGlyph` (имя FontAwesome) и `PluginIconResource`
 (встроенный ресурс), а также элементы `PluginDependency` в assembly-уровневый атрибут
 `[OsuCcPlugin]` (генерируется в `obj/PluginMetadata.g.cs`), который менеджер читает при
-обнаружении. Legacy-архивы, где атрибут лежит на классе плагина, по-прежнему
-обнаруживаются, но с предупреждением о deprecation. Через `IOsuCcPluginHost` плагин
+обнаружении. `PluginAuthor` это список: по одному элементу на автора, каждый либо
+обычный ник, либо — с метаданными `OsuProfileId` — osu! профиль, который UI показывает
+кликабельным юзернеймом, открывающим профиль **in-game** (через osu-шный
+`LinkFlowContainer.AddUserLink`, поэтому юзернейм также наследует градиент от Username Visuals):
+
+```xml
+<ItemGroup>
+  <PluginAuthor Include="osu-cc" />
+  <PluginAuthor Include="peppy" OsuProfileId="1013" />
+</ItemGroup>
+```
+
+Legacy-форма одиночного свойства `<PluginAuthor>ник</PluginAuthor>` по-прежнему
+поддерживается как один обычный ник. Legacy-архивы, где атрибут лежит на классе плагина,
+по-прежнему обнаруживаются, но с предупреждением о deprecation. Через `IOsuCcPluginHost` плагин
 может:
 
 - добавлять кнопки на тулбар (`AddToolbarButton(factory, placement, layoutPosition)`)

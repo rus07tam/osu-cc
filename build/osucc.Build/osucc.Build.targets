@@ -8,7 +8,10 @@
     PluginDescription, PluginVersion, PluginPriority, PluginIcon, PluginIconGlyph,
     PluginIconResource and the PluginDependency items) and turned into an assembly-level
     [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources never write the
-    attribute directly. PackagePluginArchive packs the plugin's own dll (+ optional icon)
+    attribute directly. PluginAuthor is a list of items, each a plain nickname or, with the
+    optional OsuProfileId metadata, an osu! profile-linked username (rendered clickable by the
+    UI); the legacy single <PluginAuthor>property</PluginAuthor> form is still supported as one
+    plain nickname. PackagePluginArchive packs the plugin's own dll (+ optional icon)
     into <PluginId>.zip under the output directory.
   -->
 
@@ -27,7 +30,7 @@
       <OutputFile ParameterType="System.String" Required="true" />
       <Id ParameterType="System.String" Required="true" />
       <Name ParameterType="System.String" Required="true" />
-      <Author ParameterType="System.String" />
+      <Authors ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
       <Description ParameterType="System.String" />
       <Version ParameterType="System.String" />
       <Priority ParameterType="System.String" />
@@ -51,7 +54,7 @@
             public string OutputFile { get; set; } = string.Empty;
             public string Id { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
-            public string? Author { get; set; }
+            public Microsoft.Build.Framework.ITaskItem[]? Authors { get; set; }
             public string? Description { get; set; }
             public string? Version { get; set; }
             public string? Priority { get; set; }
@@ -126,8 +129,25 @@
 
                 var named = new List<string>();
 
-                if (!string.IsNullOrWhiteSpace(Author))
-                    named.Add($"Author = {Quote(Author)}");
+                if (Authors is { Length: > 0 })
+                {
+                    var authorNames = new string[Authors.Length];
+                    var authorIds = new int[Authors.Length];
+
+                    for (int i = 0; i < Authors.Length; i++)
+                    {
+                        Microsoft.Build.Framework.ITaskItem item = Authors[i];
+                        authorNames[i] = item.ItemSpec;
+
+                        if (int.TryParse(item.GetMetadata("OsuProfileId"), out int profileId) && profileId > 0)
+                            authorIds[i] = profileId;
+                        else
+                            authorIds[i] = -1;
+                    }
+
+                    named.Add($"AuthorNames = new[] {{ {string.Join(", ", Array.ConvertAll(authorNames, Quote))} }}");
+                    named.Add($"AuthorOsuIds = new[] {{ {string.Join(", ", Array.ConvertAll(authorIds, id => id.ToString()))} }}");
+                }
 
                 if (!string.IsNullOrWhiteSpace(Description))
                     named.Add($"Description = {Quote(Description)}");
@@ -179,6 +199,14 @@
 
     <Error Condition="'$(PluginIcon)' != '' and !Exists('$(PluginIcon)')" Text="Plugin icon file '$(PluginIcon)' does not exist. Fix &lt;PluginIcon&gt; in the project file." />
 
+    <!-- Authors are the PluginAuthor items (each a nickname or, with OsuProfileId metadata, an osu!
+         profile link). The legacy single <PluginAuthor>property</PluginAuthor> form still works as
+         one plain nickname when no items are declared. -->
+    <ItemGroup>
+      <_PluginAuthors Include="@(PluginAuthor)" Condition="'@(PluginAuthor)' != ''" />
+      <_PluginAuthors Include="$(PluginAuthor)" Condition="'@(PluginAuthor)' == '' and '$(PluginAuthor)' != ''" />
+    </ItemGroup>
+
     <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_IconOutput)'))" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" />
     <Copy SourceFiles="$(PluginIcon)" DestinationFiles="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" SkipUnchangedFiles="true" />
 
@@ -186,7 +214,7 @@
         OutputFile="$(_ManifestFile)"
         Id="$(PluginId)"
         Name="$(PluginName)"
-        Author="$(PluginAuthor)"
+        Authors="@(_PluginAuthors)"
         Description="$(PluginDescription)"
         Version="$(PluginVersion)"
         Priority="$(PluginPriority)"

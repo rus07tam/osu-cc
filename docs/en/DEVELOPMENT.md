@@ -46,7 +46,20 @@ see `plugins/ExamplePlugin` for a working example. Plugin metadata is declared i
 the `PluginIcon` (image file), `PluginIconGlyph` (FontAwesome name) and
 `PluginIconResource` (embedded resource) values, and the `PluginDependency` items into an
 assembly-level `[OsuCcPlugin]` manifest (generated into `obj/PluginMetadata.g.cs`), which
-the manager reads at discovery. Legacy archives whose attribute lives on the plugin class
+the manager reads at discovery. `PluginAuthor` is a list: declare one item per author, each
+either a plain nickname or, with an `OsuProfileId`, an osu! profile-linked username that the
+UI renders as a clickable username opening the profile **in-game** (routed through osu's
+`LinkFlowContainer.AddUserLink`, so it also inherits the Username Visuals gradient):
+
+```xml
+<ItemGroup>
+  <PluginAuthor Include="osu-cc" />
+  <PluginAuthor Include="peppy" OsuProfileId="1013" />
+</ItemGroup>
+```
+
+The legacy single `<PluginAuthor>nickname</PluginAuthor>` property is still supported as one
+plain nickname. Legacy archives whose attribute lives on the plugin class
 are still discovered, with a deprecation log. Through `IOsuCcPluginHost` a
 plugin can:
 

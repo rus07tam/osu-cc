@@ -28,6 +28,9 @@ the Plugins overlay.
 Metadata lives in the project file, not in source:
 
 - `<PluginId>` / `<PluginName>` / `<PluginAuthor>` / `<PluginDescription>` / `<PluginVersion>`
+  — `PluginAuthor` is a list: one item per author, each a plain nickname or, with an
+  `OsuProfileId` metadata, an osu! profile-linked username (clickable in the UI):
+  `<PluginAuthor Include="peppy" OsuProfileId="1013" />`
 - `<PluginPriority>` — load/display order (lower first)
 - `<PluginIcon>Assets/icon.webp</PluginIcon>` — an image file icon (any name/path/format);
   `<PluginIconGlyph>FillDrip</PluginIconGlyph>` — a FontAwesome glyph icon;

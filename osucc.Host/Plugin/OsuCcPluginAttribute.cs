@@ -23,7 +23,24 @@ namespace osucc.Plugin
         /// <summary>Display name shown in the plugins overlay.</summary>
         public string Name { get; }
 
+        /// <summary>
+        /// Author as a single display string. Retained for backward compatibility: archives built
+        /// before the multi-author declaration only carry this. New builds use
+        /// <see cref="AuthorNames"/> / <see cref="AuthorOsuIds"/> instead.
+        /// </summary>
         public string? Author { get; set; }
+
+        /// <summary>
+        /// Display label per author: the nickname, or the username for a profile-linked author.
+        /// Parallel to <see cref="AuthorOsuIds"/> (index-for-index).
+        /// </summary>
+        public string[] AuthorNames { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// osu! profile id per author, parallel to <see cref="AuthorNames"/>; <c>-1</c> (or a shorter
+        /// array) means that author is a plain nickname without a profile link.
+        /// </summary>
+        public int[]? AuthorOsuIds { get; set; }
 
         public string? Description { get; set; }
 

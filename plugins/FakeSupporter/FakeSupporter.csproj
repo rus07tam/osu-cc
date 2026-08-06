@@ -9,11 +9,15 @@
     <IsPlugin>true</IsPlugin>
     <PluginId>fake-supporter</PluginId>
     <PluginName>Fake Supporter</PluginName>
-    <PluginAuthor>osu-cc</PluginAuthor>
-    <PluginDescription>Fakes the current player's osu!supporter tag (level 1–10) everywhere, plus per-user supporter overrides and a public rule API.</PluginDescription>
+    <PluginDescription>Fakes the current player's osu!supporter tag (level 1–10) everywhere, plus
+      per-user supporter overrides and a public rule API.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>Heart</PluginIconGlyph>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="osucc.Host" />

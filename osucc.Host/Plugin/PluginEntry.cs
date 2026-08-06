@@ -12,7 +12,7 @@ namespace osucc.Plugin
 
         public string Name { get; init; } = string.Empty;
 
-        public string? Author { get; init; }
+        public IReadOnlyList<PluginAuthor> Authors { get; init; } = Array.Empty<PluginAuthor>();
 
         public string? Description { get; init; }
 

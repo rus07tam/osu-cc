@@ -9,11 +9,14 @@
     <IsPlugin>true</IsPlugin>
     <PluginId>osucc-debug</PluginId>
     <PluginName>Debug Overlay</PluginName>
-    <PluginAuthor>osu-cc debug</PluginAuthor>
     <PluginDescription>The debug overlay: customised test overlays and notifications.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>Bug</PluginIconGlyph>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="osucc.Host" />

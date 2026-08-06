@@ -9,11 +9,16 @@
     <IsPlugin>true</IsPlugin>
     <PluginId>osucc-updater</PluginId>
     <PluginName>Updater</PluginName>
-    <PluginAuthor>osu-cc</PluginAuthor>
-    <PluginDescription>Checks the official osu-cc repository for a new build (a GitHub release bundle or a local dotnet build) and stages it; the osucc launcher applies the staged update on the next launch.</PluginDescription>
+    <PluginDescription>Checks the official osu-cc repository for a new build (a GitHub release
+      bundle or a local dotnet build) and stages it; the osucc launcher applies the staged update on
+      the next launch.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>CloudDownloadAlt</PluginIconGlyph>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="osucc.Host" />

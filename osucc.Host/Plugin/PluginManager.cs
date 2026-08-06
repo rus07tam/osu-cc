@@ -393,7 +393,7 @@ namespace osucc.Plugin
             {
                 Id = attribute.Id,
                 Name = attribute.Name,
-                Author = attribute.Author,
+                Authors = resolveAuthors(attribute),
                 Description = attribute.Description,
                 Version = attribute.Version,
                 IconResource = attribute.IconResource,
@@ -405,6 +405,35 @@ namespace osucc.Plugin
                 Dependencies = attribute.DependsOn,
                 PluginType = pluginType,
             };
+
+        /// <summary>
+        /// Maps the attribute's author declaration to a list of <see cref="PluginAuthor"/>. Prefers
+        /// the multi-author arrays; falls back to the legacy single-string <see cref="OsuCcPluginAttribute.Author"/>
+        /// (archives built before the multi-author support) as one plain nickname.
+        /// </summary>
+        private static PluginAuthor[] resolveAuthors(OsuCcPluginAttribute attribute)
+        {
+            if (attribute.AuthorNames is { Length: > 0 })
+            {
+                int[]? ids = attribute.AuthorOsuIds;
+                var authors = new PluginAuthor[attribute.AuthorNames.Length];
+
+                for (int i = 0; i < attribute.AuthorNames.Length; i++)
+                {
+                    int id = ids != null && i < ids.Length ? ids[i] : -1;
+                    authors[i] = id > 0
+                        ? new PluginAuthor(attribute.AuthorNames[i], id)
+                        : new PluginAuthor(attribute.AuthorNames[i]);
+                }
+
+                return authors;
+            }
+
+            if (!string.IsNullOrWhiteSpace(attribute.Author))
+                return new[] { new PluginAuthor(attribute.Author) };
+
+            return Array.Empty<PluginAuthor>();
+        }
 
         /// <summary>
         /// Registers an entry, de-duplicating by id. During a scheme migration the same

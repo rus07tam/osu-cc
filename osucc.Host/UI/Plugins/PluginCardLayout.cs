@@ -5,7 +5,9 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Users;
 using osucc.Core;
 using osucc.Localisation;
 using osucc.Plugin;
@@ -232,6 +234,83 @@ namespace osucc.UI.Plugins
             }
 
             return flow;
+        }
+
+        /// <summary>
+        /// Renders the "Author" value: one segment per author, joined by commas. Profile-linked
+        /// authors (<see cref="PluginAuthor.OsuesId"/> set) render as clickable usernames that open
+        /// the in-game osu! profile (routed through <see cref="LinkFlowContainer.AddUserLink"/> so
+        /// they also inherit the Username Visuals gradient styling); plain nicknames render as
+        /// text. Falls back to the "unknown author" placeholder when there are no authors.
+        /// </summary>
+        public static FillFlowContainer CreateAuthorValue(PluginEntry entry, float fontSize = 13)
+        {
+            var flow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(0, 0),
+            };
+
+            for (int i = 0; i < entry.Authors.Count; i++)
+            {
+                if (i > 0)
+                {
+                    flow.Add(new OsuSpriteText
+                    {
+                        Text = ", ",
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = Color4.White.Opacity(0.55f),
+                    });
+                }
+
+                PluginAuthor author = entry.Authors[i];
+
+                if (author.OsuesId is int profileId)
+                {
+                    var linkFlow = new LinkFlowContainer
+                    {
+                        AutoSizeAxes = Axes.Both,
+                    };
+
+                    linkFlow.AddUserLink(new PluginUser { OnlineID = profileId, Username = author.Name },
+                        s => s.Font = OsuFont.GetFont(size: fontSize, weight: FontWeight.Medium));
+
+                    flow.Add(linkFlow);
+                }
+                else
+                {
+                    flow.Add(new OsuSpriteText
+                    {
+                        Text = author.Name,
+                        Font = OsuFont.Default.With(size: fontSize),
+                        Colour = Color4.White,
+                    });
+                }
+            }
+
+            return flow;
+        }
+
+        /// <summary>Joined author names as plain text (no links), for string-only surfaces.</summary>
+        public static string FormatAuthorNames(PluginEntry entry)
+            => string.Join(", ", entry.Authors.Select(a => a.Name));
+
+        /// <summary>
+        /// Minimal <see cref="IUser"/> carrying just what the profile link needs: the osu! id and
+        /// the username to display. The profile overlay fetches the full profile from the API by id.
+        /// </summary>
+        private sealed class PluginUser : IUser
+        {
+            public int OnlineID { get; set; }
+
+            public string Username { get; set; } = string.Empty;
+
+            public CountryCode CountryCode { get; set; }
+
+            public bool IsBot { get; set; }
+
+            public bool Equals(IUser? other) => other is PluginUser p && p.OnlineID == OnlineID;
         }
     }
 }

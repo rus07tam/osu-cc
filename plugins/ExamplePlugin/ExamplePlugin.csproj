@@ -9,12 +9,16 @@
     <IsPlugin>true</IsPlugin>
     <PluginId>example</PluginId>
     <PluginName>Example Plugin</PluginName>
-    <PluginAuthor>osu-cc</PluginAuthor>
-    <PluginDescription>Demonstrates the osu!cc plugin API: toolbar button, notifications, celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</PluginDescription>
+    <PluginDescription>Demonstrates the osu!cc plugin API: toolbar button, notifications,
+      celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginPriority>100</PluginPriority>
     <PluginIcon>icon.png</PluginIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+  </ItemGroup>
 
   <ItemGroup>
     <PluginDependency Include="username-visuals" />
