@@ -12,6 +12,7 @@
     <PluginDescription>Shows the improvement indicator next to total play time on user profiles.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIcon>icon.png</PluginIcon>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>
 
   <ItemGroup>

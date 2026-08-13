@@ -85,6 +85,13 @@ namespace osucc.Plugin
         /// </summary>
         public string[] DependsOn { get; set; } = Array.Empty<string>();
 
+        /// <summary>
+        /// Repository the plugin is published from (e.g. <c>"https://github.com/RuJect/osu-cc"</c>).
+        /// Consumed by the plugin store to resolve versions and fetch install payloads; not tied to
+        /// any specific git host. Declared from the <c>PluginRepository</c> project property.
+        /// </summary>
+        public string? Repository { get; set; }
+
         public OsuCcPluginAttribute(string id, string name, int priority = 0, int apiVersion = CurrentApiVersion)
         {
             Id = id;

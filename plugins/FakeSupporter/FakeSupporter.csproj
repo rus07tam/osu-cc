@@ -13,6 +13,7 @@
       per-user supporter overrides and a public rule API.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>Heart</PluginIconGlyph>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>
 
   <ItemGroup>

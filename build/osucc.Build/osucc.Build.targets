@@ -6,14 +6,15 @@
 
     Plugin metadata is declared in the project file (PluginId, PluginName, PluginAuthor,
     PluginDescription, PluginVersion, PluginPriority, PluginIcon, PluginIconGlyph,
-    PluginIconResource, the PluginDependency and PluginTag items) and turned into an
-    assembly-level [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources never
-    write the attribute directly. PluginAuthor is a list of items, each a plain nickname or,
+    PluginIconResource, PluginRepository, the PluginDependency and PluginTag items) and turned
+    into an assembly-level [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources
+    never write the attribute directly. PluginAuthor is a list of items, each a plain nickname or,
     with the optional OsuProfileId metadata, an osu! profile-linked username (rendered
     clickable by the UI); the legacy single <PluginAuthor>property</PluginAuthor> form is still
     supported as one plain nickname. PluginTag items become the plugin's display tags (chips in
-    the plugins UI / search). PackagePluginArchive packs the plugin's own dll (+ optional icon)
-    into <PluginId>.zip under the output directory.
+    the plugins UI / search). PluginRepository is the URL of the repository the plugin is
+    published from (consumed by the plugin store). PackagePluginArchive packs the plugin's own
+    dll (+ optional icon) into <PluginId>.zip under the output directory.
   -->
 
   <PropertyGroup Condition="'$(IsPlugin)' == 'true'">
@@ -40,6 +41,7 @@
       <IconPath ParameterType="System.String" />
       <Icon ParameterType="System.String" />
       <IconResource ParameterType="System.String" />
+      <Repository ParameterType="System.String" />
       <Dependencies ParameterType="System.String[]" />
     </ParameterGroup>
     <Task>
@@ -65,6 +67,7 @@
             public string? IconPath { get; set; }
             public string? Icon { get; set; }
             public string? IconResource { get; set; }
+            public string? Repository { get; set; }
             public string[]? Dependencies { get; set; }
 
             public override bool Execute()
@@ -181,6 +184,9 @@
                 if (!string.IsNullOrWhiteSpace(IconResource))
                     named.Add($"IconResource = {Quote(IconResource)}");
 
+                if (!string.IsNullOrWhiteSpace(Repository))
+                    named.Add($"Repository = {Quote(Repository)}");
+
                 if (Dependencies is { Length: > 0 })
                     named.Add($"DependsOn = new[] {{ {string.Join(", ", Array.ConvertAll(Dependencies!, Quote))} }}");
 
@@ -241,6 +247,7 @@
         IconPath="$(PluginIcon)"
         Icon="$(PluginIconGlyph)"
         IconResource="$(PluginIconResource)"
+        Repository="$(PluginRepository)"
         Dependencies="@(PluginDependency)" />
 
     <ItemGroup>

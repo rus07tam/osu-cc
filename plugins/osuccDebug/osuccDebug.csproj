@@ -12,6 +12,7 @@
     <PluginDescription>The debug overlay: customised test overlays and notifications.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>Bug</PluginIconGlyph>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>
 
   <ItemGroup>

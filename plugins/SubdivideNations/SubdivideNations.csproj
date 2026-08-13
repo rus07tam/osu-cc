@@ -12,6 +12,7 @@
     <PluginDescription>Shows each user's sub-national region on profiles and user cards.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIcon>icon.png</PluginIcon>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>
 
   <ItemGroup>

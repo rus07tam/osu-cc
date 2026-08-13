@@ -14,6 +14,7 @@
       the next launch.</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <PluginIconGlyph>CloudDownloadAlt</PluginIconGlyph>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>
 
   <ItemGroup>
