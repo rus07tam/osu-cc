@@ -1,0 +1,28 @@
+{
+  "Id": "Default",
+  "Name": "Default",
+  "IsVanilla": true,
+  "AccentTransform": { "Kind": "Identity" },
+  "Chrome": {
+    "TextLightnessThreshold": 0.9,
+    "AccentSaturationThreshold": 0.4,
+    "Text": { "HueDegrees": 0, "Saturation": 0, "Lightness": 0.95 },
+    "Accent": {
+      "HueDegrees": 0,
+      "Saturation": "Keep",
+      "LightnessMin": 0.3,
+      "LightnessMax": 0.85
+    },
+    "Surface": {
+      "HueDegrees": 0,
+      "Saturation": "Keep",
+      "Lightness": {
+        "Interpolation": "Linear",
+        "ControlPoints": [
+          { "X": 0, "Y": 0 },
+          { "X": 1, "Y": 1 }
+        ]
+      }
+    }
+  }
+}

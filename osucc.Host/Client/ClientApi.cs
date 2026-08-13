@@ -19,6 +19,8 @@ namespace osucc.Client
 
         public static SpecialsConfigManager? Config { get; private set; }
 
+        public static osucc.Data.IOsuCcStorageManager? StorageManager { get; private set; }
+
         public static string? OriginalGameName { get; private set; }
 
         /// <summary>Remembers the game's real name before branding overwrites it.</summary>
@@ -29,6 +31,10 @@ namespace osucc.Client
 
         /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
         internal static void SetConfig(SpecialsConfigManager config) => Config = config;
+
+        /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
+        internal static void SetStorageManager(osucc.Data.IOsuCcStorageManager manager) => StorageManager = manager;
+
 
         /// <summary>Posted by the scheduler once startup is complete.</summary>
         public static void ReportInit()

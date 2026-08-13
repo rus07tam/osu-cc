@@ -1,4 +1,5 @@
 using osu.Framework.Bindables;
+using osucc.Core;
 
 namespace osucc.Client
 {
@@ -22,6 +23,9 @@ namespace osucc.Client
         public static readonly Bindable<bool> FavouriteMapHighlight = new(false);
         public static readonly Bindable<bool> ProfileFavouriteDownloadButton = new(false);
 
+        /// <summary>Active theme's id (an <see cref="OsuCcThemeDefinition.Id"/> from <see cref="OsuCcThemeRegistry"/>), applied once at startup. Changing it prompts a restart.</summary>
+        public static readonly Bindable<string> OsuCcTheme = new(osucc.Core.OsuCcThemeRegistry.DefaultId);
+
         /// <summary>Binds each strong bindable to the config's (weak) copy, syncing values both ways.</summary>
         public static void Attach(SpecialsConfigManager config)
         {
@@ -35,6 +39,7 @@ namespace osucc.Client
             bind(config, SpecialsSetting.SentryErrorReporting, SentryErrorReporting);
             bind(config, SpecialsSetting.FavouriteMapHighlight, FavouriteMapHighlight);
             bind(config, SpecialsSetting.ProfileFavouriteDownloadButton, ProfileFavouriteDownloadButton);
+            bind(config, SpecialsSetting.OsuCcTheme, OsuCcTheme);
         }
 
         private static void bind<T>(SpecialsConfigManager config, SpecialsSetting setting, Bindable<T> strong)

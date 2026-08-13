@@ -39,6 +39,7 @@ namespace osucc.Client
             SetDefault(SpecialsSetting.SentryErrorReporting, false);
             SetDefault(SpecialsSetting.FavouriteMapHighlight, true);
             SetDefault(SpecialsSetting.ProfileFavouriteDownloadButton, true);
+            SetDefault(SpecialsSetting.OsuCcTheme, Core.OsuCcThemeRegistry.DefaultId);
         }
     }
 }

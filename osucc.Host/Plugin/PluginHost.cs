@@ -81,6 +81,10 @@ namespace osucc.Plugin
         public PluginSettings GetSettings()
             => settings ??= new PluginSettings(() => resolveStorage());
 
+        public osucc.Data.IOsuCcStorage Data => data ??= ClientApi.StorageManager!.GetStorage(entry.Id, entry.Plugin?.GetType().Assembly);
+
+        private osucc.Data.IOsuCcStorage? data;
+
         public Storage? GetStorage(string subPath = "")
         {
             var storage = resolveStorage();

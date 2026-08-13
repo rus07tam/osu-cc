@@ -30,6 +30,9 @@ namespace osucc.Client
         FavouriteMapHighlight,
 
         /// <summary>Add a "download all favourites" button to the Beatmaps → Favourites section of user profiles.</summary>
-        ProfileFavouriteDownloadButton
+        ProfileFavouriteDownloadButton,
+
+        /// <summary>Cosmetic UI palette applied to the client chrome and osu-cc surfaces, stored as an <see cref="Core.OsuCcThemeRegistry"/> theme id. Restart-gated.</summary>
+        OsuCcTheme
     }
 }

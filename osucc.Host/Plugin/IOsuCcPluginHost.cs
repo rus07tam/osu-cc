@@ -66,6 +66,11 @@ namespace osucc.Plugin
         /// </summary>
         PluginSettings GetSettings();
 
+        /// <summary>
+        /// The VFS storage for this plugin's configuration and resources.
+        /// </summary>
+        osucc.Data.IOsuCcStorage Data { get; }
+
         /// <summary>A storage folder under the game's storage, dedicated to this plugin. <c>null</c> before the game attaches.</summary>
         Storage? GetStorage(string subPath = "");
 

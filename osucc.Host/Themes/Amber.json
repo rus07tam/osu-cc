@@ -1,0 +1,31 @@
+{
+  "Id": "Amber",
+  "Name": "Amber",
+  "Description": "Warm dark palette: near-black espresso surfaces with amber/copper accents.",
+  "AccentTransform": { "Kind": "HueShift", "HueDegrees": 42 },
+  "Chrome": {
+    "TextLightnessThreshold": 0.9,
+    "AccentSaturationThreshold": 0.4,
+    "Text": { "HueDegrees": 33, "Saturation": 0.05, "Lightness": 0.93 },
+    "Accent": {
+      "HueDegrees": 42,
+      "Saturation": "Keep",
+      "LightnessMin": 0.3,
+      "LightnessMax": 0.85
+    },
+    "Surface": {
+      "HueDegrees": 33,
+      "Saturation": "Fixed",
+      "FixedSaturation": 0.32,
+      "Lightness": {
+        "Interpolation": "Linear",
+        "ControlPoints": [
+          { "X": 0, "Y": 0.04 },
+          { "X": 1, "Y": 0.34 }
+        ],
+        "ClampMin": 0.02,
+        "ClampMax": 0.35
+      }
+    }
+  }
+}

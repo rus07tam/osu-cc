@@ -6,6 +6,7 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Client;
 using osucc.Localisation;
+using osucc.UI.Overlays;
 using osucc.UI.Plugins;
 
 namespace osucc.UI.Specials
@@ -30,6 +31,8 @@ namespace osucc.UI.Specials
             addCheckbox(ClientConfig.SentryErrorReporting, SpecialsSettingsStrings.SentryErrorReportingCaption, SpecialsSettingsStrings.SentryErrorReportingHint);
             addCheckbox(ClientConfig.FavouriteMapHighlight, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint);
             addCheckbox(ClientConfig.ProfileFavouriteDownloadButton, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint);
+
+            addThemeButton();
 
             Add(new SettingsButtonV2
             {
@@ -64,6 +67,55 @@ namespace osucc.UI.Specials
 
             Add(new SettingsItemV2(checkbox));
             return checkbox;
+        }
+
+        /// <summary>
+        /// Cosmetic-chrome theme picker. A button opens the live <see cref="ThemePreviewOverlay"/>
+        /// (instead of the in-settings dropdown, which went out of sync with the preview's own
+        /// selector); the theme is only persisted when the preview's apply button is pressed, which
+        /// then confirms a restart.
+        /// </summary>
+        private void addThemeButton()
+        {
+            var btn = new SettingsButtonV2
+            {
+                Text = SpecialsSettingsStrings.ThemeCaption,
+                TooltipText = SpecialsSettingsStrings.ThemeHint,
+                Action = () => openPreview(),
+            };
+            
+            osucc.Core.OsuCcThemeManager.IsActiveThemeDirty.BindValueChanged(change =>
+            {
+                btn.Text = change.NewValue 
+                    ? new LocalisableString(SpecialsSettingsStrings.ThemeCaption.ToString() + " [DIRTY]") 
+                    : SpecialsSettingsStrings.ThemeCaption;
+            }, true);
+
+            Add(btn);
+        }
+
+        /// <summary>
+        /// Opens the theme preview overlay, first hiding the settings so the preview renders on top
+        /// (settings lives in the leftFloating layer, above the preview overlay's overlayContent layer).
+        /// </summary>
+        private void openPreview()
+        {
+            if (ThemePreviewComponent.Instance == null)
+            {
+                ClientNotifications.Error(ThemePreviewStrings.ApplyFailed);
+                return;
+            }
+
+            for (Drawable? current = this; current != null; current = current.Parent)
+            {
+                if (current is SettingsOverlay settingsOverlay)
+                {
+                    settingsOverlay.Hide();
+                    break;
+                }
+            }
+
+            ThemePreviewComponent.Instance.Show();
         }
     }
 }

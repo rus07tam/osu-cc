@@ -1,6 +1,8 @@
 using osu.Game;
 using osucc.Core;
+using osucc.Patches;
 using osucc.Plugin;
+using osucc.UI.Overlays;
 using osucc.UI.Plugins;
 
 namespace osucc.Client
@@ -35,11 +37,25 @@ namespace osucc.Client
                 return;
             }
 
+            ClientApi.SetStorageManager(new osucc.Data.OsuCcStorageManager(storage));
+
             var config = new SpecialsConfigManager(storage.GetStorageForDirectory("osu-cc"));
             ClientApi.SetConfig(config);
             config.Load();
             ClientConfig.Attach(config);
             TimingLog.Info($"SpecialsConfigManager loaded (branding default: {ClientConfig.Branding.Value})");
+
+            // Cosmetic UI theme: pin the persisted id (falling back to the vanilla default if it no
+            // longer resolves) before any client overlay is built, then re-paint the game's
+            // OsuColour accents and osu-cc's own OsuCcColours (the OverlayColourProvider patch
+            // reads the active theme dynamically, so it needs no setup). Restart-gated in the
+            // Specials settings section.
+            if (!OsuCcThemeRegistry.TryGet(ClientConfig.OsuCcTheme.Value, out var theme))
+                theme = OsuCcThemeRegistry.Get(OsuCcThemeRegistry.DefaultId);
+            OsuCcThemeManager.SetActive(theme);
+            OsuCcThemeManager.ApplyToGame(game);
+
+            TimingLog.Info($"OsuCc theme active: {OsuCcThemeManager.Active.Id}");
 
             ClientFavourites.Attach();
             ClientProfileDownloads.Attach();
@@ -53,6 +69,7 @@ namespace osucc.Client
             game.Add(new InitNotificationsComponent());
             game.Add(new FirstRunSetupComponent());
             game.Add(new PluginsOverlayComponent());
+            game.Add(new ThemePreviewComponent());
 
             // Storage and DI are available: attach every loaded plugin (its settings reload
             // from disk first, then AttachToGame runs on the update thread).

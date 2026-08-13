@@ -53,5 +53,19 @@ namespace osucc.Localisation
         public static LocalisableString ManagePluginsCaption => OsuCcLocalisation.Get(getKey(nameof(ManagePluginsCaption)), "Manage plugins…");
 
         public static LocalisableString ManagePluginsTooltip => OsuCcLocalisation.Get(getKey(nameof(ManagePluginsTooltip)), "Opens the osu!cc plugins overlay, listing every loaded plugin and its status.");
+
+        public static LocalisableString ThemeCaption => OsuCcLocalisation.Get(getKey(nameof(ThemeCaption)), "UI theme");
+
+        public static LocalisableString ThemeHint => OsuCcLocalisation.Get(getKey(nameof(ThemeHint)), "Cosmetic palette applied to the client chrome and osu!cc surfaces. Grayscale is a full monochrome look; Midnight uses near-black violet surfaces with vivid accents; Amber is a warm dark palette with amber highlights. Changing this restarts the game.");
+
+        public static LocalisableString ThemeRestartTitle => OsuCcLocalisation.Get(getKey(nameof(ThemeRestartTitle)), "Change UI theme");
+
+        public static LocalisableString ThemeRestartBody => OsuCcLocalisation.Get(getKey(nameof(ThemeRestartBody)), "To apply the new UI theme, the game will close. Please open it again.");
+
+        public static LocalisableString ThemeRestartButton => OsuCcLocalisation.Get(getKey(nameof(ThemeRestartButton)), "Restart");
+
+        public static LocalisableString ThemeCancelButton => OsuCcLocalisation.Get(getKey(nameof(ThemeCancelButton)), "Cancel");
+
+        public static LocalisableString ThemeRestartFailed => OsuCcLocalisation.Get(getKey(nameof(ThemeRestartFailed)), "Could not open the theme confirmation dialog.");
     }
 }

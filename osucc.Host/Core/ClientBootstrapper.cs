@@ -27,6 +27,7 @@ namespace osucc.Core
                 ("Toolbar.load", ToolbarLoadPatch.Install),
                 ("Panel.PrepareForUse", PanelPrepareForUsePatch.Install),
                 ("PaginatedBeatmapContainer.load", PaginatedBeatmapContainerLoadPatch.Install),
+                ("OverlayColourProvider.getColour/getAccentColour", OverlayColourProviderThemePatch.Install),
             };
 
             foreach (var (name, install) in patches)
