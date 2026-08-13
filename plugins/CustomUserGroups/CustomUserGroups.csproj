@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>CustomUserGroups</AssemblyName>
+    <RootNamespace>CustomUserGroups</RootNamespace>
+    <IsPlugin>true</IsPlugin>
+    <PluginId>custom-user-groups</PluginId>
+    <PluginName>Custom User Groups</PluginName>
+    <PluginDescription>Shows custom user groups (colour, short name, name, playmodes) on profiles and user cards,
+      appended to real osu! groups, with per-user overrides and a public rule API.</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <PluginIconGlyph>Users</PluginIconGlyph>
+    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
+    <PluginTag Include="profile" />
+    <PluginTag Include="visual" />
+    <PluginTag Include="fun" />
+    <PluginTag Include="library" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PluginDependency Include="username-visuals" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="osucc.Host" />
+    <PackageReference Include="osucc.Build" PrivateAssets="all" />
+    <PackageReference Include="ppy.osu.Game" />
+    <!-- Contract assembly of the built-in UsernameVisuals plugin, consumed for the optional
+         username-colour rule (host.GetApi<IUsernameVisualsApi>). Not packed into the plugin
+         archive: at runtime it resolves to the already-loaded plugin assembly. -->
+    <ProjectReference Include="..\UsernameVisuals\UsernameVisuals.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
+  </ItemGroup>
+
+</Project>
