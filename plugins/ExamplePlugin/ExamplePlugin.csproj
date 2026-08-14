@@ -11,7 +11,7 @@
     <PluginName>Example Plugin</PluginName>
     <PluginDescription>Demonstrates the osu!cc plugin API: toolbar button, notifications,
       celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</PluginDescription>
-    <PluginVersion>1.0.0</PluginVersion>
+    <PluginVersion>1.0.1</PluginVersion>
     <PluginPriority>100</PluginPriority>
     <PluginIcon>icon.png</PluginIcon>
     <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>

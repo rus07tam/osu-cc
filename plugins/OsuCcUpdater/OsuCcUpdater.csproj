@@ -12,7 +12,7 @@
     <PluginDescription>Checks the official osu-cc repository for a new build (a GitHub release
       bundle or a local dotnet build) and stages it; the osucc launcher applies the staged update on
       the next launch.</PluginDescription>
-    <PluginVersion>1.0.0</PluginVersion>
+    <PluginVersion>1.0.1</PluginVersion>
     <PluginIconGlyph>CloudDownloadAlt</PluginIconGlyph>
     <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>

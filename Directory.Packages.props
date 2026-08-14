@@ -13,11 +13,11 @@
   -->
 
   <PropertyGroup>
-    <OsuCcHostVersion>2.1.0</OsuCcHostVersion>
-    <OsuCcBuildVersion>2.1.0</OsuCcBuildVersion>
+    <OsuCcHostVersion>2.2.0</OsuCcHostVersion>
+    <OsuCcBuildVersion>2.2.0</OsuCcBuildVersion>
     <OsuCcSharedVersion>2.0.2</OsuCcSharedVersion>
-    <OsuCcLauncherVersion>2.1.0</OsuCcLauncherVersion>
-    <OsuCcTemplatesVersion>2.0.2</OsuCcTemplatesVersion>
+    <OsuCcLauncherVersion>2.2.0</OsuCcLauncherVersion>
+    <OsuCcTemplatesVersion>2.0.3</OsuCcTemplatesVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 

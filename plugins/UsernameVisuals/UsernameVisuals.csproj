@@ -10,7 +10,7 @@
     <PluginId>username-visuals</PluginId>
     <PluginName>Username Visuals</PluginName>
     <PluginDescription>Username visuals plus an own-username display override (custom text / hide).</PluginDescription>
-    <PluginVersion>1.0.0</PluginVersion>
+    <PluginVersion>1.0.1</PluginVersion>
     <PluginIconGlyph>FillDrip</PluginIconGlyph>
     <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>

@@ -10,7 +10,7 @@
     <PluginId>osucc-debug</PluginId>
     <PluginName>Debug Overlay</PluginName>
     <PluginDescription>The debug overlay: customised test overlays and notifications.</PluginDescription>
-    <PluginVersion>1.0.0</PluginVersion>
+    <PluginVersion>1.0.1</PluginVersion>
     <PluginIconGlyph>Bug</PluginIconGlyph>
     <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
   </PropertyGroup>

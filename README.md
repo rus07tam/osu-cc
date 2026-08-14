@@ -10,6 +10,8 @@ a set of optional improvements on top of the game you already have.
 
 ## Screenshots
 
+[Demo video](https://nextcloud.ruject.fun/s/oY8o7ismZtGGWXj)
+
 ![Plugin manager](docs/assets/PLUGIN_MANAGER.png)
 
 ![Settings section and mod selector](docs/assets/SETTINGS_AND_MOD_PANEL.png)
