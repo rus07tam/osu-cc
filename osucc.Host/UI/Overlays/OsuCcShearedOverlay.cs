@@ -118,16 +118,6 @@ namespace osucc.UI.Overlays
             Hide();
         }
 
-        protected override bool OnClick(ClickEvent e)
-        {
-            if (State.Value == Visibility.Visible)
-            {
-                closeWithRestore();
-                return true;
-            }
-
-            return base.OnClick(e);
-        }
 
         public override bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
         {
