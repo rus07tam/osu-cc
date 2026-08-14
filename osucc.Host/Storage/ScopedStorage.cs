@@ -116,7 +116,7 @@ namespace osucc.Data
                 resourceFiles = resourceAssembly.GetManifestResourceNames()
                     .Where(n => string.IsNullOrEmpty(normalizedDir) || n.Contains("." + normalizedDir, StringComparison.Ordinal) || n.StartsWith(normalizedDir, StringComparison.Ordinal))
                     .Where(n => string.IsNullOrEmpty(searchExt) || n.EndsWith(searchExt, StringComparison.OrdinalIgnoreCase))
-                    .Select(n => 
+                    .Select(n =>
                     {
                         var lastDot = n.LastIndexOf('.');
                         var extensionDot = n.LastIndexOf('.', lastDot - 1);

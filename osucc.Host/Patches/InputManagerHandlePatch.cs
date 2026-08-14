@@ -37,7 +37,7 @@ namespace osucc.Patches
                         if (now - lastTime < 10)
                             return;
                     }
-                    
+
                     lastKeyPressTimes[e.Key] = now;
                     OnInputEvent?.Invoke(e);
                 }

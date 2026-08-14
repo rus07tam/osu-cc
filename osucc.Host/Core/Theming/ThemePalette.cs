@@ -1,5 +1,5 @@
-using osuTK.Graphics;
 using osucc.Core;
+using osuTK.Graphics;
 using System;
 
 namespace osucc.Core
@@ -129,14 +129,14 @@ namespace osucc.Core
                     return ThemeColourMath.Desaturate(source);
 
                 case AccentTransformKind.HueShift:
-                {
-                    var (_, sat, light) = ThemeColourMath.RgbToHsl(source);
-                    return ThemeColourMath.HslToRgb(
-                        ThemeColourMath.HueDegreesToUnit(Definition.AccentTransform.HueDegrees ?? 0f),
-                        sat,
-                        light,
-                        source.A);
-                }
+                    {
+                        var (_, sat, light) = ThemeColourMath.RgbToHsl(source);
+                        return ThemeColourMath.HslToRgb(
+                            ThemeColourMath.HueDegreesToUnit(Definition.AccentTransform.HueDegrees ?? 0f),
+                            sat,
+                            light,
+                            source.A);
+                    }
 
                 default:
                     return source;

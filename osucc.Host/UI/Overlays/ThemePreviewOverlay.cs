@@ -67,8 +67,8 @@ namespace osucc.UI.Overlays
             isDirty.BindTo(osucc.Core.OsuCcThemeManager.IsActiveThemeDirty);
             isDirty.BindValueChanged(change =>
             {
-                Header.Title = change.NewValue 
-                    ? new osu.Framework.Localisation.LocalisableString(ThemePreviewStrings.Title.ToString() + " [DIRTY]") 
+                Header.Title = change.NewValue
+                    ? new osu.Framework.Localisation.LocalisableString(ThemePreviewStrings.Title.ToString() + " [DIRTY]")
                     : ThemePreviewStrings.Title;
             }, true);
 

@@ -146,7 +146,7 @@ namespace osucc.Core
             try
             {
                 // FileWatcher may fire while the file is still being written to.
-                System.Threading.Thread.Sleep(100); 
+                System.Threading.Thread.Sleep(100);
 
                 var json = File.ReadAllText(e.FullPath);
                 var theme = JsonSerializer.Deserialize<OsuCcThemeDefinition>(json, jsonOptions);
@@ -184,7 +184,7 @@ namespace osucc.Core
                 // We don't have the ID from the file content anymore, so we guess from filename.
                 var possibleId = Path.GetFileNameWithoutExtension(e.Name);
                 var existing = themes!.FirstOrDefault(t => t.Id == possibleId || string.Equals(t.Name, possibleId, StringComparison.OrdinalIgnoreCase));
-                
+
                 if (existing != null)
                 {
                     themes!.Remove(existing);

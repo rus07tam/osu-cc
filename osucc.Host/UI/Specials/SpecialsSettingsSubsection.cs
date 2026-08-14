@@ -90,11 +90,11 @@ namespace osucc.UI.Specials
                 TooltipText = SpecialsSettingsStrings.ThemeHint,
                 Action = () => openPreview(),
             };
-            
+
             osucc.Core.OsuCcThemeManager.IsActiveThemeDirty.BindValueChanged(change =>
             {
-                btn.Text = change.NewValue 
-                    ? new LocalisableString(SpecialsSettingsStrings.ThemeCaption.ToString() + " [DIRTY]") 
+                btn.Text = change.NewValue
+                    ? new LocalisableString(SpecialsSettingsStrings.ThemeCaption.ToString() + " [DIRTY]")
                     : SpecialsSettingsStrings.ThemeCaption;
             }, true);
 

@@ -7,12 +7,12 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Game.Graphics;
 using osucc.Client;
+using osucc.Core;
 using osucc.Patches;
 using osuTK;
 using osuTK.Graphics;
 using System;
 using System.Linq;
-using osucc.Core;
 
 namespace osucc.UI.Overlays
 {
