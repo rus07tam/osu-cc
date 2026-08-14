@@ -32,6 +32,7 @@
   "osucc.Localisation.Specials:ProfileFavouriteDownloadButtonHint": "Добавляет кнопку \"Скачать все избранные\" в секцию Beatmaps → Favourites профилей игроков.",
   "osucc.Localisation.Specials:ManagePluginsCaption": "Управление плагинами…",
   "osucc.Localisation.Specials:ManagePluginsTooltip": "Открывает оверлей плагинов osu!cc со списком загруженных плагинов и их статусом.",
+  "osucc.Localisation.Specials:KeyHistoryModeCaption": "История нажатий клавиш",
   "osucc.Localisation.Plugins:OverlayTitle": "Плагины osu!cc",
   "osucc.Localisation.Plugins:OverlayDescription": "Загруженные плагины и их статус",
   "osucc.Localisation.Plugins:EmptyState": "Плагины не найдены. Положите архивы плагинов (*.zip / *.rar) в папку \"plugins\" osu-cc (каталог osu-cc в папке данных игры).",

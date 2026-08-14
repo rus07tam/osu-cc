@@ -23,6 +23,7 @@ namespace osucc.Client
         public static readonly Bindable<bool> SentryErrorReporting = new(false);
         public static readonly Bindable<bool> FavouriteMapHighlight = new(false);
         public static readonly Bindable<bool> ProfileFavouriteDownloadButton = new(false);
+        public static readonly Bindable<KeyHistoryOverlayMode> KeyHistoryMode = new(KeyHistoryOverlayMode.Disabled);
 
         /// <summary>Active theme's id (an <see cref="OsuCcThemeDefinition.Id"/> from <see cref="OsuCcThemeRegistry"/>), applied once at startup. Changing it prompts a restart.</summary>
         public static readonly Bindable<string> OsuCcTheme = new(osucc.Core.OsuCcThemeRegistry.DefaultId);
@@ -42,6 +43,7 @@ namespace osucc.Client
             bind(config, SpecialsSetting.FavouriteMapHighlight, FavouriteMapHighlight);
             bind(config, SpecialsSetting.ProfileFavouriteDownloadButton, ProfileFavouriteDownloadButton);
             bind(config, SpecialsSetting.OsuCcTheme, OsuCcTheme);
+            bind(config, SpecialsSetting.KeyHistoryMode, KeyHistoryMode);
         }
 
         private static void bind<T>(SpecialsConfigManager config, SpecialsSetting setting, Bindable<T> strong)

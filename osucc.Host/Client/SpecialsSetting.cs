@@ -36,6 +36,9 @@ namespace osucc.Client
         ProfileFavouriteDownloadButton,
 
         /// <summary>Cosmetic UI palette applied to the client chrome and osu-cc surfaces, stored as an <see cref="Core.OsuCcThemeRegistry"/> theme id. Restart-gated.</summary>
-        OsuCcTheme
+        OsuCcTheme,
+
+        /// <summary>Position of the key history overlay, or Disabled if off.</summary>
+        KeyHistoryMode
     }
 }

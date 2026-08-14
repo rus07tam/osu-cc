@@ -33,6 +33,12 @@ namespace osucc.UI.Specials
             addCheckbox(ClientConfig.FavouriteMapHighlight, SpecialsSettingsStrings.FavouriteMapHighlightCaption, SpecialsSettingsStrings.FavouriteMapHighlightHint);
             addCheckbox(ClientConfig.ProfileFavouriteDownloadButton, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonCaption, SpecialsSettingsStrings.ProfileFavouriteDownloadButtonHint);
 
+            Add(new SettingsEnumDropdown<KeyHistoryOverlayMode>
+            {
+                LabelText = SpecialsSettingsStrings.KeyHistoryModeCaption,
+                Current = ClientConfig.KeyHistoryMode,
+            });
+
             addThemeButton();
 
             Add(new SettingsButtonV2

@@ -72,5 +72,7 @@ namespace osucc.Localisation
         public static LocalisableString ThemeCancelButton => OsuCcLocalisation.Get(getKey(nameof(ThemeCancelButton)), "Cancel");
 
         public static LocalisableString ThemeRestartFailed => OsuCcLocalisation.Get(getKey(nameof(ThemeRestartFailed)), "Could not open the theme confirmation dialog.");
+
+        public static LocalisableString KeyHistoryModeCaption => OsuCcLocalisation.Get(getKey(nameof(KeyHistoryModeCaption)), "Key history overlay");
     }
 }

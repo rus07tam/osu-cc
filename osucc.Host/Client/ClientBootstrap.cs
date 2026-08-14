@@ -70,6 +70,7 @@ namespace osucc.Client
             game.Add(new FirstRunSetupComponent());
             game.Add(new PluginsOverlayComponent());
             game.Add(new ThemePreviewComponent());
+            game.Add(new KeyHistoryOverlayComponent());
 
             // Storage and DI are available: attach every loaded plugin (its settings reload
             // from disk first, then AttachToGame runs on the update thread).

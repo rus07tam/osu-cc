@@ -41,6 +41,7 @@ namespace osucc.Client
             SetDefault(SpecialsSetting.FavouriteMapHighlight, true);
             SetDefault(SpecialsSetting.ProfileFavouriteDownloadButton, true);
             SetDefault(SpecialsSetting.OsuCcTheme, Core.OsuCcThemeRegistry.DefaultId);
+            SetDefault(SpecialsSetting.KeyHistoryMode, KeyHistoryOverlayMode.Disabled);
         }
     }
 }
