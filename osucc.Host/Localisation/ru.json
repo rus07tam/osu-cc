@@ -10,6 +10,8 @@
   "osucc.Localisation.Common:PluginsLoadedFailed": "плагинов загружено: {0}/{1}, ошибок: {2}",
   "osucc.Localisation.Specials:SectionHeader": "Дополнительно",
   "osucc.Localisation.Specials:BrandingCaption": "Брендинг (заголовок окна)",
+  "osucc.Localisation.Specials:SkipBreakTimeCaption": "Пропуск перерывов",
+  "osucc.Localisation.Specials:SkipBreakTimeHint": "Показывать кнопку SKIP во время перерывов на карте, чтобы перемотать скучные моменты.",
   "osucc.Localisation.Specials:AllowIncompatibleModsCaption": "Разрешить несовместимые моды",
   "osucc.Localisation.Specials:AllowIncompatibleModsHint": "Позволяет выбирать моды, обычно несовместимые друг с другом (например автоплей + тач-устройство). Красная подсказка \"несовместимо\" на панелях модов сохраняется как визуальное предупреждение.",
   "osucc.Localisation.Specials:ShowSystemModsCaption": "Показывать системные моды в выборе модов",

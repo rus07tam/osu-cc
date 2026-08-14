@@ -10,6 +10,8 @@
   "osucc.Localisation.Common:PluginsLoadedFailed": "плагінів завантажено: {0}/{1}, помилок: {2}",
   "osucc.Localisation.Specials:SectionHeader": "Додатково",
   "osucc.Localisation.Specials:BrandingCaption": "Брендинг (заголовок вікна)",
+  "osucc.Localisation.Specials:SkipBreakTimeCaption": "Пропуск перерв",
+  "osucc.Localisation.Specials:SkipBreakTimeHint": "Показувати кнопку SKIP під час перерв на карті, щоб перемотати нудні моменти.",
   "osucc.Localisation.Specials:AllowIncompatibleModsCaption": "Дозволити несумісні моди",
   "osucc.Localisation.Specials:AllowIncompatibleModsHint": "Дозволяє обирати моди, які зазвичай несумісні між собою (наприклад автоплей + тач-пристрій). Червона підказка \"несумісно\" на панелях модів зберігається як візуальне попередження.",
   "osucc.Localisation.Specials:ShowSystemModsCaption": "Показувати системні моди у виборі модів",

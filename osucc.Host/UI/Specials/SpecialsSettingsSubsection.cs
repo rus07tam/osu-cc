@@ -22,6 +22,7 @@ namespace osucc.UI.Specials
         public SpecialsSettingsSubsection()
         {
             addCheckbox(ClientConfig.Branding, SpecialsSettingsStrings.BrandingCaption, default);
+            addCheckbox(ClientConfig.SkipBreakTime, SpecialsSettingsStrings.SkipBreakTimeCaption, SpecialsSettingsStrings.SkipBreakTimeHint);
             addCheckbox(ClientConfig.AllowIncompatibleMods, SpecialsSettingsStrings.AllowIncompatibleModsCaption, SpecialsSettingsStrings.AllowIncompatibleModsHint);
             addCheckbox(ClientConfig.ShowSystemMods, SpecialsSettingsStrings.ShowSystemModsCaption, SpecialsSettingsStrings.ShowSystemModsHint);
             addCheckbox(ClientConfig.FirstRunSetupComplete, SpecialsSettingsStrings.FirstRunSetupCompleteCaption, SpecialsSettingsStrings.FirstRunSetupCompleteHint);

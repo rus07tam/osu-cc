@@ -5,6 +5,9 @@ namespace osucc.Client
     {
         Branding,
 
+        /// <summary>Show a SKIP button during mid-map break periods.</summary>
+        SkipBreakTime,
+
         /// <summary>Allow selecting/playing mods that are normally incompatible with each-other.</summary>
         AllowIncompatibleMods,
 

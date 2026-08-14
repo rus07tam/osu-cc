@@ -14,6 +14,11 @@ namespace osucc.Localisation
 
         public static LocalisableString BrandingCaption => OsuCcLocalisation.Get(getKey(nameof(BrandingCaption)), "Branding (window title)");
 
+        public static LocalisableString SkipBreakTimeCaption => OsuCcLocalisation.Get(getKey(nameof(SkipBreakTimeCaption)), "Skip breaks mid-map");
+
+        public static LocalisableString SkipBreakTimeHint => OsuCcLocalisation.Get(getKey(nameof(SkipBreakTimeHint)), "Show a SKIP button during a map's break periods so you can fast-forward past long breaks instead of waiting.");
+
+
         public static LocalisableString AllowIncompatibleModsCaption => OsuCcLocalisation.Get(getKey(nameof(AllowIncompatibleModsCaption)), "Allow incompatible mods");
 
         public static LocalisableString AllowIncompatibleModsHint => OsuCcLocalisation.Get(getKey(nameof(AllowIncompatibleModsHint)), "Permits selecting mods that are normally incompatible with each other (e.g. autoplay + touch device). The red 'incompatible' hint on mod panels is kept as a visual warning.");

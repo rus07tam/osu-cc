@@ -30,6 +30,7 @@ namespace osucc.Client
         protected override void InitialiseDefaults()
         {
             SetDefault(SpecialsSetting.Branding, true);
+            SetDefault(SpecialsSetting.SkipBreakTime, true);
             SetDefault(SpecialsSetting.AllowIncompatibleMods, true);
             SetDefault(SpecialsSetting.ShowSystemMods, true);
             SetDefault(SpecialsSetting.FirstRunSetupComplete, false);

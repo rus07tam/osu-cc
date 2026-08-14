@@ -22,6 +22,7 @@ namespace osucc.Core
                 ("ModSelectOverlay.filterMods", ModSelectFilterModsPatch.Install),
                 ("ModSelectOverlay.LoadComplete", ModSelectLoadCompletePatch.Install),
                 ("ModSelectFooterContent.CreateButtons", ModSelectFooterCreateButtonsPatch.Install),
+                ("Player.LoadComplete", PlayerBreakSkipPatch.Install),
                 ("Player.ImportScore", PlayerImportScorePatch.Install),
                 ("SoloPlayer.CreateTokenRequest", SoloScoreSubmissionPatch.Install),
                 ("Toolbar.load", ToolbarLoadPatch.Install),

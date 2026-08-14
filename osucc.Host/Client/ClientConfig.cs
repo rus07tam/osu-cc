@@ -13,6 +13,7 @@ namespace osucc.Client
     public static class ClientConfig
     {
         public static readonly Bindable<bool> Branding = new(true);
+        public static readonly Bindable<bool> SkipBreakTime = new(true);
         public static readonly Bindable<bool> AllowIncompatibleMods = new(false);
         public static readonly Bindable<bool> ShowSystemMods = new(false);
         public static readonly Bindable<bool> FirstRunSetupComplete = new(false);
@@ -30,6 +31,7 @@ namespace osucc.Client
         public static void Attach(SpecialsConfigManager config)
         {
             bind(config, SpecialsSetting.Branding, Branding);
+            bind(config, SpecialsSetting.SkipBreakTime, SkipBreakTime);
             bind(config, SpecialsSetting.AllowIncompatibleMods, AllowIncompatibleMods);
             bind(config, SpecialsSetting.ShowSystemMods, ShowSystemMods);
             bind(config, SpecialsSetting.FirstRunSetupComplete, FirstRunSetupComplete);
