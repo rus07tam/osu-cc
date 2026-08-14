@@ -1,6 +1,6 @@
 # osu!cc
 
-**Docs:** English · [Русский](../ru/README.md) · [Development](DEVELOPMENT.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [Code of Conduct](../../CODE_OF_CONDUCT.md)
+**Docs:** English · [Русский](../ru/README.md) · [Development (Core)](DEVELOPMENT.md) · [Development (Plugins)](PLUGINS.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [Code of Conduct](../../CODE_OF_CONDUCT.md)
 
 osu!cc is an add-on for osu!lazer. It is not an official client. Think of it as
 a set of optional improvements on top of the game you already have.
@@ -17,18 +17,6 @@ just deleting that folder.
 > will never contain cheats or anything of that kind. Read
 > [SECURITY.md](SECURITY.md) before using it.
 
-## Screenshots
-
-![Plugin manager](../assets/PLUGIN_MANAGER.png)
-
-![Settings section and mod selector](../assets/SETTINGS_AND_MOD_PANEL.png)
-
-![New personal best](../assets/NEW_SCORE_CELEBRATION.png)
-
-![Fake supporter tag and extended level](../assets/FAKE_AND_EXTENDED_OSU_SUPPORTER.png)
-
-![Username visuals in song select (scoreboard and profile card)](../assets/GRADIENT_USERNAME.png)
-
 ## What it does
 
 Most features are toggles in a dedicated **Specials** section in the game settings.
@@ -40,6 +28,7 @@ Most features are toggles in a dedicated **Specials** section in the game settin
   when a plugin is installed, updated or uninstalled) and versioned data
   migrations, so they stay in sync across updates. Toggle them from the plugins
   overlay.
+- **Skip mid-map breaks**: skip break times inside beatmaps with a button during gameplay.
 - **Allow incompatible mods**: pick and play mods that normally clash with
   each other.
 - **Random mods button**: a button in the mod select footer that picks a
@@ -67,6 +56,7 @@ Most features are toggles in a dedicated **Specials** section in the game settin
 
 These ship with the client and can be disabled from the plugins overlay:
 
+- **Custom user groups**: locally create and manage user groups, overriding user roles, badges, flags, and names on profile cards and leaderboards.
 - **Username visuals**: paints every username with a horizontal gradient
   palette (your own name and everyone else's get separate palettes). It covers
   scoreboards, chat, profiles, multiplayer and toolbars. Your own username can
@@ -85,9 +75,10 @@ These ship with the client and can be disabled from the plugins overlay:
   releases, or builds it locally from the official repository (needs the .NET
   SDK and git), stages it and applies it on the next launch. It runs from a
   settings subsection, a toolbar button and a toggleable auto-check on startup.
-  Removing it does not remove the hook — it only stops automatic updates.
+  Removing it does not remove the hook - it only stops automatic updates.
 
 The **Update Manager** is the recommended way to update from now on.
+
 
 Planned:
 
