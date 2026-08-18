@@ -9,13 +9,13 @@ namespace OsuCcUpdater
     /// check/build buttons) and a toolbar button, and auto-checks once per launch. Whatever is
     /// staged here is applied by the osucc launcher on the next launch.
     /// </summary>
-    public class OsuCcUpdaterPlugin : OsuCcPluginBase, IOsuCcIconProvider
+    public class OsuCcUpdaterPlugin : OsuCcPlugin
     {
         private OsuCcUpdaterApi? api;
         private IDisposable? toolbarHandle;
 
         /// <summary>The download icon, matching the plugin's toolbar button.</summary>
-        public IconUsage? Icon => FontAwesome.Solid.CloudDownloadAlt;
+        public override IconUsage? Icon => FontAwesome.Solid.CloudDownloadAlt;
 
         protected override void OnLoad()
         {

@@ -7,26 +7,27 @@ namespace Oii
     /// oii: shows the improvement indicator (ii) — the ratio of expected playtime for the user's pp
     /// against their actual playtime — next to total play time on every user profile.
     /// </summary>
-    public class OiiPlugin : IOsuCcPlugin
+    public class OiiPlugin : OsuCcPlugin
     {
         private IDisposable? patch;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            patch = TotalPlayTimeLoadPatch.Install(host);
-            host.Log(patch != null ? "patch installed" : "patch unavailable");
-            host.Log("loaded");
+            patch = TotalPlayTimeLoadPatch.Install(Host);
+            Host.Log(patch != null ? "patch installed" : "patch unavailable");
+            Host.Log("loaded");
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             patch?.Dispose();
             TotalPlayTimeLoadPatch.RemoveIndicators();
             GC.SuppressFinalize(this);
+            base.Dispose();
         }
     }
 }

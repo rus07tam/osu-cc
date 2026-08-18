@@ -12,17 +12,16 @@ namespace FakeSupporter
     /// the servers. The level is configurable in the Specials settings section; per-user overrides
     /// can force any user's supporter state and level.
     /// </summary>
-    public class FakeSupporterPlugin : IOsuCcPlugin, IOsuCcIconProvider
+    public class FakeSupporterPlugin : OsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
 
         /// <summary>The heart icon, matching the supporter theme.</summary>
-        public IconUsage? Icon => FontAwesome.Solid.Heart;
+        public override IconUsage? Icon => FontAwesome.Solid.Heart;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            this.host = host;
 
             var settings = host.GetSettings();
 
@@ -39,16 +38,17 @@ namespace FakeSupporter
             host.Log("loaded");
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             foreach (var patch in patches)
                 patch?.Dispose();
             patches.Clear();
             GC.SuppressFinalize(this);
+            base.Dispose();
         }
 
         private void installPatches()

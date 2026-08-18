@@ -9,13 +9,13 @@ namespace ExamplePlugin
     /// settings subsection (persisted via <see cref="PluginSettings"/>), shows notifications
     /// and celebrations, installs a Harmony patch by name, and walks through the optional
     /// lifecycle hooks (<see cref="IPluginLifecycle"/>) and data migrations
-    /// (<see cref="IPluginMigrations"/>) via <see cref="OsuCcPluginBase"/>. Also demonstrates
+    /// (<see cref="IPluginMigrations"/>) via <see cref="OsuCcPlugin"/>. Also demonstrates
     /// plugin-to-plugin dependencies: it declares a dependency on the built-in
     /// <c>username-visuals</c> plugin (which exports <c>IUsernameVisualsApi</c>) and consumes
     /// that API via <c>Host.GetApi&lt;IUsernameVisualsApi&gt;</c>. Because the dependency is
     /// soft, a missing/disabled exporting plugin is handled by the consumer's null-check.
     /// </summary>
-    public class ExamplePlugin : OsuCcPluginBase
+    public class ExamplePlugin : OsuCcPlugin
     {
         private const string PluginVersion = "1.0.0";
 

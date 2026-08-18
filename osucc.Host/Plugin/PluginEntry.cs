@@ -52,11 +52,11 @@ namespace osucc.Plugin
         public string Directory { get; internal set; } = string.Empty;
 
         /// <summary>The live plugin instance, <c>null</c> if discovery/load failed or the plugin is disabled.</summary>
-        public IOsuCcPlugin? Plugin { get; internal set; }
+        public OsuCcPlugin? Plugin { get; internal set; }
 
         /// <summary>
         /// The discovered <c>[OsuCcPlugin]</c> type, retained even for disabled or version-mismatch
-        /// entries so the plugin can be instantiated on live enable without re-scanning the disk.
+        /// plugins so their metadata can be shown.
         /// </summary>
         public Type? PluginType { get; internal set; }
 
@@ -68,7 +68,7 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Whether the plugin is enabled. Disabled plugins are discovered but not loaded (no
-        /// <see cref="IOsuCcPlugin.Load"/>, no patches, no UI contributions); they stay listed so
+        /// <see cref="OsuCcPlugin.Load"/>, no patches, no UI contributions); they stay listed so
         /// they can be re-enabled. Persisted by <see cref="PluginManager"/>; changes apply on the
         /// next launch.
         /// </summary>
@@ -76,7 +76,7 @@ namespace osucc.Plugin
 
         public bool Loaded => Plugin != null && LoadError == null;
 
-        /// <summary>Whether <see cref="IOsuCcPlugin.AttachToGame"/> has been called successfully.</summary>
+        /// <summary>Whether <see cref="OsuCcPlugin.AttachToGame"/> has been called successfully.</summary>
         public bool Attached { get; internal set; }
 
         /// <summary>

@@ -10,23 +10,22 @@ namespace osuccDebug
     /// and the full-screen debug overlay through the plugin API, demonstrating blocking-overlay
     /// registration from a plugin.
     /// </summary>
-    public class osuccDebugPlugin : IOsuCcPlugin, IOsuCcIconProvider
+    public class osuccDebugPlugin : OsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;
         private osuccDebugOverlay? overlay;
 
         /// <summary>The bug icon, matching the plugin's toolbar button.</summary>
-        public IconUsage? Icon => FontAwesome.Solid.Bug;
+        public override IconUsage? Icon => FontAwesome.Solid.Bug;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            this.host = host;
 
             // Negative layout position places it first in the right-hand group.
             host.AddToolbarButton(() => new osuccDebugButton(toggleOverlay), ToolbarButtonPlacement.Right, -1f);
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
             overlay = new osuccDebugOverlay(host.Notify);
             host.RegisterBlockingOverlay(overlay);
@@ -43,6 +42,10 @@ namespace osuccDebug
                 overlay.Hide();
         }
 
-        public void Dispose() => GC.SuppressFinalize(this);
+        public override void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            base.Dispose();
+        }
     }
 }

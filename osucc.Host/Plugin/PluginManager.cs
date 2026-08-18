@@ -167,7 +167,7 @@ namespace osucc.Plugin
 
             try
             {
-                var instance = (IOsuCcPlugin)Activator.CreateInstance(entry.PluginType)!;
+                var instance = (OsuCcPlugin)Activator.CreateInstance(entry.PluginType)!;
                 var host = new PluginHost(entry);
 
                 entry.Plugin = instance;
@@ -248,7 +248,7 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Scans the plugins folder, loads every <c>[OsuCcPlugin]</c> type and calls
-        /// <see cref="IOsuCcPlugin.Load"/>. Invoked from the startup hook right after the
+        /// <see cref="OsuCcPlugin.Load"/>. Invoked from the startup hook right after the
         /// built-in patches are installed. Idempotent.
         /// </summary>
         public static void LoadAll()
@@ -499,7 +499,7 @@ namespace osucc.Plugin
 
                     if (pluginTypes.Length == 0)
                     {
-                        TimingLog.Info($"PluginManager: '{manifest.Name}' declares a manifest but no IOsuCcPlugin type was found in {path}");
+                        TimingLog.Info($"PluginManager: '{manifest.Name}' declares a manifest but no OsuCcPlugin type was found in {path}");
                         return;
                     }
 
@@ -550,7 +550,7 @@ namespace osucc.Plugin
         }
 
         private static bool isPluginType(Type type)
-            => !type.IsAbstract && !type.IsInterface && typeof(IOsuCcPlugin).IsAssignableFrom(type);
+            => !type.IsAbstract && !type.IsInterface && typeof(OsuCcPlugin).IsAssignableFrom(type);
 
         /// <summary>
         /// Resolves the plugin's image icon: the manifest's declared <c>IconPath</c> (relative to
@@ -609,7 +609,7 @@ namespace osucc.Plugin
 
             try
             {
-                var instance = (IOsuCcPlugin)Activator.CreateInstance(candidate.Type)!;
+                var instance = (OsuCcPlugin)Activator.CreateInstance(candidate.Type)!;
                 var entry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
                 entry.Plugin = instance;
 
@@ -647,11 +647,11 @@ namespace osucc.Plugin
             lock (lockObject)
                 entry = plugins.FirstOrDefault(p => p.Id == id);
 
-            if (entry?.Plugin is IPluginLifecycle lifecycle)
+            if (entry?.Plugin != null)
             {
                 try
                 {
-                    lifecycle.OnUninstall();
+                    entry.Plugin.OnUninstall();
                 }
                 catch (Exception ex)
                 {
@@ -701,7 +701,7 @@ namespace osucc.Plugin
         /// <summary>
         /// Called from <see cref="osucc.Client.ClientBootstrap.AttachToGame"/> once the game instance,
         /// storage and dependencies are available. Reloads persisted settings from disk and calls
-        /// <see cref="IOsuCcPlugin.AttachToGame"/> on every loaded plugin (update thread).
+        /// <see cref="OsuCcPlugin.AttachToGame"/> on every loaded plugin (update thread).
         /// </summary>
         public static void AttachAllToGame()
         {
@@ -717,7 +717,7 @@ namespace osucc.Plugin
                 attachEntry(entry);
         }
 
-        /// <summary>Reloads settings, runs migrations and calls <see cref="IOsuCcPlugin.AttachToGame"/> for one plugin. Runs on the update thread.</summary>
+        /// <summary>Reloads settings, runs migrations and calls <see cref="OsuCcPlugin.AttachToGame"/> for one plugin. Runs on the update thread.</summary>
         private static void attachEntry(PluginEntry entry)
         {
             if (!entry.Loaded || entry.Plugin == null)
@@ -751,10 +751,10 @@ namespace osucc.Plugin
         /// </summary>
         private static void runMigrations(PluginEntry entry, bool freshInstall)
         {
-            if (entry.Host == null || entry.Plugin is not IPluginMigrations migrations)
+            if (entry.Host == null || entry.Plugin == null)
                 return;
 
-            int currentSchema = migrations.SchemaVersion;
+            int currentSchema = entry.Plugin.SchemaVersion;
 
             if (freshInstall)
             {
@@ -777,7 +777,7 @@ namespace osucc.Plugin
 
             var seen = new HashSet<int>();
 
-            foreach (IPluginMigration step in migrations.Migrations
+            foreach (IPluginMigration step in entry.Plugin.Migrations
                      .Where(m => m.ToVersion > start && m.ToVersion <= currentSchema)
                      .OrderBy(m => m.ToVersion))
             {
@@ -805,7 +805,7 @@ namespace osucc.Plugin
         /// Fires the plugin's lifecycle hooks once the plugin is attached: <c>OnInstall</c> on a
         /// fresh install, <c>OnUpdate</c> when the loaded version differs from the last recorded
         /// one. The version record is persisted after the hook succeeds; the record is written for
-        /// every loaded plugin, so a plugin that adopts <see cref="IPluginLifecycle"/> later never
+        /// every loaded plugin, so a plugin that adopts lifecycle later never
         /// fires a spurious install.
         /// </summary>
         private static void dispatchLifecycle(PluginEntry entry, bool freshInstall)
@@ -816,8 +816,7 @@ namespace osucc.Plugin
             {
                 if (freshInstall)
                 {
-                    if (entry.Plugin is IPluginLifecycle install)
-                        install.OnInstall();
+                    entry.Plugin?.OnInstall();
 
                     PluginStateStore.SetVersion(entry.Id, currentVersion);
                     TimingLog.Info($"PluginManager: '{entry.Name}' installed (v{currentVersion})");
@@ -828,8 +827,7 @@ namespace osucc.Plugin
 
                     if (previousVersion != null && !versionsEqual(previousVersion, currentVersion))
                     {
-                        if (entry.Plugin is IPluginLifecycle update)
-                            update.OnUpdate(previousVersion);
+                        entry.Plugin?.OnUpdate(previousVersion);
 
                         PluginStateStore.SetVersion(entry.Id, currentVersion);
                         TimingLog.Info($"PluginManager: '{entry.Name}' updated {previousVersion} -> {currentVersion}");

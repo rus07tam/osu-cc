@@ -13,7 +13,7 @@ namespace CustomUserGroups
     /// library, per-user overrides and a public, prioritized rule API. Purely cosmetic: nothing is
     /// sent to the servers.
     /// </summary>
-    public class CustomUserGroupsPlugin : IOsuCcPlugin, IOsuCcIconProvider
+    public class CustomUserGroupsPlugin : OsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
@@ -22,11 +22,10 @@ namespace CustomUserGroups
         private IUsernameVisualsApi? visualsApi;
 
         /// <summary>The user-group icon, matching the theme.</summary>
-        public IconUsage? Icon => FontAwesome.Solid.Users;
+        public override IconUsage? Icon => FontAwesome.Solid.Users;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            this.host = host;
 
             var settings = host.GetSettings();
 
@@ -43,7 +42,7 @@ namespace CustomUserGroups
             host.Log("loaded");
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
             if (api == null)
                 return;
@@ -62,7 +61,7 @@ namespace CustomUserGroups
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (api != null)
                 api.Changed -= syncVisualRules;
@@ -75,6 +74,7 @@ namespace CustomUserGroups
                 patch?.Dispose();
             patches.Clear();
             GC.SuppressFinalize(this);
+            base.Dispose();
         }
 
         private void syncVisualRules()

@@ -284,7 +284,7 @@ namespace OsuCcUpdater
         {
             // The hook dll always lives in <osu-cc>/hook; the shared resolver mirrors how the
             // launcher finds the same root, so staging lands where the launcher applies it.
-            string hookDirectory = Path.GetDirectoryName(typeof(OsuCcPluginBase).Assembly.Location) ?? string.Empty;
+            string hookDirectory = Path.GetDirectoryName(typeof(OsuCcPlugin).Assembly.Location) ?? string.Empty;
             return OsuCcDataRootResolver.Resolve(hookDirectory);
         }
     }

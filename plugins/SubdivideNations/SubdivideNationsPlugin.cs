@@ -10,7 +10,7 @@ namespace SubdivideNations
     /// osu-subdivide-nations web extension uses). Region names come from an embedded dataset;
     /// region flags are loaded as PNG thumbnails when available and degrade to name-only otherwise.
     /// </summary>
-    public class SubdivideNationsPlugin : IOsuCcPlugin
+    public class SubdivideNationsPlugin : OsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;
         private PluginSettings settings = null!;
@@ -19,9 +19,8 @@ namespace SubdivideNations
         private IDisposable? userPanelPatch;
         private IDisposable? headerPatch;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            this.host = host;
 
             settings = host.GetSettings();
             enabled = settings.Bind("enabled", true);
@@ -37,7 +36,7 @@ namespace SubdivideNations
             host.Log("loaded");
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
             var storage = host.GetStorage();
             RegionService.Attach(storage);
@@ -45,9 +44,10 @@ namespace SubdivideNations
             host.Log("attached");
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             GC.SuppressFinalize(this);
+            base.Dispose();
             userPanelPatch?.Dispose();
             headerPatch?.Dispose();
             settings?.Dispose();

@@ -57,7 +57,7 @@ namespace osucc.Plugin
         public void Notify(LocalisableString text, NotificationKind kind)
             => ClientNotifications.PostPlugin(text, kind, entry.Id, OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name), resolveIcon(), resolveIconTexture());
 
-        private IconUsage? resolveIcon() => (entry.Plugin as IOsuCcIconProvider)?.Icon;
+        private IconUsage? resolveIcon() => entry.Plugin?.Icon;
 
         private Texture? resolveIconTexture()
         {

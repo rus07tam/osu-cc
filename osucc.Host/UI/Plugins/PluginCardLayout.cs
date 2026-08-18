@@ -33,7 +33,7 @@ namespace osucc.UI.Plugins
         {
             fallbackIcon = null;
 
-            if (entry.Plugin is IOsuCcIconProvider { Icon: { } usage })
+            if (entry.Plugin?.Icon is { } usage)
                 return createIcon(usage, size);
 
             if (ResolveFontAwesomeIcon(entry.Icon) is { } declaredIcon)

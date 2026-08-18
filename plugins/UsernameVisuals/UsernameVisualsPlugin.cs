@@ -13,18 +13,17 @@ namespace UsernameVisuals
     /// effect is consistent everywhere. The own username can additionally be replaced with a
     /// custom text or hidden behind a solid block.
     /// </summary>
-    public class UsernameVisualsPlugin : IOsuCcPlugin, IOsuCcIconProvider
+    public class UsernameVisualsPlugin : OsuCcPlugin
     {
         private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
         private UsernameVisualsApi? api;
 
         /// <summary>The paint-drip icon, matching the gradient theme.</summary>
-        public IconUsage? Icon => FontAwesome.Solid.FillDrip;
+        public override IconUsage? Icon => FontAwesome.Solid.FillDrip;
 
-        public void Load(IOsuCcPluginHost host)
+        protected override void OnLoad()
         {
-            this.host = host;
 
             var settings = host.GetSettings();
 
@@ -41,11 +40,11 @@ namespace UsernameVisuals
             host.Log("loaded");
         }
 
-        public void AttachToGame()
+        public override void AttachToGame()
         {
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             // Revoke the resolver before unpatching so every already-swapped text re-applies to a
             // plain rendering (the instance is gone) instead of keeping its gradient/override.
@@ -57,6 +56,7 @@ namespace UsernameVisuals
                 patch?.Dispose();
             patches.Clear();
             GC.SuppressFinalize(this);
+            base.Dispose();
         }
 
         private void installPatches()

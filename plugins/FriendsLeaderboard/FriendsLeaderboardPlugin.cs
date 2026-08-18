@@ -9,7 +9,7 @@ namespace FriendsLeaderboard
     /// without an osu!supporter tag, by aggregating each friend's best score for the beatmap
     /// through the public per-user endpoint instead of the supporter-gated friend endpoint.
     /// </summary>
-    public class FriendsLeaderboardPlugin : OsuCcPluginBase
+    public class FriendsLeaderboardPlugin : OsuCcPlugin
     {
         private PluginSettings settings = null!;
         private IDisposable? supporterGatePatch;
