@@ -1,18 +1,6 @@
 <Project DefaultTargets="Build">
 
-  <!-- Classic (non-SDK) project, so Directory.Packages.props is not auto-imported; pull in the
-       per-component versions (Directory.Packages.props) the bundle name reads. -->
   <Import Project="$(MSBuildThisFileDirectory)Directory.Packages.props" />
-
-  <!--
-    Single MSBuild entry point for building osu-cc from source: packs the distributable packages
-    (osucc.Host / osucc.Build, the osucc dotnet tool and the osucc.Templates package) into the
-    repo-local feed, clears stale global-cache copies so the plugin restores resolve the freshly
-    packed nupkgs, then builds the hook and all plugins in one MSBuild process (parallel, one
-    restore graph). The official build pipeline used by CI and by the in-game updater plugin's
-    local-build source; `dotnet build` on this file is the whole build, and the optional
-    `-t:PackRuntimeBundle` target additionally assembles the distributable runtime bundle.
-  -->
 
   <PropertyGroup>
     <OsuCcRoot>$(MSBuildThisFileDirectory)</OsuCcRoot>
@@ -21,9 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Everything that gets packed into the local feed: the plugin API + build helpers, the
-         shared layout/version library, the dotnet-tool launcher and the dotnet new template
-         package. -->
     <PackageProject Include="$(OsuCcRoot)osucc.Shared/osucc.Shared.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
     <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
@@ -36,65 +21,50 @@
   </ItemGroup>
 
   <Target Name="PackPackages">
-    <Message Text="Packing osucc.Host / osucc.Build / osucc (tool) / osucc.Templates into $(LocalFeed)..." Importance="high" />
-    <!-- The local feed is a NuGet source (NuGet.config); restore fails with NU1301 on a fresh
-         checkout until the directory exists, so create it before the parallel Restore;Pack. -->
+    <Message
+      Text="Packing osucc.Host / osucc.Build / osucc (tool) / osucc.Templates into $(LocalFeed)..."
+      Importance="high" />
     <MakeDir Directories="$(LocalFeed)" />
     <MSBuild Projects="@(PackageProject)" Targets="Restore;Pack"
-             Properties="Configuration=$(Configuration);PackageOutputPath=$(LocalFeed)" />
+      Properties="Configuration=$(Configuration);PackageOutputPath=$(LocalFeed)" />
   </Target>
 
   <Target Name="ClearPackageCache">
-    <!-- NuGet caches by version; without this the plugin restores would keep the stale osucc.Host /
-         osucc.Build from a previous run. Only these two folders are touched, never the rest of the
-         global cache. -->
     <PropertyGroup>
       <_NuGetPackages>$([System.Environment]::GetEnvironmentVariable('NUGET_PACKAGES'))</_NuGetPackages>
-      <_NuGetPackages Condition="'$(_NuGetPackages)' == '' and '$([System.OperatingSystem]::IsWindows())' == 'true'">$([System.Environment]::GetEnvironmentVariable('USERPROFILE'))\.nuget\packages</_NuGetPackages>
-      <_NuGetPackages Condition="'$(_NuGetPackages)' == ''">$([System.Environment]::GetEnvironmentVariable('HOME'))/.nuget/packages</_NuGetPackages>
+      <_NuGetPackages
+        Condition="'$(_NuGetPackages)' == '' and '$([System.OperatingSystem]::IsWindows())' == 'true'">
+        $([System.Environment]::GetEnvironmentVariable('USERPROFILE'))\.nuget\packages</_NuGetPackages>
+      <_NuGetPackages Condition="'$(_NuGetPackages)' == ''">
+        $([System.Environment]::GetEnvironmentVariable('HOME'))/.nuget/packages</_NuGetPackages>
     </PropertyGroup>
     <Message Text="Clearing stale cache: $(_NuGetPackages)/osucc.{host,build}" Importance="low" />
-    <RemoveDir Directories="$(_NuGetPackages)/osucc.host" Condition="Exists('$(_NuGetPackages)/osucc.host')" />
-    <RemoveDir Directories="$(_NuGetPackages)/osucc.build" Condition="Exists('$(_NuGetPackages)/osucc.build')" />
+    <RemoveDir Directories="$(_NuGetPackages)/osucc.host"
+      Condition="Exists('$(_NuGetPackages)/osucc.host')" />
+    <RemoveDir Directories="$(_NuGetPackages)/osucc.build"
+      Condition="Exists('$(_NuGetPackages)/osucc.build')" />
   </Target>
 
   <Target Name="RestoreAll">
     <MSBuild Projects="@(BuildProject)" Targets="Restore" BuildInParallel="true"
-             Properties="Configuration=$(Configuration)" />
+      Properties="Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackPackages;ClearPackageCache;RestoreAll">
-    <Error Condition="'@(PluginProject)' == ''" Text="No plugin projects found under $(OsuCcRoot)plugins/." />
-    <Message Text="Building hook + @(PluginProject->'%(Filename)', ', ') ($(Configuration))..." Importance="high" />
-    <!-- No explicit Targets list: an MSBuild-task build with an explicit Targets attribute suppresses
-         the projects' AfterTargets hooks, so PackagePluginArchive (AfterTargets="Build") would never
-         run and the deploy would ship stale plugin archives. Building each project's default targets
-         keeps the hook active. The OsuCcPluginBuildSession property forces a fresh project evaluation
-         (after RestoreAll has re-extracted the freshly packed osucc.Build package), because the
-         evaluation produced during restore was cached before the package existed and thus skipped the
-         Exists-guarded osucc.Build.targets import. -->
+    <Error Condition="'@(PluginProject)' == ''"
+      Text="No plugin projects found under $(OsuCcRoot)plugins/." />
+    <Message Text="Building hook + @(PluginProject->'%(Filename)', ', ') ($(Configuration))..."
+      Importance="high" />
     <MSBuild Projects="@(BuildProject)" BuildInParallel="true"
-             Properties="Configuration=$(Configuration);OsuCcPluginBuildSession=1" />
+      Properties="Configuration=$(Configuration);OsuCcPluginBuildSession=1" />
   </Target>
 
-  <!--
-    Assembles the distributable runtime bundle: the hook payload (osucc.dll + its runtime blobs)
-    under hook/ and every plugin archive under plugins/, zipped as
-    artifacts/runtime/osucc-runtime-<OsuCcHostVersion>.zip. The bundle carries the hook, so it is
-    named after the osu-cc client (osucc.Host) version — which is also the version the updater
-    plugin reports as the current client version. This is the single artifact both the CI GitHub
-    release and the in-game updater plugin's GitHub source work with, so the updater downloads
-    exactly what a local build produced. Invoked as
-    `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`.
-  -->
-  <Target Name="PackRuntimeBundle" DependsOnTargets="Build">
+  <Target Name="PackBootstrapBundle" DependsOnTargets="Build">
     <PropertyGroup>
-      <RuntimeStaging>$(OsuCcRoot)artifacts/runtime/staging</RuntimeStaging>
-      <RuntimeArchive>$(OsuCcRoot)artifacts/runtime/osucc-runtime-$(OsuCcHostVersion).zip</RuntimeArchive>
+      <BootstrapStaging>$(OsuCcRoot)artifacts/bootstrap/staging</BootstrapStaging>
+      <BootstrapArchive>$(OsuCcRoot)artifacts/bootstrap/osucc-bootstrap-$(OsuCcHostVersion).zip</BootstrapArchive>
       <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
     </PropertyGroup>
-
-    <Error Condition="!Exists('$(HookOutput)/osucc.dll')" Text="Hook payload missing: $(HookOutput)/osucc.dll not found (build osucc.Host first in $(Configuration))." />
 
     <ItemGroup>
       <_HookPayload Include="$(HookOutput)/osucc.dll" />
@@ -105,14 +75,16 @@
       <_ThemeDefinition Include="$(HookOutput)/Themes/*.json" />
     </ItemGroup>
 
-    <RemoveDir Directories="$(RuntimeStaging)" />
-    <MakeDir Directories="$(RuntimeStaging)/hook;$(RuntimeStaging)/plugins;$(RuntimeStaging)/data/core/Themes" />
-    <Copy SourceFiles="@(_HookPayload)" DestinationFolder="$(RuntimeStaging)/hook" />
-    <Copy SourceFiles="@(_PluginArchive)" DestinationFolder="$(RuntimeStaging)/plugins" />
-    <Copy SourceFiles="@(_ThemeDefinition)" DestinationFolder="$(RuntimeStaging)/data/core/Themes" />
-    <ZipDirectory SourceDirectory="$(RuntimeStaging)" DestinationFile="$(RuntimeArchive)" Overwrite="true" />
-    <RemoveDir Directories="$(RuntimeStaging)" />
-    <Message Text="Runtime bundle: $(RuntimeArchive)" Importance="high" />
+    <RemoveDir Directories="$(BootstrapStaging)" />
+    <MakeDir
+      Directories="$(BootstrapStaging)/hook;$(BootstrapStaging)/plugins;$(BootstrapStaging)/data/core/Themes" />
+    <Copy SourceFiles="@(_HookPayload)" DestinationFolder="$(BootstrapStaging)/hook" />
+    <Copy SourceFiles="@(_PluginArchive)" DestinationFolder="$(BootstrapStaging)/plugins" />
+    <Copy SourceFiles="@(_ThemeDefinition)" DestinationFolder="$(BootstrapStaging)/data/core/Themes" />
+    <ZipDirectory SourceDirectory="$(BootstrapStaging)" DestinationFile="$(BootstrapArchive)"
+      Overwrite="true" />
+    <RemoveDir Directories="$(BootstrapStaging)" />
+    <Message Text="Runtime bundle: $(BootstrapArchive)" Importance="high" />
   </Target>
 
 </Project>

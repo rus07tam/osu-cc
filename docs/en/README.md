@@ -114,7 +114,7 @@ osu!lazer installed.
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
 cd osu-cc
-dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release
+dotnet build osucc.build.proj -t:PackBootstrapBundle -c Release
 ```
 
 This builds the hook and the plugins and produces a single runtime bundle,
@@ -134,7 +134,7 @@ dotnet osucc/bin/Release/net8.0/osucc.dll
 
 The first run also gives you the **Update Manager** plugin, which handles all
 future updates in-game — rebuild the bundle (`dotnet build osucc.build.proj
--t:PackRuntimeBundle -c Release`), or let it pull the latest from GitHub
+-t:PackBootstrapBundle -c Release`), or let it pull the latest from GitHub
 releases.
 
 If you point the hook's location with `--osu-dir`, remember it must be the

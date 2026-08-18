@@ -4,7 +4,7 @@ using osucc.Common;
 namespace OsuCcUpdater
 {
     /// <summary>
-    /// Extracts a runtime bundle (as produced by <c>PackRuntimeBundle</c> and shipped on GitHub
+    /// Extracts a runtime bundle (as produced by <c>PackBootstrapBundle</c> and shipped on GitHub
     /// releases: a zip with top-level <c>hook/</c> and <c>plugins/</c> folders) into the staging
     /// directory, replacing any previous staging. Live files are never touched.
     /// </summary>

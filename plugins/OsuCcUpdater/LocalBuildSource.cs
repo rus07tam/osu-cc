@@ -9,7 +9,7 @@ namespace OsuCcUpdater
     /// <summary>
     /// The local-build source: clones the official osu-cc repository (or updates an existing clone)
     /// into <c>&lt;osu-cc&gt;/src/osu-cc</c>, checks out the newest version tag and runs the same
-    /// <c>osucc.build.proj -t:PackRuntimeBundle</c> pipeline the CI uses, producing a runtime
+    /// <c>osucc.build.proj -t:PackBootstrapBundle</c> pipeline the CI uses, producing a runtime
     /// bundle next to the local build. Requires <c>git</c> and the .NET SDK on PATH.
     /// </summary>
     internal sealed class LocalBuildSource
@@ -83,7 +83,7 @@ namespace OsuCcUpdater
 
             log?.Invoke($"building runtime bundle of {tag} (this may take a while)...");
 
-            CommandResult result = await CommandRunner.RunAsync("dotnet", new[] { "build", "osucc.build.proj", "-t:PackRuntimeBundle", "-c", "Release", "--nologo" },
+            CommandResult result = await CommandRunner.RunAsync("dotnet", new[] { "build", "osucc.build.proj", "-t:PackBootstrapBundle", "-c", "Release", "--nologo" },
                 repoDirectory, line => log?.Invoke(line), cancellationToken).ConfigureAwait(false);
 
             if (!result.Ok)

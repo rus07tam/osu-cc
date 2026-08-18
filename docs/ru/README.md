@@ -113,7 +113,7 @@ hook: игра выполняет наш код ещё до того, как д�
 ```shell
 git clone https://github.com/rus07tam/osu-cc.git
 cd osu-cc
-dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release
+dotnet build osucc.build.proj -t:PackBootstrapBundle -c Release
 ```
 
 Это собирает хук и плагины и даёт единый рантайм-бандл
@@ -133,7 +133,7 @@ dotnet osucc/bin/Release/net8.0/osucc.dll
 
 При первом запуске вы получите и плагин **Менеджер обновлений**, который возьмёт на
 себя все будущие обновления — пересоберите бандл (`dotnet build osucc.build.proj
--t:PackRuntimeBundle -c Release`) или дайте ему подтянуть свежий с GitHub
+-t:PackBootstrapBundle -c Release`) или дайте ему подтянуть свежий с GitHub
 releases.
 
 Если указываете расположение хука через `--osu-dir`, помните: это должен быть

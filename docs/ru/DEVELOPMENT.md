@@ -35,14 +35,14 @@ docs/           скриншоты (assets/), доки по языкам (en/, r
 
 ```shell
 dotnet build osucc.build.proj -c Debug        # хук + плагины (+ локальный NuGet-фид)
-dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release   # artifacts/runtime/osucc-runtime-<версия>.zip
+dotnet build osucc.build.proj -t:PackBootstrapBundle -c Release   # artifacts/runtime/osucc-runtime-<версия>.zip
 dotnet osucc/bin/Debug/net8.0/osucc.dll status # где все находится и куда будет ставиться
 dotnet osucc/bin/Debug/net8.0/osucc.dll        # запуск osu! с установленным хуком (действие по умолчанию)
 ```
 
 `osucc.build.proj` - это единая точка входа MSBuild в репозитории: собирает пакеты `osucc.Host` / `osucc.Build` / `osucc` (как dotnet tool) / `osucc.Shared` / `osucc.Templates` в локальный фид (`artifacts/nuget`), очищает их кэш, затем собирает хук и все плагины `plugins/*/*.csproj` параллельно. Каждый пакет версионируется независимо (`OsuCcHostVersion`/`OsuCcBuildVersion`/`OsuCcSharedVersion`/`OsuCcLauncherVersion`/`OsuCcTemplatesVersion`), централизованно в `Directory.Packages.props`, так что обновление версий затрагивает только изменившиеся части.
 
-`PackRuntimeBundle` собирает рантайм-бандл в один zip: `osucc.dll`, `0Harmony.dll`, `SharpCompress.dll` и `osucc.Shared.dll` в `hook/`, плюс архивы плагинов в `plugins/`. Восстановленные через NuGet копии `osu.*` в `bin` намеренно **не** включаются, так как они перезаписали бы продакшн-сборки. Деплой - это распаковка бандла в папку данных (`hook/` + `plugins/`), что делает менеджер обновлений при применении стейджа или при чистой установке.
+`PackBootstrapBundle` собирает рантайм-бандл в один zip: `osucc.dll`, `0Harmony.dll`, `SharpCompress.dll` и `osucc.Shared.dll` в `hook/`, плюс архивы плагинов в `plugins/`. Восстановленные через NuGet копии `osu.*` в `bin` намеренно **не** включаются, так как они перезаписали бы продакшн-сборки. Деплой - это распаковка бандла в папку данных (`hook/` + `plugins/`), что делает менеджер обновлений при применении стейджа или при чистой установке.
 
 Лаунчер (`osucc` / `osucc status`) ничего из этого не делает: он находит установку osu! и папку данных, накатывает подготовленное обновление (если оно есть) и запускает игру. Если хук отсутствует, он падает с сообщением и ссылкой на рантайм-бандл - он никогда не собирает и не пишет в установку, так что работает без чекаута кода и ничего не портит. Логика путей живет в `osucc/OsuCcPaths.cs` и общем `OsuCcDataRootResolver`; имена каталогов - в `osucc.Shared/OsuCcLayout.cs`.
 
@@ -51,7 +51,7 @@ dotnet osucc/bin/Debug/net8.0/osucc.dll        # запуск osu! с устан
 Обновление происходит внутри игры через плагин **Менеджер обновлений**, а не через лаунчер:
 
 - **GitHub бандл (по умолчанию):** плагин запрашивает последний релиз в GitHub репозитории, скачивает `osucc-runtime-<версия>.zip` во временный файл.
-- **Локальная сборка:** клонирует (или стягивает) официальный репозиторий в `<данные>/osu-cc/src/osu-cc`, чекаутит тег свежей версии и запускает `dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release`, собирая такой же бандл. На машине должны быть .NET SDK и git.
+- **Локальная сборка:** клонирует (или стягивает) официальный репозиторий в `<данные>/osu-cc/src/osu-cc`, чекаутит тег свежей версии и запускает `dotnet build osucc.build.proj -t:PackBootstrapBundle -c Release`, собирая такой же бандл. На машине должны быть .NET SDK и git.
 
 В обоих случаях бандл распаковывается в `<данные>/osu-cc/staging/` (только папки `hook/` и `plugins/` с защитой от zip-slip) и создается маркер `update.json` с версией, источником и временем. При **следующем** запуске osu! лаунчер перенесет файлы поверх `hook/` и `plugins/` и удалит `staging/` - запущенная игра держит файлы хука в Windows, поэтому замена на лету невозможна. `osucc status` показывает отложенное обновление, а настройки плагина обновлений выводят текущую/свежую/подготовленную версии. Автопроверка запускается раз в 6 часов на старте; она только уведомляет и ничего не стейджит без ведома пользователя.
 
