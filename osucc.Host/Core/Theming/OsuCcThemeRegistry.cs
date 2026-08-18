@@ -65,7 +65,7 @@ namespace osucc.Core
             if (isInitialized)
                 return;
 
-            var storage = Client.ClientApi.StorageManager?.GetStorage("core", typeof(OsuCcThemeRegistry).Assembly);
+            var storage = Client.ClientHostTasks.StorageManager?.GetStorage("core", typeof(OsuCcThemeRegistry).Assembly);
             if (storage == null)
                 return; // Not ready yet
 

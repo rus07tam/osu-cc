@@ -13,7 +13,7 @@ namespace osucc.Plugin
         internal List<WeakReference<ToolbarButton>> CreatedButtons { get; } = new();
 
         /// <summary>Records a button created from this registration, skipping duplicates.</summary>
-        internal void RecordCreated(ToolbarButton button)
+        public void RecordCreated(ToolbarButton button)
         {
             if (CreatedButtons.Any(r => r.TryGetTarget(out var existing) && ReferenceEquals(existing, button)))
                 return;
@@ -22,7 +22,7 @@ namespace osucc.Plugin
         }
 
         /// <summary>Removes every live button created from this registration from the toolbar. Runs on the update thread.</summary>
-        internal void RemoveCreated()
+        public void RemoveCreated()
         {
             foreach (var reference in CreatedButtons)
             {

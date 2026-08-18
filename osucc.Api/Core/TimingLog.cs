@@ -1,4 +1,5 @@
-using osucc.Plugin;
+using System;
+using System.IO;
 using System.Text;
 
 namespace osucc.Core
@@ -21,6 +22,7 @@ namespace osucc.Core
         // failures via TimingLog.Error — never re-enter that from within a resolve attempt.
         private static string? logDirectory;
         private static bool resolvingLogDirectory;
+        public static Func<string>? LogDirectoryProvider { get; set; }
 
         /// <summary>Path of this session's log file.</summary>
         public static string LogPath
@@ -67,7 +69,14 @@ namespace osucc.Core
 
             try
             {
-                logDirectory = PluginDirectories.ResolveLogsDirectory();
+                if (LogDirectoryProvider != null)
+                {
+                    logDirectory = LogDirectoryProvider();
+                }
+                else
+                {
+                    logDirectory = Path.Combine(Path.GetTempPath(), "osu-cc");
+                }
 
                 if (!Directory.Exists(logDirectory))
                     Directory.CreateDirectory(logDirectory);

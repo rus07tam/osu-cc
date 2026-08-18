@@ -11,23 +11,14 @@ namespace osucc.Client
     /// (reflective) patches with the (typed) UI/API layers. The one-time wiring lives in
     /// <see cref="ClientBootstrap"/>.
     /// </summary>
-    public static class ClientApi
+    public static class ClientHostTasks
     {
-        public const string BrandingName = "osu!cc";
-
-        public static OsuGameBase? Game { get; private set; }
-
         public static SpecialsConfigManager? Config { get; private set; }
 
         public static osucc.Data.IOsuCcStorageManager? StorageManager { get; private set; }
 
-        public static string? OriginalGameName { get; private set; }
-
-        /// <summary>Remembers the game's real name before branding overwrites it.</summary>
-        public static void CaptureOriginalGameName(string? name) => OriginalGameName ??= name;
-
         /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
-        internal static void SetGame(OsuGameBase game) => Game = game;
+        internal static void SetGame(OsuGameBase game) => ClientApi.Game = game;
 
         /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
         internal static void SetConfig(SpecialsConfigManager config) => Config = config;
@@ -35,6 +26,9 @@ namespace osucc.Client
         /// <summary>Bound by <see cref="ClientBootstrap.AttachToGame"/>.</summary>
         internal static void SetStorageManager(osucc.Data.IOsuCcStorageManager manager) => StorageManager = manager;
 
+
+        /// <summary>Remembers the game's real name before branding overwrites it.</summary>
+        public static void CaptureOriginalGameName(string? name) => ClientApi.OriginalGameName ??= name;
 
         /// <summary>Posted by the scheduler once startup is complete.</summary>
         public static void ReportInit()
@@ -46,7 +40,7 @@ namespace osucc.Client
             else
             {
                 ClientState.MarkReady();
-                ClientNotifications.Success(OsuCcStrings.ClientLoaded(BrandingName));
+                ClientNotifications.Success(OsuCcStrings.ClientLoaded(ClientApi.BrandingName));
             }
 
             reportPluginLoadSummary();
@@ -81,7 +75,7 @@ namespace osucc.Client
         /// <returns><c>false</c> if the dialog overlay is not yet available and the caller should retry.</returns>
         public static bool MaybeShowFirstRunDisclaimer()
         {
-            if (Game == null || Config == null)
+            if (ClientApi.Game == null || Config == null)
                 return false;
 
             if (ClientConfig.FirstRunSetupComplete.Value)
@@ -90,7 +84,7 @@ namespace osucc.Client
                 return true;
             }
 
-            var overlay = Reflection.GetDialogOverlay(Game);
+            var overlay = Reflection.GetDialogOverlay(ClientApi.Game);
 
             if (overlay == null)
             {

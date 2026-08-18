@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageVersion Include="osucc.Host" Version="$(OsuCcHostVersion)" />
+    <PackageVersion Include="osucc.Api" Version="$(OsuCcHostVersion)" />
     <PackageVersion Include="osucc.Build" Version="$(OsuCcBuildVersion)" />
     <PackageVersion Include="Lib.Harmony" Version="2.4.2" />
     <PackageVersion Include="ppy.osu.Game" Version="2026.702.1" />

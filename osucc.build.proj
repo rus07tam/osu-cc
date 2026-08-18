@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageProject Include="$(OsuCcRoot)osucc.Shared/osucc.Shared.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
+    <PackageProject Include="$(OsuCcRoot)osucc.Api/osucc.Api.csproj" />
     <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
     <PackageProject Include="$(OsuCcRoot)templates/osucc.Templates/osucc.Templates.csproj" />
@@ -41,6 +42,8 @@
     <Message Text="Clearing stale cache: $(_NuGetPackages)/osucc.{host,build}" Importance="low" />
     <RemoveDir Directories="$(_NuGetPackages)/osucc.host"
       Condition="Exists('$(_NuGetPackages)/osucc.host')" />
+    <RemoveDir Directories="$(_NuGetPackages)/osucc.api"
+      Condition="Exists('$(_NuGetPackages)/osucc.api')" />
     <RemoveDir Directories="$(_NuGetPackages)/osucc.build"
       Condition="Exists('$(_NuGetPackages)/osucc.build')" />
   </Target>
@@ -68,6 +71,7 @@
 
     <ItemGroup>
       <_HookPayload Include="$(HookOutput)/osucc.dll" />
+      <_HookPayload Include="$(HookOutput)/osucc.Api.dll" />
       <_HookPayload Include="$(HookOutput)/0Harmony.dll" />
       <_HookPayload Include="$(HookOutput)/SharpCompress.dll" />
       <_HookPayload Include="$(HookOutput)/osucc.Shared.dll" />

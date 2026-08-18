@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="osucc.Host" Version="OSUCC_HOST_VERSION" />
+    <PackageReference Include="osucc.Api" Version="OSUCC_HOST_VERSION" />
     <PackageReference Include="osucc.Build" Version="OSUCC_BUILD_VERSION" PrivateAssets="all" />
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />

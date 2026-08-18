@@ -1,3 +1,4 @@
+using HarmonyLib;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
@@ -82,7 +83,7 @@ namespace osucc.Plugin
         /// unpatchs it. Prefer the convenience helpers in <see cref="PatchHelper"/> for the
         /// common name-based shape.
         /// </summary>
-        IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, MethodType type);
+        IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, osucc.Core.MethodType type);
 
         /// <summary>
         /// Loads a texture from this plugin's embedded assembly resources. <c>null</c> if the game is

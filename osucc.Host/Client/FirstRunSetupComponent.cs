@@ -5,7 +5,7 @@ namespace osucc.Client
 {
     /// <summary>
     /// Invisible component added at startup. Once the game (and the dialog overlay) are loaded,
-    /// its scheduler fires <see cref="ClientApi.MaybeShowFirstRunDisclaimer"/> on the update
+    /// its scheduler fires <see cref="ClientHostTasks.MaybeShowFirstRunDisclaimer"/> on the update
     /// thread, retrying until the dialog overlay becomes available.
     /// </summary>
     public partial class FirstRunSetupComponent : Drawable
@@ -19,13 +19,12 @@ namespace osucc.Client
         [BackgroundDependencyLoader]
         private void load()
         {
-            // Fire after the startup toast so the disclaimer never races it.
             Scheduler.AddDelayed(check, initialDelayMs, false);
         }
 
         private void check()
         {
-            if (ClientApi.MaybeShowFirstRunDisclaimer())
+            if (ClientHostTasks.MaybeShowFirstRunDisclaimer())
                 return;
 
             if (++attempts < maxAttempts)

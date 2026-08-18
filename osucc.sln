@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Templates", "templates\osucc.Templates\osucc.Templates.csproj", "{DFF5E26F-0551-48A5-9DDD-67ABDC5914BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Api", "osucc.Api\osucc.Api.csproj", "{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{DFF5E26F-0551-48A5-9DDD-67ABDC5914BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFF5E26F-0551-48A5-9DDD-67ABDC5914BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFF5E26F-0551-48A5-9DDD-67ABDC5914BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F34E2034-533A-4CBE-B1A4-27A860F2256F} = {D5247426-E866-4970-9314-D381E8B6BB7B}

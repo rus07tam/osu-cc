@@ -32,7 +32,7 @@ namespace osucc.Patches
         {
             try
             {
-                ClientApi.CaptureOriginalGameName(Reflection.GetName(__instance as osu.Framework.Graphics.Drawable));
+                ClientHostTasks.CaptureOriginalGameName(Reflection.GetName(__instance as osu.Framework.Graphics.Drawable));
                 Reflection.SetName(__instance as osu.Framework.Graphics.Drawable, ClientApi.BrandingName);
                 TimingLog.Info($"Postfix: Name set to \"{ClientApi.BrandingName}\" on {__instance.GetType().FullName}");
             }

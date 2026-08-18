@@ -81,7 +81,7 @@ namespace osucc.Plugin
         public PluginSettings GetSettings()
             => settings ??= new PluginSettings(() => resolveStorage());
 
-        public osucc.Data.IOsuCcStorage Data => data ??= ClientApi.StorageManager!.GetStorage(entry.Id, entry.Plugin?.GetType().Assembly);
+        public osucc.Data.IOsuCcStorage Data => data ??= ClientHostTasks.StorageManager!.GetStorage(entry.Id, entry.Plugin?.GetType().Assembly);
 
         private osucc.Data.IOsuCcStorage? data;
 
@@ -131,7 +131,7 @@ namespace osucc.Plugin
             }
         }
 
-        public IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, MethodType type)
+        public IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, osucc.Core.MethodType type)
         {
             var harmony = patchHarmony ??= HookDependencies.Create($"{entry.Id}.patches");
             var patch = Reflection.HarmonyMethod(patchType, patchMethodName);
@@ -139,9 +139,9 @@ namespace osucc.Plugin
             try
             {
                 harmony.Patch(target,
-                    prefix: type == MethodType.Prefix ? patch : null,
-                    postfix: type == MethodType.Postfix ? patch : null,
-                    transpiler: type == MethodType.Transpiler ? patch : null);
+                    prefix: type == osucc.Core.MethodType.Prefix ? patch : null,
+                    postfix: type == osucc.Core.MethodType.Postfix ? patch : null,
+                    transpiler: type == osucc.Core.MethodType.Transpiler ? patch : null);
             }
             catch (Exception ex)
             {

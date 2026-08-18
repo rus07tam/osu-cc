@@ -27,4 +27,8 @@
     <Content Include="Themes\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\osucc.Api\osucc.Api.csproj" />
+  </ItemGroup>
+
 </Project>

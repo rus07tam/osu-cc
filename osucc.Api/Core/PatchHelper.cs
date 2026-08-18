@@ -41,12 +41,4 @@ namespace osucc.Core
             return method == null ? null : host.AddPatch(method, patchType, patchMethodName, type);
         }
     }
-
-    /// <summary>Which Harmony patch type <see cref="PatchHelper"/> should attach.</summary>
-    public enum MethodType
-    {
-        Prefix,
-        Postfix,
-        Transpiler
-    }
 }

@@ -54,49 +54,7 @@ namespace osucc.Core
             }
         }
 
-        /// <summary>
-        /// Re-paints every <see cref="Color4"/> field on this type through the theme registered as
-        /// <see cref="OsuCcThemeManager.Active"/>. Called once at startup after the active theme has
-        /// been pinned; a no-op for the vanilla theme.
-        /// </summary>
-        public static void ApplyTheme() => ApplyTheme(OsuCcThemeManager.Active);
-
-        /// <summary>
-        /// Re-paints every <see cref="Color4"/> field on this type through the given theme's
-        /// transform, always starting from the vanilla baseline so repeated calls (theme preview)
-        /// don't compound. For the vanilla theme the fields are restored as-is.
-        /// </summary>
-        public static void ApplyTheme(OsuCcThemeDefinition theme)
-        {
-            var baseValues = BaseValues;
-            var palette = theme.IsVanilla ? null : new ThemePalette(theme);
-
-            int painted = 0;
-            int failed = 0;
-
-            int index = 0;
-            foreach (var field in typeof(OsuCcColours).GetFields(BindingFlags.Static | BindingFlags.Public)
-                                                       .Where(f => f.FieldType == typeof(Color4)))
-            {
-                try
-                {
-                    var baseColour = baseValues.Length > index ? baseValues[index] : (Color4)field.GetValue(null)!;
-                    var transformed = palette == null ? baseColour : palette.Transform(baseColour);
-
-                    field.SetValue(null, transformed);
-                    painted++;
-                }
-                catch (Exception ex)
-                {
-                    failed++;
-                    TimingLog.Error($"OsuCcColours.ApplyTheme: failed on '{field.Name}': {ex.Message}");
-                }
-
-                index++;
-            }
-
-            TimingLog.Info($"OsuCcColours themed: {painted} colour(s) repainted, {failed} failed ({theme.Id})");
-        }
+        // Removed ApplyTheme methods - now handled by OsuCcThemeManager
 
         private static Color4[] captureBase()
             => typeof(OsuCcColours).GetFields(BindingFlags.Static | BindingFlags.Public)

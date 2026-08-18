@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>osucc.Api</AssemblyName>
+    <RootNamespace>osucc</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageId>osucc.Api</PackageId>
+    <Version>$(OsuCcHostVersion)</Version>
+    <Authors>osu-cc</Authors>
+    <Description>osu-cc API project</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" />
+    <PackageReference Include="ppy.osu.Game" />
+    <PackageReference Include="SharpCompress" />
+    <ProjectReference Include="..\osucc.Shared\osucc.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

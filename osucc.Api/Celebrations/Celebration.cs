@@ -78,7 +78,6 @@ namespace osucc.Celebrations
 
             if (options.DismissOnClick)
             {
-                // Full-screen hit area above the visuals, so a click dismisses the celebration.
                 AddInternal(new ClickableContainer
                 {
                     RelativeSizeAxes = Axes.Both,

@@ -1,6 +1,5 @@
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
-using osucc.Client;
 using System.IO;
 
 namespace osucc.Core
@@ -21,17 +20,19 @@ namespace osucc.Core
             return FromStream(stream);
         }
 
+        public static Func<IRenderer?>? RendererProvider { get; set; }
+
         /// <summary>Creates a texture from a stream; <c>null</c> if the game/renderer is unavailable or decoding fails.</summary>
         public static Texture? FromStream(Stream stream)
         {
             try
             {
-                var renderer = ClientApi.Game?.Dependencies?.Get(typeof(IRenderer)) as IRenderer;
+                var renderer = RendererProvider?.Invoke();
                 return renderer == null ? null : Texture.FromStream(renderer, stream);
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"TextureHelper: failed to create texture: {ex.Message}");
+                System.Console.WriteLine($"TextureHelper: failed to create texture: {ex.Message}");
                 return null;
             }
         }

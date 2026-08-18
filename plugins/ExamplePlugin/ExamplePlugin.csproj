@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="osucc.Host" />
+    <PackageReference Include="osucc.Api" />
     <PackageReference Include="osucc.Build" PrivateAssets="all" />
     <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="ppy.osu.Game" />

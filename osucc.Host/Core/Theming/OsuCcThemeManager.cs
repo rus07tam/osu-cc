@@ -20,7 +20,7 @@ namespace osucc.Core
         static OsuCcThemeManager()
         {
             active = OsuCcThemeRegistry.Get(OsuCcThemeRegistry.DefaultId);
-            activePalette = null; // vanilla themes bypass the chrome mapper entirely.
+            activePalette = null;
         }
 
         /// <summary>The currently active theme definition. Never null; vanilla by default.</summary>
@@ -91,7 +91,7 @@ namespace osucc.Core
             lock (lockObject)
             {
                 if (activePalette == null)
-                    return source; // vanilla identity.
+                    return source;
 
                 return activePalette.Transform(source);
             }
@@ -108,9 +108,8 @@ namespace osucc.Core
                 var palette = definition.IsVanilla ? null : new ThemePalette(definition);
 
                 Patches.OsuColourThemePatch.ApplyToGame(game, definition);
-                OsuCcColours.ApplyTheme(definition);
+                ApplyThemeColours(definition);
 
-                // Keep active in sync when a definition was passed explicitly (preview flow).
                 if (theme != null)
                 {
                     active = definition;
@@ -119,6 +118,37 @@ namespace osucc.Core
 
                 IsActiveThemeDirty.Value = false;
             }
+        }
+        private static void ApplyThemeColours(OsuCcThemeDefinition theme)
+        {
+            var baseValues = OsuCcColours.BaseValues;
+            var palette = theme.IsVanilla ? null : new ThemePalette(theme);
+
+            int painted = 0;
+            int failed = 0;
+
+            int index = 0;
+            foreach (var field in typeof(OsuCcColours).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                                                       .Where(f => f.FieldType == typeof(Color4)))
+            {
+                try
+                {
+                    var baseColour = baseValues.Length > index ? baseValues[index] : (Color4)field.GetValue(null)!;
+                    var transformed = palette == null ? baseColour : palette.Transform(baseColour);
+
+                    field.SetValue(null, transformed);
+                    painted++;
+                }
+                catch (Exception ex)
+                {
+                    failed++;
+                    TimingLog.Error($"OsuCcThemeManager.ApplyThemeColours: failed on '{field.Name}': {ex.Message}");
+                }
+
+                index++;
+            }
+
+            TimingLog.Info($"OsuCcColours themed: {painted} colour(s) repainted, {failed} failed ({theme.Id})");
         }
     }
 }
