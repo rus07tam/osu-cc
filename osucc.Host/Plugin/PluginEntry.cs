@@ -29,8 +29,8 @@ namespace osucc.Plugin
         public string? Icon { get; init; }
 
         /// <summary>
-        /// Absolute path of an <c>icon.*</c> / <c>image.*</c> file in the plugin folder (preferred
-        /// over <see cref="IconResource"/>). Updated when the payload moves into the id-folder.
+        /// Absolute path of the plugin's image icon file in the plugin folder (preferred over
+        /// <see cref="IconResource"/>). Updated when the payload moves into the id-folder.
         /// </summary>
         public string? IconPath { get; internal set; }
 

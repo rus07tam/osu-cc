@@ -2,9 +2,8 @@ namespace osucc.Plugin
 {
     /// <summary>
     /// A discovered plugin type with its metadata (the <see cref="OsuCcPluginAttribute"/> emitted
-    /// at build time from the project file, or read from a legacy class-level attribute), awaiting
-    /// instantiation in dependency-resolved priority order. Created during discovery without
-    /// running any plugin code.
+    /// at build time from the project file), awaiting instantiation in dependency-resolved priority
+    /// order. Created during discovery without running any plugin code.
     /// </summary>
     internal sealed record PluginCandidate(Type Type, OsuCcPluginAttribute Metadata, string Directory, string? IconPath)
     {

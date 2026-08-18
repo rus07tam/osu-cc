@@ -55,7 +55,8 @@ osu!cc это сознательно клиент **без читов** (см. �
 ## Плагины
 
 Плагин это classlib с типом, помеченным `[OsuCcPlugin]`. Новые плагины живут в
-`plugins/<Name>/` и поставляются как zip-архив с `icon.png`. Отдавайте
+`plugins/<Name>/` и поставляются как zip-архив. Иконку объявляйте через `PluginIcon`
+(файл-картинка) или `PluginIconGlyph` (глиф FontAwesome) в проектном файле. Отдавайте
 предпочтение host API (`IOsuCcPluginHost`) перед собственными Harmony-патчами,
 где это возможно. Всё нужное есть в [DEVELOPMENT.md](DEVELOPMENT.md).
 

@@ -113,7 +113,7 @@ namespace osucc.Plugin
             }
         }
 
-        /// <summary>Loads a texture from an arbitrary file path (such as the plugin's own <c>icon.*</c>). Returns <c>null</c> on any failure.</summary>
+        /// <summary>Loads a texture from an arbitrary file path (such as the plugin's own icon file). Returns <c>null</c> on any failure.</summary>
         public Texture? LoadTextureFromFile(string path)
         {
             try

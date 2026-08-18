@@ -365,25 +365,6 @@ namespace osucc.Plugin
                 PluginStateStore.Remove(id);
         }
 
-        private static readonly string[] iconExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp" };
-
-        /// <summary>Finds an <c>icon.*</c> (falling back to <c>image.*</c>) file inside a plugin folder.</summary>
-        private static string? findIconFile(string directory)
-        {
-            foreach (string baseName in new[] { "icon", "image" })
-            {
-                foreach (string extension in iconExtensions)
-                {
-                    string candidate = Path.Combine(directory, baseName + extension);
-
-                    if (File.Exists(candidate))
-                        return candidate;
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Builds a <see cref="PluginEntry"/> from the plugin metadata (the build-emitted
         /// attribute) and the discovered plugin type.
@@ -408,32 +389,23 @@ namespace osucc.Plugin
             };
 
         /// <summary>
-        /// Maps the attribute's author declaration to a list of <see cref="PluginAuthor"/>. Prefers
-        /// the multi-author arrays; falls back to the legacy single-string <see cref="OsuCcPluginAttribute.Author"/>
-        /// (archives built before the multi-author support) as one plain nickname.
+        /// Maps the attribute's author declaration to a list of <see cref="PluginAuthor"/>.
         /// </summary>
         private static PluginAuthor[] resolveAuthors(OsuCcPluginAttribute attribute)
         {
-            if (attribute.AuthorNames is { Length: > 0 })
+            int[]? ids = attribute.AuthorOsuIds;
+
+            var authors = new PluginAuthor[attribute.AuthorNames.Length];
+
+            for (int i = 0; i < attribute.AuthorNames.Length; i++)
             {
-                int[]? ids = attribute.AuthorOsuIds;
-                var authors = new PluginAuthor[attribute.AuthorNames.Length];
-
-                for (int i = 0; i < attribute.AuthorNames.Length; i++)
-                {
-                    int id = ids != null && i < ids.Length ? ids[i] : -1;
-                    authors[i] = id > 0
-                        ? new PluginAuthor(attribute.AuthorNames[i], id)
-                        : new PluginAuthor(attribute.AuthorNames[i]);
-                }
-
-                return authors;
+                int id = ids != null && i < ids.Length ? ids[i] : -1;
+                authors[i] = id > 0
+                    ? new PluginAuthor(attribute.AuthorNames[i], id)
+                    : new PluginAuthor(attribute.AuthorNames[i]);
             }
 
-            if (!string.IsNullOrWhiteSpace(attribute.Author))
-                return new[] { new PluginAuthor(attribute.Author) };
-
-            return Array.Empty<PluginAuthor>();
+            return authors;
         }
 
         /// <summary>
@@ -477,9 +449,9 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Discovers a plugin in a dll without running any plugin code; the type is instantiated
-        /// later, in priority order. New-style plugins carry an assembly-level
+        /// later, in priority order. Plugins carry an assembly-level
         /// <see cref="OsuCcPluginAttribute"/> emitted by the build from the project file (exactly
-        /// one plugin type per assembly); legacy plugins keep the attribute on the class itself.
+        /// one plugin type per assembly).
         /// </summary>
         private static void discoverPluginDll(string path, List<PluginCandidate> candidates)
         {
@@ -493,47 +465,27 @@ namespace osucc.Plugin
 
                 var manifest = assembly.GetCustomAttribute<OsuCcPluginAttribute>();
 
-                if (manifest != null)
+                if (manifest == null)
                 {
-                    var pluginTypes = getLoadableTypes(assembly).Where(isPluginType).ToArray();
-
-                    if (pluginTypes.Length == 0)
-                    {
-                        TimingLog.Info($"PluginManager: '{manifest.Name}' declares a manifest but no OsuCcPlugin type was found in {path}");
-                        return;
-                    }
-
-                    if (pluginTypes.Length > 1)
-                    {
-                        TimingLog.Error($"PluginManager: '{manifest.Name}' (id '{manifest.Id}') declares an assembly manifest but contains {pluginTypes.Length} plugin types; only one plugin per assembly is supported, skipping {path}");
-                        return;
-                    }
-
-                    candidates.Add(new PluginCandidate(pluginTypes[0], manifest, pluginDirectory, resolveDeclaredIcon(manifest, pluginDirectory)));
+                    TimingLog.Info($"PluginManager: no [OsuCcPlugin] assembly manifest found in {path}");
                     return;
                 }
 
-                bool anyPluginType = false;
+                var pluginTypes = getLoadableTypes(assembly).Where(isPluginType).ToArray();
 
-                foreach (Type type in getLoadableTypes(assembly))
+                if (pluginTypes.Length == 0)
                 {
-                    if (!isPluginType(type))
-                        continue;
-
-                    var attribute = type.GetCustomAttribute<OsuCcPluginAttribute>();
-                    if (attribute == null)
-                        continue;
-
-                    anyPluginType = true;
-
-                    string? iconPath = findIconFile(pluginDirectory);
-                    TimingLog.Info($"PluginManager: '{attribute.Name}' folder icon: {iconPath ?? "(none)"} (deprecated class-level [OsuCcPlugin] metadata; declare metadata in the project file)");
-
-                    candidates.Add(new PluginCandidate(type, attribute, pluginDirectory, iconPath));
+                    TimingLog.Info($"PluginManager: '{manifest.Name}' declares a manifest but no OsuCcPlugin type was found in {path}");
+                    return;
                 }
 
-                if (!anyPluginType)
-                    TimingLog.Info($"PluginManager: no [OsuCcPlugin] type found in {path}");
+                if (pluginTypes.Length > 1)
+                {
+                    TimingLog.Error($"PluginManager: '{manifest.Name}' (id '{manifest.Id}') declares an assembly manifest but contains {pluginTypes.Length} plugin types; only one plugin per assembly is supported, skipping {path}");
+                    return;
+                }
+
+                candidates.Add(new PluginCandidate(pluginTypes[0], manifest, pluginDirectory, resolveDeclaredIcon(manifest, pluginDirectory)));
             }
             catch (Exception ex)
             {
@@ -554,8 +506,7 @@ namespace osucc.Plugin
 
         /// <summary>
         /// Resolves the plugin's image icon: the manifest's declared <c>IconPath</c> (relative to
-        /// the plugin folder) preferred, falling back to the legacy <c>icon.*</c>/<c>image.*</c>
-        /// convention when the declared file is absent.
+        /// the plugin folder).
         /// </summary>
         private static string? resolveDeclaredIcon(OsuCcPluginAttribute manifest, string pluginDirectory)
         {
@@ -575,7 +526,6 @@ namespace osucc.Plugin
                 }
             }
 
-            iconPath ??= findIconFile(pluginDirectory);
             TimingLog.Info($"PluginManager: '{manifest.Name}' folder icon: {iconPath ?? "(none)"}");
             return iconPath;
         }

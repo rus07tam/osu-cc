@@ -55,9 +55,10 @@ and ask before writing code.
 ## Plugins
 
 A plugin is a classlib with a type marked `[OsuCcPlugin]`. New plugins live in
-`plugins/<Name>/` and ship as a zip archive with an `icon.png`. Prefer the host
-API (`IOsuCcPluginHost`) over your own Harmony patches whenever possible.
-Everything you need is in [DEVELOPMENT.md](docs/en/DEVELOPMENT.md).
+`plugins/<Name>/` and ship as a zip archive. Declare an icon via `PluginIcon`
+(an image file) or `PluginIconGlyph` (a FontAwesome glyph) in the project file.
+Prefer the host API (`IOsuCcPluginHost`) over your own Harmony patches whenever
+possible. Everything you need is in [DEVELOPMENT.md](docs/en/DEVELOPMENT.md).
 
 ## Getting started
 

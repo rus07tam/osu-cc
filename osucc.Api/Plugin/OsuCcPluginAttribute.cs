@@ -4,10 +4,9 @@ namespace osucc.Plugin
     /// Carries a plugin's metadata. Declared in the plugin's project file (see
     /// <c>PluginId</c>/<c>PluginName</c>/… properties and <c>PluginDependency</c> items in the
     /// csproj); the build emits an assembly-level instance from those properties, so plugin
-    /// sources never write the attribute directly. The class-level target is retained only so
-    /// archives built before the csproj declaration are still discovered.
+    /// sources never write the attribute directly.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
     public class OsuCcPluginAttribute : Attribute
     {
         /// <summary>
@@ -22,13 +21,6 @@ namespace osucc.Plugin
 
         /// <summary>Display name shown in the plugins overlay.</summary>
         public string Name { get; }
-
-        /// <summary>
-        /// Author as a single display string. Retained for backward compatibility: archives built
-        /// before the multi-author declaration only carry this. New builds use
-        /// <see cref="AuthorNames"/> / <see cref="AuthorOsuIds"/> instead.
-        /// </summary>
-        public string? Author { get; set; }
 
         /// <summary>
         /// Display label per author: the nickname, or the username for a profile-linked author.

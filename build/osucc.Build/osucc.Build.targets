@@ -10,8 +10,7 @@
     into an assembly-level [OsuCcPlugin] attribute by GeneratePluginManifest, so plugin sources
     never write the attribute directly. PluginAuthor is a list of items, each a plain nickname or,
     with the optional OsuProfileId metadata, an osu! profile-linked username (rendered
-    clickable by the UI); the legacy single <PluginAuthor>property</PluginAuthor> form is still
-    supported as one plain nickname. PluginTag items become the plugin's display tags (chips in
+    clickable by the UI). PluginTag items become the plugin's display tags (chips in
     the plugins UI / search). PluginRepository is the URL of the repository the plugin is
     published from (consumed by the plugin store). PackagePluginArchive packs the plugin's own
     dll (+ optional icon) into <PluginId>.zip under the output directory.
@@ -223,11 +222,9 @@
     <Error Condition="'$(PluginIcon)' != '' and !Exists('$(PluginIcon)')" Text="Plugin icon file '$(PluginIcon)' does not exist. Fix &lt;PluginIcon&gt; in the project file." />
 
     <!-- Authors are the PluginAuthor items (each a nickname or, with OsuProfileId metadata, an osu!
-         profile link). The legacy single <PluginAuthor>property</PluginAuthor> form still works as
-         one plain nickname when no items are declared. -->
+         profile link). -->
     <ItemGroup>
       <_PluginAuthors Include="@(PluginAuthor)" Condition="'@(PluginAuthor)' != ''" />
-      <_PluginAuthors Include="$(PluginAuthor)" Condition="'@(PluginAuthor)' == '' and '$(PluginAuthor)' != ''" />
       <_PluginTags Include="@(PluginTag)" Condition="'@(PluginTag)' != ''" />
     </ItemGroup>
 
@@ -264,7 +261,6 @@
 
     <ItemGroup>
       <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
-      <_PackageFiles Include="$(OutDir)icon.png" Condition="Exists('$(OutDir)icon.png')" />
       <_PackageFiles Include="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(_IconOutput)')" />
     </ItemGroup>
 

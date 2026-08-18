@@ -26,7 +26,7 @@ namespace osucc.UI.Plugins
     {
         /// <summary>
         /// Builds the plugin icon. Precedence: plugin-provided FontAwesome icon, FontAwesome icon
-        /// declared in the plugin attribute, folder icon, embedded IconResource, generic
+        /// declared in the plugin attribute, image file icon, embedded IconResource, generic
         /// puzzle-piece fallback.
         /// </summary>
         public static Drawable CreateIcon(PluginEntry entry, float size, out SpriteIcon? fallbackIcon)
