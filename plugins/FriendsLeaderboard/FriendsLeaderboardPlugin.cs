@@ -12,8 +12,6 @@ namespace FriendsLeaderboard
     public class FriendsLeaderboardPlugin : OsuCcPlugin
     {
         private PluginSettings settings = null!;
-        private IDisposable? supporterGatePatch;
-        private IDisposable? requestPatch;
 
         protected override void OnLoad()
         {
@@ -24,18 +22,14 @@ namespace FriendsLeaderboard
 
             Host.AddSettingsSubsection(() => new FriendsLeaderboardSettingsSubsection(settings));
 
-            supporterGatePatch = RequiresSupporterPatch.Install(Host);
-            requestPatch = GetScoresRequestPatch.Install(Host);
-
-            Host.Log($"patches: supporter-gate={supporterGatePatch != null}, request={requestPatch != null}");
+            int patched = InstallPatches();
+            Host.Log($"installed {patched}/2 patches");
             Host.Log("loaded");
         }
 
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
-            supporterGatePatch?.Dispose();
-            requestPatch?.Dispose();
             settings?.Dispose();
             base.Dispose();
         }

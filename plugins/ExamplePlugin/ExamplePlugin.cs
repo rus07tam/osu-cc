@@ -41,8 +41,8 @@ namespace ExamplePlugin
             Host.AddToolbarButton(() => new ExampleToolbarButton(celebrateToggle, Host.Notify));
             Host.AddSettingsSubsection(() => new ExampleSettingsSubsection(settings, Host));
 
-            // A Harmony patch resolved by name against the runtime osu.Game assembly.
-            if (ExampleHarmonyPatch.Install(Host) != null)
+            // The declarative patch in this assembly is applied via InstallPatches().
+            if (InstallPatches() > 0)
                 Host.Log("Harmony patch installed");
 
             Host.Log("loaded");

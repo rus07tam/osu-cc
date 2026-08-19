@@ -11,15 +11,10 @@ namespace FakeSupporter
     /// <c>load()</c> and never redraw it, so without this hook a per-user override applied later
     /// would not reach already-created cards; the API rebuilds them from its <c>Changed</c> event.
     /// </summary>
+    [OsuCcPatch("osu.Game.Users.UserPanel", "load")]
     internal static class UserPanelLoadPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            UserPanelLoadPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Users.UserPanel", "load", typeof(UserPanelLoadPatch), nameof(Postfix));
-        }
 
         private static void Postfix(UserPanel __instance)
         {

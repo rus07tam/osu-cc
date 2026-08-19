@@ -1,4 +1,5 @@
 using osu.Framework.Graphics.Sprites;
+using osucc.Core;
 using System;
 using System.Collections.Generic;
 
@@ -13,6 +14,15 @@ namespace osucc.Plugin
             Host = host;
             OnLoad();
         }
+
+        /// <summary>
+        /// Applies every declarative patch in this plugin's assembly (see
+        /// <see cref="OsuCcPatchAttribute"/> / <see cref="OsuCcConstructorPatchAttribute"/>)
+        /// through the scoped host. Handles are tracked by the host and reverted on live disable,
+        /// so no manual bookkeeping is needed. Call from <see cref="OnLoad"/>. Returns the number
+        /// of targets that were actually patched; failures are logged and skipped.
+        /// </summary>
+        protected int InstallPatches() => OsuCcPatches.Install(Host, GetType().Assembly);
 
         protected abstract void OnLoad();
 

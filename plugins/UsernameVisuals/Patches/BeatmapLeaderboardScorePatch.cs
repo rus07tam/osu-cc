@@ -2,8 +2,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Screens.Select;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 
 namespace UsernameVisuals
 {
@@ -13,10 +11,9 @@ namespace UsernameVisuals
     /// preserved by enabling <see cref="SpriteText.Truncate"/> directly (bypassing the throwing
     /// <c>OsuSpriteText</c> hide).
     /// </summary>
+    [OsuCcPatch("osu.Game.Screens.Select.BeatmapLeaderboardScore", "load")]
     internal static class BeatmapLeaderboardScorePatch
     {
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.Select.BeatmapLeaderboardScore", "load", typeof(BeatmapLeaderboardScorePatch), nameof(Postfix));
 
         private static void Postfix(BeatmapLeaderboardScore __instance)
         {

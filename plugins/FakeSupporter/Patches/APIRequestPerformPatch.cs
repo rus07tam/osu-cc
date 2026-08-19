@@ -13,15 +13,10 @@ namespace FakeSupporter
     /// excluded (handled by <see cref="LocalUserStateSetLocalUserPatch"/>) so the game's own
     /// WasSupporter config write keeps the real value.
     /// </summary>
+    [OsuCcPatch("osu.Game.Online.API.APIRequest", "Perform")]
     internal static class APIRequestPerformPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            APIRequestPerformPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(APIRequestPerformPatch), nameof(Postfix));
-        }
 
         private static void Postfix(APIRequest __instance)
         {

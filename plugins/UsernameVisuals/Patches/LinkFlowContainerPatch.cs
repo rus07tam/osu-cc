@@ -5,8 +5,6 @@ using osu.Game.Localisation;
 using osu.Game.Online.Chat;
 using osu.Game.Users;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -17,13 +15,11 @@ namespace UsernameVisuals
     /// gradients. Uses the public <c>AddLink(IEnumerable&lt;SpriteText&gt;, ...)</c> overload,
     /// which internally builds the same <c>createLink</c> link container as the original.
     /// </summary>
+    [OsuCcPatch("osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", MethodType.Prefix)]
     internal static class LinkFlowContainerPatch
     {
         private static readonly Lazy<MethodInfo?> applyDefaultParametersMethod = new(() =>
             typeof(TextFlowContainer).GetMethod("ApplyDefaultCreationParameters", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPrefix(host, "osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", typeof(LinkFlowContainerPatch), nameof(Prefix));
 
         private static bool Prefix(LinkFlowContainer __instance, IUser user, Action<SpriteText>? creationParameters)
         {

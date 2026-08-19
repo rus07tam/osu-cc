@@ -9,12 +9,10 @@ namespace Oii
     /// </summary>
     public class OiiPlugin : OsuCcPlugin
     {
-        private IDisposable? patch;
-
         protected override void OnLoad()
         {
-            patch = TotalPlayTimeLoadPatch.Install(Host);
-            Host.Log(patch != null ? "patch installed" : "patch unavailable");
+            int patched = InstallPatches();
+            Host.Log(patched == 1 ? "patch installed" : "patch unavailable");
             Host.Log("loaded");
         }
 
@@ -24,7 +22,6 @@ namespace Oii
 
         public override void Dispose()
         {
-            patch?.Dispose();
             TotalPlayTimeLoadPatch.RemoveIndicators();
             GC.SuppressFinalize(this);
             base.Dispose();

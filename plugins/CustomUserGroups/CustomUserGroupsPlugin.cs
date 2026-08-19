@@ -15,7 +15,6 @@ namespace CustomUserGroups
     /// </summary>
     public class CustomUserGroupsPlugin : OsuCcPlugin
     {
-        private readonly List<IDisposable?> patches = new();
         private readonly List<IDisposable?> visualHandles = new();
         private CustomUserGroupsApi? api;
         private IUsernameVisualsApi? visualsApi;
@@ -37,7 +36,8 @@ namespace CustomUserGroups
 
             Host.AddSettingsSubsection(() => new CustomUserGroupsSettingsSubsection(settings, api, Host));
 
-            installPatches();
+            int count = InstallPatches();
+            Host.Log($"patched {count}/3 user-group hooks");
             Host.Log("loaded");
         }
 
@@ -69,9 +69,6 @@ namespace CustomUserGroups
                 handle?.Dispose();
             visualHandles.Clear();
 
-            foreach (var patch in patches)
-                patch?.Dispose();
-            patches.Clear();
             GC.SuppressFinalize(this);
             base.Dispose();
         }
@@ -102,16 +99,6 @@ namespace CustomUserGroups
                     palette,
                     priority: -1));
             }
-        }
-
-        private void installPatches()
-        {
-            int count = 0;
-            if (APIRequestPerformPatch.Install(Host) is { } perform) { patches.Add(perform); count++; }
-            if (LocalUserStateSetLocalUserPatch.Install(Host) is { } setLocal) { patches.Add(setLocal); count++; }
-            if (LocalUserStateClearLocalUserPatch.Install(Host) is { } clearLocal) { patches.Add(clearLocal); count++; }
-
-            Host.Log($"patched {count}/3 user-group hooks");
         }
     }
 }

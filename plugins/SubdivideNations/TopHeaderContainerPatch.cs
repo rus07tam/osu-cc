@@ -5,7 +5,6 @@ using osu.Game.Overlays.Profile;
 using osu.Game.Overlays.Profile.Header;
 using osu.Game.Users.Drawables;
 using osucc.Core;
-using osucc.Plugin;
 using osuTK;
 using System;
 using System.Runtime.CompilerServices;
@@ -20,12 +19,10 @@ namespace SubdivideNations
     /// region text is re-applied on every <c>updateUser</c>, so re-fetches never lose the suffix
     /// and switching users replaces the flag instead of stacking copies.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser")]
     internal static class TopHeaderContainerPatch
     {
         private static readonly ConditionalWeakTable<TopHeaderContainer, HeaderState> states = new();
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
 
         private static void Postfix(TopHeaderContainer __instance, UserProfileData? data)
         {

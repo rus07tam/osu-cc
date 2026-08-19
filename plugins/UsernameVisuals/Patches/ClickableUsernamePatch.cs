@@ -3,8 +3,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Users;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -14,12 +12,10 @@ namespace UsernameVisuals
     /// constructor builds it. <c>ClickableUsername</c> is internal, so the instance and the
     /// private <c>user</c> field are handled reflectively.
     /// </summary>
+    [OsuCcConstructorPatch("osu.Game.Users.Drawables.ClickableUsername", typeof(APIUser))]
     internal static class ClickableUsernamePatch
     {
         private static readonly FieldInfo? userField = Reflection.GetField("osu.Game.Users.Drawables.ClickableUsername", "user");
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachConstructorPostfix(host, "osu.Game.Users.Drawables.ClickableUsername", typeof(ClickableUsernamePatch), nameof(Postfix), typeof(APIUser));
 
         private static void Postfix(object __instance)
         {

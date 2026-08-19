@@ -1,7 +1,6 @@
 using osu.Framework.Graphics.Sprites;
 using osucc.Plugin;
 using System;
-using System.Collections.Generic;
 
 namespace FakeSupporter
 {
@@ -14,8 +13,6 @@ namespace FakeSupporter
     /// </summary>
     public class FakeSupporterPlugin : OsuCcPlugin
     {
-        private readonly List<IDisposable?> patches = new();
-
         /// <summary>The heart icon, matching the supporter theme.</summary>
         public override IconUsage? Icon => FontAwesome.Solid.Heart;
 
@@ -33,7 +30,8 @@ namespace FakeSupporter
 
             Host.AddSettingsSubsection(() => new SupporterFakerSettingsSubsection(settings, api, Host));
 
-            installPatches();
+            int count = InstallPatches();
+            Host.Log($"patched {count}/6 supporter hooks");
             Host.Log("loaded");
         }
 
@@ -43,24 +41,8 @@ namespace FakeSupporter
 
         public override void Dispose()
         {
-            foreach (var patch in patches)
-                patch?.Dispose();
-            patches.Clear();
             GC.SuppressFinalize(this);
             base.Dispose();
-        }
-
-        private void installPatches()
-        {
-            int count = 0;
-            if (APIRequestPerformPatch.Install(Host) is { } perform) { patches.Add(perform); count++; }
-            if (LocalUserStateSetLocalUserPatch.Install(Host) is { } setLocal) { patches.Add(setLocal); count++; }
-            if (LocalUserStateClearLocalUserPatch.Install(Host) is { } clearLocal) { patches.Add(clearLocal); count++; }
-            if (ToolbarUserButtonLoadPatch.Install(Host) is { } toolbar) { patches.Add(toolbar); count++; }
-            if (SupporterIconSupportLevelPatch.Install(Host) is { } clamp) { patches.Add(clamp); count++; }
-            if (UserPanelLoadPatch.Install(Host) is { } panel) { patches.Add(panel); count++; }
-
-            Host.Log($"patched {count}/6 supporter hooks");
         }
     }
 }

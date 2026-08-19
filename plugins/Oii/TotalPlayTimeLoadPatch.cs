@@ -12,17 +12,12 @@ namespace Oii
     /// Inserts an <see cref="OiiIndicator"/> into the profile header's main details flow right after
     /// the play time display, binding it to the same user data so it follows user/ruleset changes.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load")]
     internal static class TotalPlayTimeLoadPatch
     {
         private static IOsuCcPluginHost host = null!;
 
         private static readonly ConcurrentBag<WeakReference<OiiIndicator>> inserted = new();
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            TotalPlayTimeLoadPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", typeof(TotalPlayTimeLoadPatch), nameof(Postfix));
-        }
 
         /// <summary>
         /// Removes every indicator this plugin inserted from its parent flow, so disabling the

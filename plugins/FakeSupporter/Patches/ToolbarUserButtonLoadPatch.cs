@@ -11,15 +11,10 @@ namespace FakeSupporter
     /// production builds (it lives on the main-menu screens), so it cannot be looked up by a
     /// game field; the button's <c>load</c> parameter is the exact instance the avatar opens.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Toolbar.ToolbarUserButton", "load")]
     internal static class ToolbarUserButtonLoadPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            ToolbarUserButtonLoadPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonLoadPatch), nameof(Postfix));
-        }
 
         private static void Postfix(LoginOverlay login)
         {

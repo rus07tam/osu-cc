@@ -15,8 +15,6 @@ namespace SubdivideNations
         private PluginSettings settings = null!;
         private Bindable<bool> enabled = null!;
         private Bindable<bool> showFlags = null!;
-        private IDisposable? userPanelPatch;
-        private IDisposable? headerPatch;
 
         protected override void OnLoad()
         {
@@ -30,7 +28,7 @@ namespace SubdivideNations
 
             Host.AddSettingsSubsection(() => new SubdivideNationsSettingsSubsection(settings));
 
-            int patched = installPatches();
+            int patched = InstallPatches();
             Host.Log(patched == 2 ? "patches installed" : $"patched {patched}/2 surfaces");
             Host.Log("loaded");
         }
@@ -47,18 +45,7 @@ namespace SubdivideNations
         {
             GC.SuppressFinalize(this);
             base.Dispose();
-            userPanelPatch?.Dispose();
-            headerPatch?.Dispose();
             settings?.Dispose();
-        }
-
-        private int installPatches()
-        {
-            int count = 0;
-            if (UserPanelCreateFlagPatch.Install(Host) is { } userPanel) { userPanelPatch = userPanel; count++; }
-            if (TopHeaderContainerPatch.Install(Host) is { } header) { headerPatch = header; count++; }
-
-            return count;
         }
     }
 }

@@ -12,15 +12,10 @@ namespace CustomUserGroups
     /// leaderboards, scores, chat and user lookups all pick up the custom groups. The /me
     /// response is excluded (handled by <see cref="LocalUserStateSetLocalUserPatch"/>).
     /// </summary>
+    [OsuCcPatch("osu.Game.Online.API.APIRequest", "Perform")]
     internal static class APIRequestPerformPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            APIRequestPerformPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(APIRequestPerformPatch), nameof(Postfix));
-        }
 
         private static void Postfix(APIRequest __instance)
         {

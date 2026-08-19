@@ -2,8 +2,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Screens.Play.HUD;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -13,12 +11,10 @@ namespace UsernameVisuals
     /// <c>load()</c> builds the panel. The <c>usernameText</c> field is rewritten so later colour
     /// updates (friend / has-quit highlighting) keep targeting the visible gradient text.
     /// </summary>
+    [OsuCcPatch("osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load")]
     internal static class DrawableGameplayLeaderboardScorePatch
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "usernameText");
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load", typeof(DrawableGameplayLeaderboardScorePatch), nameof(Postfix));
 
         private static void Postfix(DrawableGameplayLeaderboardScore __instance)
         {

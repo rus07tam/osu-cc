@@ -2,8 +2,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -14,12 +12,10 @@ namespace UsernameVisuals
     /// reflectively; the private <c>usernameText</c> field is rewritten so later updates hit the
     /// visible gradient text.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser")]
     internal static class TopHeaderContainerPatch
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "usernameText");
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", typeof(TopHeaderContainerPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

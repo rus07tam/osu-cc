@@ -3,8 +3,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -15,14 +13,12 @@ namespace UsernameVisuals
     /// re-bound to different slots, so the gradient's user must be re-resolved each update; the
     /// private field is rewritten so the original <c>username.Text = ...</c> hits the gradient.
     /// </summary>
+    [OsuCcPatch("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser")]
     internal static class ParticipantPanelPatch
     {
         private static readonly FieldInfo? usernameField = Reflection.GetField("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "username");
 
         private static readonly FieldInfo? currentField = Reflection.GetField("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "current");
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser", typeof(ParticipantPanelPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

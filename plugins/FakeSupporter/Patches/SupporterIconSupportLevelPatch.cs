@@ -15,24 +15,10 @@ namespace FakeSupporter
     /// hearts. The transpiler nops the clamp call and its two bound constants, leaving the raw
     /// level on the stack for the field store.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Profile.Header.Components.SupporterIcon", "set_SupportLevel", osucc.Core.MethodType.Transpiler)]
     internal static class SupporterIconSupportLevelPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            SupporterIconSupportLevelPatch.host = host;
-
-            var setter = Reflection.GetGameType("osu.Game.Overlays.Profile.Header.Components.SupporterIcon")?.GetProperty("SupportLevel")?.GetSetMethod(true);
-
-            if (setter == null)
-            {
-                host.Log(LogLevel.Error, "SupporterIcon.SupportLevel setter not found");
-                return null;
-            }
-
-            return host.AddPatch(setter, typeof(SupporterIconSupportLevelPatch), nameof(Transpiler), osucc.Core.MethodType.Transpiler);
-        }
 
         private static readonly MethodInfo clampMethod = typeof(Math).GetMethod(nameof(Math.Clamp), new[] { typeof(int), typeof(int), typeof(int) })!;
 

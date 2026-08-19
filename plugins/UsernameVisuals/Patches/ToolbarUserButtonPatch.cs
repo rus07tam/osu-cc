@@ -3,8 +3,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API;
 using osu.Game.Users;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 using System.Reflection;
 
 namespace UsernameVisuals
@@ -16,14 +14,12 @@ namespace UsernameVisuals
     /// can run before the local user is available, so the gradient text tracks
     /// <see cref="IAPIProvider.LocalUser"/> itself instead of snapshotting it once.
     /// </summary>
+    [OsuCcPatch("osu.Game.Overlays.Toolbar.ToolbarUserButton", "load")]
     internal static class ToolbarUserButtonPatch
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Overlays.Toolbar.ToolbarUserButton", "usernameText");
 
         private static readonly FieldInfo? localUserField = Reflection.GetField("osu.Game.Overlays.Toolbar.ToolbarUserButton", "localUser");
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonPatch), nameof(Postfix));
 
         private static void Postfix(object __instance)
         {

@@ -10,15 +10,10 @@ namespace FakeSupporter
     /// The postfix runs after <c>LocalUserState.SetLocalUser</c> has written the game's own
     /// <c>configSupporter</c>, so <c>OsuSetting.WasSupporter</c> keeps the real value.
     /// </summary>
+    [OsuCcPatch("osu.Game.Online.API.LocalUserState", "SetLocalUser")]
     internal static class LocalUserStateSetLocalUserPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            LocalUserStateSetLocalUserPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "SetLocalUser", typeof(LocalUserStateSetLocalUserPatch), nameof(Postfix));
-        }
 
         private static void Postfix(LocalUserState __instance)
         {

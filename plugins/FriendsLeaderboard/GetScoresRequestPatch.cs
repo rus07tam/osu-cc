@@ -1,7 +1,5 @@
 using osu.Game.Online.API;
 using osucc.Core;
-using osucc.Plugin;
-using System;
 
 namespace FriendsLeaderboard
 {
@@ -11,10 +9,9 @@ namespace FriendsLeaderboard
     /// (friend scope is not reachable through any overridable member), and is skipped for every
     /// other request so the normal API flow is untouched.
     /// </summary>
+    [OsuCcPatch("osu.Game.Online.API.APIRequest", "Perform", MethodType.Prefix)]
     internal static class GetScoresRequestPatch
     {
-        public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPrefix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(GetScoresRequestPatch), nameof(Prefix));
 
         private static bool Prefix(APIRequest __instance)
         {

@@ -6,15 +6,10 @@ using System;
 namespace CustomUserGroups
 {
     /// <summary>Forgets the cached local user on logout (<c>LocalUserState.ClearLocalUser</c>).</summary>
+    [OsuCcPatch("osu.Game.Online.API.LocalUserState", "ClearLocalUser")]
     internal static class LocalUserStateClearLocalUserPatch
     {
         private static IOsuCcPluginHost host = null!;
-
-        public static IDisposable? Install(IOsuCcPluginHost host)
-        {
-            LocalUserStateClearLocalUserPatch.host = host;
-            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "ClearLocalUser", typeof(LocalUserStateClearLocalUserPatch), nameof(Postfix));
-        }
 
         private static void Postfix(LocalUserState __instance)
         {
