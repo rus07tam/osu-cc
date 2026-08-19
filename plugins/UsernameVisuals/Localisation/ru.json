@@ -26,5 +26,7 @@
   "username-visuals:UserOverridesListCaption": "Текущие переопределения",
   "username-visuals:NoUserOverrides": "Переопределений для игроков пока нет.",
   "username-visuals:UserOverrideEditTooltip": "Редактировать",
-  "username-visuals:UserOverrideDeleteTooltip": "Удалить"
+  "username-visuals:UserOverrideDeleteTooltip": "Удалить",
+  "username-visuals:UserOverrideDeleteTitle": "Удалить переопределение?",
+  "username-visuals:UserOverrideDeleteBody": "Убрать цвет и отображение имени для игрока #{0}?"
 }

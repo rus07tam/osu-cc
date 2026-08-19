@@ -202,26 +202,21 @@ namespace osucc.UI.Plugins
         /// <summary>Asks for confirmation, then marks the plugin for deletion on the next launch.</summary>
         private void deletePlugin(PluginCard card)
         {
-            var dialogOverlay = ClientApi.Game == null ? null : Reflection.GetDialogOverlay(ClientApi.Game);
-
-            if (dialogOverlay == null)
-            {
-                ClientNotifications.Error(PluginsOverlayStrings.ConfirmDialogFailed);
-                return;
-            }
-
             LocalisableString name = localisedName(card.Entry);
 
-            dialogOverlay.Push(new OsuCcConfirmDialog(
-                PluginsOverlayStrings.DeleteTitle,
-                PluginsOverlayStrings.DeleteBody(name),
-                () =>
-                {
-                    PluginManager.RemovePlugin(card.Entry.Id);
-                    card.SetPendingDelete();
-                    applyOrder();
-                    ClientNotifications.Info(PluginsOverlayStrings.DeleteConfirmed(name));
-                }));
+            if (!ClientDialogs.Confirm(
+                    PluginsOverlayStrings.DeleteTitle,
+                    PluginsOverlayStrings.DeleteBody(name),
+                    () =>
+                    {
+                        PluginManager.RemovePlugin(card.Entry.Id);
+                        card.SetPendingDelete();
+                        applyOrder();
+                        ClientNotifications.Info(PluginsOverlayStrings.DeleteConfirmed(name));
+                    }))
+            {
+                ClientNotifications.Error(PluginsOverlayStrings.ConfirmDialogFailed);
+            }
         }
 
         /// <summary>Localised plugin name from the <c>&lt;id&gt;:name</c> key, falling back to the attribute value.</summary>

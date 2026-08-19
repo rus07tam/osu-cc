@@ -14,6 +14,7 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Core;
+using osucc.Plugin;
 using osuTK;
 using System.Globalization;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace CustomUserGroups
     {
         private readonly CustomUserGroupsApi api;
 
+        private readonly IOsuCcPluginHost host;
+
         private readonly FormNumberBox userIdBox;
         private readonly GroupDropdown groupDropdown;
         private readonly FillFlowContainer listFlow;
@@ -45,9 +48,10 @@ namespace CustomUserGroups
         [Resolved]
         private UserLookupCache userLookupCache { get; set; } = null!;
 
-        public CustomUserGroupsUserOverridesSection(CustomUserGroupsApi api)
+        public CustomUserGroupsUserOverridesSection(CustomUserGroupsApi api, IOsuCcPluginHost host)
         {
             this.api = api;
+            this.host = host;
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -264,7 +268,10 @@ namespace CustomUserGroups
                                     Icon = FontAwesome.Solid.Times,
                                     TooltipText = CustomUserGroupsStrings.UserOverrideDeleteTooltip,
                                     IconColour = OsuCcColours.Error,
-                                    Action = () => api.RemovePersistedOverride(userOverride.UserId, userOverride.GroupId),
+                                    Action = () => host.Confirm(
+                                        CustomUserGroupsStrings.UserOverrideDeleteTitle,
+                                        CustomUserGroupsStrings.UserOverrideDeleteBody(userOverride.UserId),
+                                        () => api.RemovePersistedOverride(userOverride.UserId, userOverride.GroupId)),
                                 },
                             },
                         },

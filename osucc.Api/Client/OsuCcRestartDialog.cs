@@ -28,7 +28,7 @@ namespace osucc.Client
                 },
                 new PopupDialogCancelButton
                 {
-                    Text = SpecialsSettingsStrings.ThemeCancelButton,
+                    Text = OsuCcStrings.Cancel,
                 },
             };
         }

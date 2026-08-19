@@ -18,5 +18,7 @@
   "fake-supporter:OverrideModeSupporter": "osu!supporter",
   "fake-supporter:OverrideModeNotSupporter": "Не osu!supporter",
   "fake-supporter:UserOverrideEditTooltip": "Редактировать",
-  "fake-supporter:UserOverrideDeleteTooltip": "Удалить"
+  "fake-supporter:UserOverrideDeleteTooltip": "Удалить",
+  "fake-supporter:UserOverrideDeleteTitle": "Удалить переопределение?",
+  "fake-supporter:UserOverrideDeleteBody": "Убрать переопределение osu!supporter для игрока #{0}?"
 }

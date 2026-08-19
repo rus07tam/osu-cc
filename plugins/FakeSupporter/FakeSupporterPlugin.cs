@@ -14,7 +14,6 @@ namespace FakeSupporter
     /// </summary>
     public class FakeSupporterPlugin : OsuCcPlugin
     {
-        private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
 
         /// <summary>The heart icon, matching the supporter theme.</summary>
@@ -23,19 +22,19 @@ namespace FakeSupporter
         protected override void OnLoad()
         {
 
-            var settings = host.GetSettings();
+            var settings = Host.GetSettings();
 
             var api = new SupporterFakerApi();
             SupporterFakerApi.Instance = api;
             api.Attach(settings);
 
-            host.ExportApi(api);
-            host.Log("exported public api");
+            Host.ExportApi(api);
+            Host.Log("exported public api");
 
-            host.AddSettingsSubsection(() => new SupporterFakerSettingsSubsection(settings, api));
+            Host.AddSettingsSubsection(() => new SupporterFakerSettingsSubsection(settings, api, Host));
 
             installPatches();
-            host.Log("loaded");
+            Host.Log("loaded");
         }
 
         public override void AttachToGame()
@@ -54,14 +53,14 @@ namespace FakeSupporter
         private void installPatches()
         {
             int count = 0;
-            if (APIRequestPerformPatch.Install(host) is { } perform) { patches.Add(perform); count++; }
-            if (LocalUserStateSetLocalUserPatch.Install(host) is { } setLocal) { patches.Add(setLocal); count++; }
-            if (LocalUserStateClearLocalUserPatch.Install(host) is { } clearLocal) { patches.Add(clearLocal); count++; }
-            if (ToolbarUserButtonLoadPatch.Install(host) is { } toolbar) { patches.Add(toolbar); count++; }
-            if (SupporterIconSupportLevelPatch.Install(host) is { } clamp) { patches.Add(clamp); count++; }
-            if (UserPanelLoadPatch.Install(host) is { } panel) { patches.Add(panel); count++; }
+            if (APIRequestPerformPatch.Install(Host) is { } perform) { patches.Add(perform); count++; }
+            if (LocalUserStateSetLocalUserPatch.Install(Host) is { } setLocal) { patches.Add(setLocal); count++; }
+            if (LocalUserStateClearLocalUserPatch.Install(Host) is { } clearLocal) { patches.Add(clearLocal); count++; }
+            if (ToolbarUserButtonLoadPatch.Install(Host) is { } toolbar) { patches.Add(toolbar); count++; }
+            if (SupporterIconSupportLevelPatch.Install(Host) is { } clamp) { patches.Add(clamp); count++; }
+            if (UserPanelLoadPatch.Install(Host) is { } panel) { patches.Add(panel); count++; }
 
-            host.Log($"patched {count}/6 supporter hooks");
+            Host.Log($"patched {count}/6 supporter hooks");
         }
     }
 }

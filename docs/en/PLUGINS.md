@@ -41,6 +41,7 @@ Through `IOsuCcPluginHost` a plugin can:
 - register full-screen overlays
 - send notifications (`host.Notify`)
 - play celebrations
+- show dialogs (`host.Confirm` / `host.Restart` / `host.Push`). The built-in `ExamplePlugin` demonstrates `host.Confirm` from a settings subsection, and the debug plugin's overlay lets you test all three; destructive deletes in `CustomUserGroups`, `FakeSupporter` and `UsernameVisuals` confirm through `host.Confirm` before removing overrides.
 - install its own Harmony patches via `host.AddPatch(...)` or the `PatchHelper.AttachPrefix/AttachPostfix/AttachConstructorPostfix/AttachMethodPostfix` wrappers, which return a disposable patch handle the host can revoke
 - persist config (`GetSettings` / `GetStorage`)
 

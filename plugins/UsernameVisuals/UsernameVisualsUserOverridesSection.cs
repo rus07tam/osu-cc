@@ -30,6 +30,8 @@ namespace UsernameVisuals
     {
         private readonly UsernameVisualsApi api;
 
+        private readonly IOsuCcPluginHost host;
+
         private readonly FormNumberBox userIdBox;
         private readonly OsuCcColourPalette palette;
         private readonly FormTextBox nameBox;
@@ -47,9 +49,10 @@ namespace UsernameVisuals
         [Resolved]
         private UserLookupCache userLookupCache { get; set; } = null!;
 
-        public UsernameVisualsUserOverridesSection(UsernameVisualsApi api)
+        public UsernameVisualsUserOverridesSection(UsernameVisualsApi api, IOsuCcPluginHost host)
         {
             this.api = api;
+            this.host = host;
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -283,7 +286,10 @@ namespace UsernameVisuals
                                     Icon = FontAwesome.Solid.Times,
                                     TooltipText = UsernameVisualsStrings.UserOverrideDeleteTooltip,
                                     IconColour = OsuCcColours.Error,
-                                    Action = () => api.RemovePersistedOverride(userOverride.UserId),
+                                    Action = () => host.Confirm(
+                                        UsernameVisualsStrings.UserOverrideDeleteTitle,
+                                        UsernameVisualsStrings.UserOverrideDeleteBody(userOverride.UserId),
+                                        () => api.RemovePersistedOverride(userOverride.UserId)),
                                 },
                             },
                         },

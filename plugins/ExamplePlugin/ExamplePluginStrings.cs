@@ -39,5 +39,13 @@ namespace ExamplePlugin
         public static LocalisableString UsernameVisualsIntegrationCaption => OsuCcLocalisation.Get(getKey(nameof(UsernameVisualsIntegrationCaption)), "Username Visuals integration");
 
         public static LocalisableString UsernameVisualsIntegrationHint => OsuCcLocalisation.Get(getKey(nameof(UsernameVisualsIntegrationHint)), "Registers a demo colour gradient and a display-name rule through the Username Visuals plugin API; toggle to register or revoke them live.");
+
+        public static LocalisableString DialogButton => OsuCcLocalisation.Get(getKey(nameof(DialogButton)), "Show confirmation dialog");
+
+        public static LocalisableString DialogTitle => OsuCcLocalisation.Get(getKey(nameof(DialogTitle)), "Confirm example action");
+
+        public static LocalisableString DialogBody => OsuCcLocalisation.Get(getKey(nameof(DialogBody)), "This confirmation is shown through the plugin dialog API (host.Confirm).");
+
+        public static LocalisableString DialogConfirmed => OsuCcLocalisation.Get(getKey(nameof(DialogConfirmed)), "example confirmation confirmed");
     }
 }

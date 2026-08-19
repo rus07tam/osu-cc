@@ -118,8 +118,11 @@ namespace osucc.UI.Overlays
         {
             ClientConfig.OsuCcTheme.Value = previewTheme.Value.Id;
 
-            var dialogOverlay = ClientApi.Game == null ? null : Reflection.GetDialogOverlay(ClientApi.Game);
-            if (dialogOverlay == null)
+            if (!ClientDialogs.Restart(
+                    SpecialsSettingsStrings.ThemeRestartTitle,
+                    SpecialsSettingsStrings.ThemeRestartBody,
+                    SpecialsSettingsStrings.ThemeRestartButton,
+                    () => ClientApi.Game?.Exit()))
             {
                 ClientNotifications.Error(ThemePreviewStrings.ApplyFailed);
                 applyTheme(savedTheme);
@@ -128,11 +131,6 @@ namespace osucc.UI.Overlays
             }
 
             Hide();
-            dialogOverlay.Push(new OsuCcRestartDialog(
-                SpecialsSettingsStrings.ThemeRestartTitle,
-                SpecialsSettingsStrings.ThemeRestartBody,
-                SpecialsSettingsStrings.ThemeRestartButton,
-                () => ClientApi.Game?.Exit()));
         }
 
         /// <summary>Restores the saved theme and closes the preview.</summary>

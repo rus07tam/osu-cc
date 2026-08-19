@@ -12,7 +12,6 @@ namespace osuccDebug
     /// </summary>
     public class osuccDebugPlugin : OsuCcPlugin
     {
-        private IOsuCcPluginHost host = null!;
         private osuccDebugOverlay? overlay;
 
         /// <summary>The bug icon, matching the plugin's toolbar button.</summary>
@@ -22,13 +21,13 @@ namespace osuccDebug
         {
 
             // Negative layout position places it first in the right-hand group.
-            host.AddToolbarButton(() => new osuccDebugButton(toggleOverlay), ToolbarButtonPlacement.Right, -1f);
+            Host.AddToolbarButton(() => new osuccDebugButton(toggleOverlay), ToolbarButtonPlacement.Right, -1f);
         }
 
         public override void AttachToGame()
         {
-            overlay = new osuccDebugOverlay(host.Notify);
-            host.RegisterBlockingOverlay(overlay);
+            overlay = new osuccDebugOverlay(Host);
+            Host.RegisterBlockingOverlay(overlay);
         }
 
         private void toggleOverlay()

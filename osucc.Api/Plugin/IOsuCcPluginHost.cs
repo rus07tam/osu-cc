@@ -50,6 +50,25 @@ namespace osucc.Plugin
         void Celebrate(Celebration celebration);
 
         /// <summary>
+        /// Shows a destructive-action confirmation (hold-to-confirm button). Returns <c>false</c> when the
+        /// game or its dialog overlay is not available yet, in which case the dialog was not shown.
+        /// </summary>
+        bool Confirm(LocalisableString title, LocalisableString body, Action confirmed);
+
+        /// <summary>
+        /// Shows a non-destructive confirm for actions that need a restart. Returns <c>false</c> when the
+        /// game or its dialog overlay is not available yet, in which case the dialog was not shown.
+        /// </summary>
+        bool Restart(LocalisableString title, LocalisableString body, LocalisableString confirmText, Action confirmed);
+
+        /// <summary>
+        /// Queues an arbitrary <see cref="osu.Game.Overlays.Dialog.PopupDialog"/> onto the game's dialog
+        /// overlay. Safe to call from any thread; the push happens on the update thread. Returns <c>false</c>
+        /// when the game, overlay or scheduler is not available yet, in which case the dialog was not shown.
+        /// </summary>
+        bool Push(osu.Game.Overlays.Dialog.PopupDialog dialog);
+
+        /// <summary>
         /// Registers a toolbar button with explicit placement. Negative <paramref name="layoutPosition"/>
         /// places the button earlier (first = <c>-1f</c>), positive later; <c>null</c> appends at the end.
         /// For right-edge buttons, override <c>TooltipAnchor =&gt; Anchor.TopRight</c> so the tooltip opens

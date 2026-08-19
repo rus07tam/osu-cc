@@ -345,13 +345,13 @@ namespace CustomUserGroups
 
             var real = realGroupsOf(user) ?? Array.Empty<APIUserGroup>();
             var list = real.ToList();
-            
+
             foreach (var g in custom)
             {
                 list.RemoveAll(x => x.Id == g.Id);
                 list.Add(g.ToAPIUserGroup());
             }
-            
+
             return list;
         }
 
@@ -474,7 +474,7 @@ namespace CustomUserGroups
                     if (matches(rule.Predicate, user))
                         matchingRules.Add(rule);
                 }
-                
+
                 foreach (var rule in matchingRules.OrderByDescending(r => r.Priority).ThenByDescending(r => r.Id))
                 {
                     if (findGroup(rule.GroupId) is { } g && !result.Contains(g))

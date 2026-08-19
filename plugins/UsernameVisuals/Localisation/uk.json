@@ -26,5 +26,7 @@
   "username-visuals:UserOverridesListCaption": "Поточні перевизначення",
   "username-visuals:NoUserOverrides": "Перевизначень для гравців поки немає.",
   "username-visuals:UserOverrideEditTooltip": "Редагувати",
-  "username-visuals:UserOverrideDeleteTooltip": "Видалити"
+  "username-visuals:UserOverrideDeleteTooltip": "Видалити",
+  "username-visuals:UserOverrideDeleteTitle": "Видалити перевизначення?",
+  "username-visuals:UserOverrideDeleteBody": "Прибрати колір та відображення імені для гравця #{0}?"
 }

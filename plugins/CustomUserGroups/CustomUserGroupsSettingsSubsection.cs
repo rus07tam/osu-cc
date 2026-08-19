@@ -18,7 +18,7 @@ namespace CustomUserGroups
 
             bool hasVisuals = host.GetApi<object>("username-visuals") != null;
 
-            var colourCheckbox = this.AddCheckbox(settings, "apply_username_colour", true, CustomUserGroupsStrings.ApplyColourCaption, 
+            var colourCheckbox = this.AddCheckbox(settings, "apply_username_colour", true, CustomUserGroupsStrings.ApplyColourCaption,
                 hasVisuals ? CustomUserGroupsStrings.ApplyColourHint : CustomUserGroupsStrings.ApplyColourHintMissing);
 
             if (!hasVisuals)
@@ -27,8 +27,8 @@ namespace CustomUserGroups
                 colourCheckbox.Current.Disabled = true;
             }
 
-            Add(new CustomUserGroupsGroupEditorSection(api));
-            Add(new CustomUserGroupsUserOverridesSection(api));
+            Add(new CustomUserGroupsGroupEditorSection(api, host));
+            Add(new CustomUserGroupsUserOverridesSection(api, host));
         }
     }
 }

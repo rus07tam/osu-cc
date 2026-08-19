@@ -13,5 +13,9 @@
   "example:CelebrateCaption": "Отмечать рекорд из кнопки тулбара",
   "example:CelebrateHint": "Показывать ли полноэкранный эффект личного рекорда при нажатии кнопки примера на тулбаре.",
   "example:UsernameVisualsIntegrationCaption": "Интеграция с Username Visuals",
-  "example:UsernameVisualsIntegrationHint": "Регистрирует демонстрационные правила цвета и ника через API плагина Username Visuals; тумблер включает и отзывает их на лету."
+  "example:UsernameVisualsIntegrationHint": "Регистрирует демонстрационные правила цвета и ника через API плагина Username Visuals; тумблер включает и отзывает их на лету.",
+  "example:DialogButton": "Показать диалог подтверждения",
+  "example:DialogTitle": "Подтвердите примерное действие",
+  "example:DialogBody": "Это подтверждение показано через API диалогов плагина (host.Confirm).",
+  "example:DialogConfirmed": "подтверждение примера принято"
 }

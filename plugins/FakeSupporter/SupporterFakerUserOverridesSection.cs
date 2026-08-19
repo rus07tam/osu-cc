@@ -14,6 +14,7 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Core;
+using osucc.Plugin;
 using osuTK;
 using System.Globalization;
 using System.Linq;
@@ -29,6 +30,8 @@ namespace FakeSupporter
     public partial class SupporterFakerUserOverridesSection : CompositeDrawable
     {
         private readonly SupporterFakerApi api;
+
+        private readonly IOsuCcPluginHost host;
 
         private readonly FormNumberBox userIdBox;
         private readonly SupporterModeDropdown modeDropdown;
@@ -46,9 +49,10 @@ namespace FakeSupporter
         [Resolved]
         private UserLookupCache userLookupCache { get; set; } = null!;
 
-        public SupporterFakerUserOverridesSection(SupporterFakerApi api)
+        public SupporterFakerUserOverridesSection(SupporterFakerApi api, IOsuCcPluginHost host)
         {
             this.api = api;
+            this.host = host;
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -275,7 +279,10 @@ namespace FakeSupporter
                                     Icon = FontAwesome.Solid.Times,
                                     TooltipText = SupporterFakerStrings.UserOverrideDeleteTooltip,
                                     IconColour = OsuCcColours.Error,
-                                    Action = () => api.RemovePersistedOverride(userOverride.UserId),
+                                    Action = () => host.Confirm(
+                                        SupporterFakerStrings.UserOverrideDeleteTitle,
+                                        SupporterFakerStrings.UserOverrideDeleteBody(userOverride.UserId),
+                                        () => api.RemovePersistedOverride(userOverride.UserId)),
                                 },
                             },
                         },

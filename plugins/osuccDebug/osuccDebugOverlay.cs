@@ -9,6 +9,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osucc.Client;
+using osucc.Plugin;
 using osucc.UI.Overlays;
 using osuTK;
 using osuTK.Graphics;
@@ -24,14 +25,17 @@ namespace osuccDebug
     /// </summary>
     public partial class osuccDebugOverlay : OsuCcShearedOverlay
     {
+        private readonly IOsuCcPluginHost host;
+
         private readonly Action<LocalisableString, NotificationKind> notify;
 
         private readonly FillFlowContainer panels;
 
-        public osuccDebugOverlay(Action<LocalisableString, NotificationKind> notify)
+        public osuccDebugOverlay(IOsuCcPluginHost host)
             : base(OverlayColourScheme.Purple)
         {
-            this.notify = notify;
+            this.host = host;
+            notify = host.Notify;
 
             panels = new FillFlowContainer
             {
@@ -67,6 +71,10 @@ namespace osuccDebug
             panels.Add(new SectionPanel(osuccDebugStrings.NotificationsPanelTitle)
             {
                 PanelContent = new NotificationTestPanel(notify),
+            });
+            panels.Add(new SectionPanel(osuccDebugStrings.DialogsPanelTitle)
+            {
+                PanelContent = new DialogTestPanel(host),
             });
             panels.Add(new SectionPanel(osuccDebugStrings.PersonalBestPanelTitle)
             {

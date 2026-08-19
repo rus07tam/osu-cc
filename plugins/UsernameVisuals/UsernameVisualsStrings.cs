@@ -64,5 +64,10 @@ namespace UsernameVisuals
         public static LocalisableString UserOverrideEditTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideEditTooltip)), "Edit");
 
         public static LocalisableString UserOverrideDeleteTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteTooltip)), "Delete");
+
+        public static LocalisableString UserOverrideDeleteTitle => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteTitle)), "Delete override?");
+
+        public static LocalisableString UserOverrideDeleteBody(int userId)
+            => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteBody)), "Remove the colour and display override for user #{0}?", userId);
     }
 }

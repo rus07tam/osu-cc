@@ -12,7 +12,6 @@ namespace SubdivideNations
     /// </summary>
     public class SubdivideNationsPlugin : OsuCcPlugin
     {
-        private IOsuCcPluginHost host = null!;
         private PluginSettings settings = null!;
         private Bindable<bool> enabled = null!;
         private Bindable<bool> showFlags = null!;
@@ -22,26 +21,26 @@ namespace SubdivideNations
         protected override void OnLoad()
         {
 
-            settings = host.GetSettings();
+            settings = Host.GetSettings();
             enabled = settings.Bind("enabled", true);
             showFlags = settings.Bind("show_flags", true);
 
             RegionService.SetEnabled(() => enabled.Value);
             RegionFlagStore.SetShowFlags(() => showFlags.Value);
 
-            host.AddSettingsSubsection(() => new SubdivideNationsSettingsSubsection(settings));
+            Host.AddSettingsSubsection(() => new SubdivideNationsSettingsSubsection(settings));
 
             int patched = installPatches();
-            host.Log(patched == 2 ? "patches installed" : $"patched {patched}/2 surfaces");
-            host.Log("loaded");
+            Host.Log(patched == 2 ? "patches installed" : $"patched {patched}/2 surfaces");
+            Host.Log("loaded");
         }
 
         public override void AttachToGame()
         {
-            var storage = host.GetStorage();
+            var storage = Host.GetStorage();
             RegionService.Attach(storage);
             RegionFlagStore.Attach(storage);
-            host.Log("attached");
+            Host.Log("attached");
         }
 
         public override void Dispose()
@@ -56,8 +55,8 @@ namespace SubdivideNations
         private int installPatches()
         {
             int count = 0;
-            if (UserPanelCreateFlagPatch.Install(host) is { } userPanel) { userPanelPatch = userPanel; count++; }
-            if (TopHeaderContainerPatch.Install(host) is { } header) { headerPatch = header; count++; }
+            if (UserPanelCreateFlagPatch.Install(Host) is { } userPanel) { userPanelPatch = userPanel; count++; }
+            if (TopHeaderContainerPatch.Install(Host) is { } header) { headerPatch = header; count++; }
 
             return count;
         }

@@ -39,7 +39,7 @@ namespace ExamplePlugin
             // Factories are invoked later, on the update thread (when the toolbar / settings
             // overlay is built), so constructing osu drawables here is safe.
             Host.AddToolbarButton(() => new ExampleToolbarButton(celebrateToggle, Host.Notify));
-            Host.AddSettingsSubsection(() => new ExampleSettingsSubsection(settings));
+            Host.AddSettingsSubsection(() => new ExampleSettingsSubsection(settings, Host));
 
             // A Harmony patch resolved by name against the runtime osu.Game assembly.
             if (ExampleHarmonyPatch.Install(Host) != null)

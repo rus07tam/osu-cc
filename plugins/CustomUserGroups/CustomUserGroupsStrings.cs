@@ -1,5 +1,6 @@
 using osu.Framework.Localisation;
 using osucc.Localisation;
+using System.Globalization;
 
 namespace CustomUserGroups
 {
@@ -65,6 +66,14 @@ namespace CustomUserGroups
 
         public static LocalisableString GroupDeleteTooltip => OsuCcLocalisation.Get(getKey(nameof(GroupDeleteTooltip)), "Delete");
 
+        public static LocalisableString GroupDeleteTitle => OsuCcLocalisation.Get(getKey(nameof(GroupDeleteTitle)), "Delete group?");
+
+        public static LocalisableString GroupDeleteBody(CustomUserGroup group)
+            => OsuCcLocalisation.Get(getKey(nameof(GroupDeleteBody)), "Delete the \"{0}\" group? Any per-user overrides that reference it will also be removed.", displayGroup(group));
+
+        private static string displayGroup(CustomUserGroup group)
+            => !string.IsNullOrEmpty(group.Name) ? group.Name! : group.Id.ToString(CultureInfo.InvariantCulture);
+
         public static LocalisableString NoGroups => OsuCcLocalisation.Get(getKey(nameof(NoGroups)), "No custom groups yet. Add one above.");
 
         public static LocalisableString UserOverridesSectionCaption => OsuCcLocalisation.Get(getKey(nameof(UserOverridesSectionCaption)), "Per-user overrides");
@@ -86,5 +95,10 @@ namespace CustomUserGroups
         public static LocalisableString UserOverrideEditTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideEditTooltip)), "Edit");
 
         public static LocalisableString UserOverrideDeleteTooltip => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteTooltip)), "Delete");
+
+        public static LocalisableString UserOverrideDeleteTitle => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteTitle)), "Delete override?");
+
+        public static LocalisableString UserOverrideDeleteBody(int userId)
+            => OsuCcLocalisation.Get(getKey(nameof(UserOverrideDeleteBody)), "Remove the group override for user #{0}?", userId);
     }
 }

@@ -24,6 +24,8 @@
   "custom-user-groups:GroupEditButtonText": "Сохранить",
   "custom-user-groups:GroupEditTooltip": "Редактировать",
   "custom-user-groups:GroupDeleteTooltip": "Удалить",
+  "custom-user-groups:GroupDeleteTitle": "Удалить группу?",
+  "custom-user-groups:GroupDeleteBody": "Удалить группу \"{0}\"? Связанные с ней переопределения для игроков также будут удалены.",
   "custom-user-groups:NoGroups": "Кастомных групп пока нет. Добавьте одну выше.",
   "custom-user-groups:UserOverridesSectionCaption": "Переопределения для игроков",
   "custom-user-groups:UserOverrideIdCaption": "ID игрока",
@@ -34,5 +36,7 @@
   "custom-user-groups:UserOverridesListCaption": "Текущие переопределения",
   "custom-user-groups:NoUserOverrides": "Переопределений для игроков пока нет.",
   "custom-user-groups:UserOverrideEditTooltip": "Редактировать",
-  "custom-user-groups:UserOverrideDeleteTooltip": "Удалить"
+  "custom-user-groups:UserOverrideDeleteTooltip": "Удалить",
+  "custom-user-groups:UserOverrideDeleteTitle": "Удалить переопределение?",
+  "custom-user-groups:UserOverrideDeleteBody": "Убрать переопределение группы для игрока #{0}?"
 }

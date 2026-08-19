@@ -15,7 +15,6 @@ namespace UsernameVisuals
     /// </summary>
     public class UsernameVisualsPlugin : OsuCcPlugin
     {
-        private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
         private UsernameVisualsApi? api;
 
@@ -25,19 +24,19 @@ namespace UsernameVisuals
         protected override void OnLoad()
         {
 
-            var settings = host.GetSettings();
+            var settings = Host.GetSettings();
 
             api = new UsernameVisualsApi();
             UsernameVisualsApi.Instance = api;
             api.Attach(settings);
 
-            host.ExportApi(api);
-            host.Log("exported public api");
+            Host.ExportApi(api);
+            Host.Log("exported public api");
 
-            host.AddSettingsSubsection(() => new UsernameVisualsSettingsSubsection(settings, api));
+            Host.AddSettingsSubsection(() => new UsernameVisualsSettingsSubsection(settings, api, Host));
 
             installPatches();
-            host.Log("loaded");
+            Host.Log("loaded");
         }
 
         public override void AttachToGame()
@@ -62,18 +61,18 @@ namespace UsernameVisuals
         private void installPatches()
         {
             int count = 0;
-            if (UserPanelPatch.Install(host) is { } userPanel) { patches.Add(userPanel); count++; }
-            if (TopHeaderContainerPatch.Install(host) is { } header) { patches.Add(header); count++; }
-            if (LinkFlowContainerPatch.Install(host) is { } links) { patches.Add(links); count++; }
-            if (ClickableUsernamePatch.Install(host) is { } clickable) { patches.Add(clickable); count++; }
-            if (BeatmapLeaderboardScorePatch.Install(host) is { } beatmap) { patches.Add(beatmap); count++; }
-            if (DrawableGameplayLeaderboardScorePatch.Install(host) is { } gameplay) { patches.Add(gameplay); count++; }
-            if (DrawableChatUsernamePatch.Install(host) is { } chat) { patches.Add(chat); count++; }
-            if (ToolbarUserButtonPatch.Install(host) is { } toolbar) { patches.Add(toolbar); count++; }
-            if (ParticipantPanelPatch.Install(host) is { } participants) { patches.Add(participants); count++; }
-            if (SpriteTextSetTextPatch.Install(host) is { } setText) { patches.Add(setText); count++; }
+            if (UserPanelPatch.Install(Host) is { } userPanel) { patches.Add(userPanel); count++; }
+            if (TopHeaderContainerPatch.Install(Host) is { } header) { patches.Add(header); count++; }
+            if (LinkFlowContainerPatch.Install(Host) is { } links) { patches.Add(links); count++; }
+            if (ClickableUsernamePatch.Install(Host) is { } clickable) { patches.Add(clickable); count++; }
+            if (BeatmapLeaderboardScorePatch.Install(Host) is { } beatmap) { patches.Add(beatmap); count++; }
+            if (DrawableGameplayLeaderboardScorePatch.Install(Host) is { } gameplay) { patches.Add(gameplay); count++; }
+            if (DrawableChatUsernamePatch.Install(Host) is { } chat) { patches.Add(chat); count++; }
+            if (ToolbarUserButtonPatch.Install(Host) is { } toolbar) { patches.Add(toolbar); count++; }
+            if (ParticipantPanelPatch.Install(Host) is { } participants) { patches.Add(participants); count++; }
+            if (SpriteTextSetTextPatch.Install(Host) is { } setText) { patches.Add(setText); count++; }
 
-            host.Log($"patched {count}/10 username hooks");
+            Host.Log($"patched {count}/10 username hooks");
         }
     }
 }

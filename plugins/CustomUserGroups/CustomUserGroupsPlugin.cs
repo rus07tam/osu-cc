@@ -15,7 +15,6 @@ namespace CustomUserGroups
     /// </summary>
     public class CustomUserGroupsPlugin : OsuCcPlugin
     {
-        private IOsuCcPluginHost host = null!;
         private readonly List<IDisposable?> patches = new();
         private readonly List<IDisposable?> visualHandles = new();
         private CustomUserGroupsApi? api;
@@ -27,19 +26,19 @@ namespace CustomUserGroups
         protected override void OnLoad()
         {
 
-            var settings = host.GetSettings();
+            var settings = Host.GetSettings();
 
             api = new CustomUserGroupsApi();
             CustomUserGroupsApi.Instance = api;
             api.Attach(settings);
 
-            host.ExportApi(api);
-            host.Log("exported public api");
+            Host.ExportApi(api);
+            Host.Log("exported public api");
 
-            host.AddSettingsSubsection(() => new CustomUserGroupsSettingsSubsection(settings, api, host));
+            Host.AddSettingsSubsection(() => new CustomUserGroupsSettingsSubsection(settings, api, Host));
 
             installPatches();
-            host.Log("loaded");
+            Host.Log("loaded");
         }
 
         public override void AttachToGame()
@@ -51,13 +50,13 @@ namespace CustomUserGroups
             // per distinct group colour so group-coloured usernames also reach the surfaces only it
             // covers (leaderboards, gameplay, …). Priority -1 keeps the user's own-username palette
             // (0) winning and ties against the "others" fallback (also -1) resolve to our later rule.
-            visualsApi = host.GetApi<IUsernameVisualsApi>("username-visuals");
+            visualsApi = Host.GetApi<IUsernameVisualsApi>("username-visuals");
 
             if (visualsApi != null)
             {
                 api.Changed += syncVisualRules;
                 syncVisualRules();
-                host.Log("linked username-visuals colour rules");
+                Host.Log("linked username-visuals colour rules");
             }
         }
 
@@ -108,11 +107,11 @@ namespace CustomUserGroups
         private void installPatches()
         {
             int count = 0;
-            if (APIRequestPerformPatch.Install(host) is { } perform) { patches.Add(perform); count++; }
-            if (LocalUserStateSetLocalUserPatch.Install(host) is { } setLocal) { patches.Add(setLocal); count++; }
-            if (LocalUserStateClearLocalUserPatch.Install(host) is { } clearLocal) { patches.Add(clearLocal); count++; }
+            if (APIRequestPerformPatch.Install(Host) is { } perform) { patches.Add(perform); count++; }
+            if (LocalUserStateSetLocalUserPatch.Install(Host) is { } setLocal) { patches.Add(setLocal); count++; }
+            if (LocalUserStateClearLocalUserPatch.Install(Host) is { } clearLocal) { patches.Add(clearLocal); count++; }
 
-            host.Log($"patched {count}/3 user-group hooks");
+            Host.Log($"patched {count}/3 user-group hooks");
         }
     }
 }

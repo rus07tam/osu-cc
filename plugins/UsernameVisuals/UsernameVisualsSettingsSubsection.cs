@@ -15,7 +15,7 @@ namespace UsernameVisuals
     {
         protected override LocalisableString Header => UsernameVisualsStrings.Name;
 
-        public UsernameVisualsSettingsSubsection(PluginSettings settings, UsernameVisualsApi api)
+        public UsernameVisualsSettingsSubsection(PluginSettings settings, UsernameVisualsApi api, IOsuCcPluginHost host)
         {
             this.AddCheckbox(settings, "enabled", false, UsernameVisualsStrings.GradientEnabledCaption, UsernameVisualsStrings.GradientEnabledHint);
             this.AddColourPalette(settings, "self_palette", UsernameVisualsStrings.SelfPaletteCaption, UsernameVisualsStrings.SelfPaletteHint);
@@ -31,7 +31,7 @@ namespace UsernameVisuals
 
             this.AddCheckbox(settings, "hide_enabled", false, UsernameVisualsStrings.HideEnabledCaption, UsernameVisualsStrings.HideEnabledHint);
 
-            Add(new UsernameVisualsUserOverridesSection(api));
+            Add(new UsernameVisualsUserOverridesSection(api, host));
         }
     }
 }

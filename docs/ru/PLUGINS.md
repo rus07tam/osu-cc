@@ -41,6 +41,7 @@
 - регистрировать полноэкранные оверлеи
 - отправлять уведомления (`host.Notify`)
 - показывать эффекты личного рекорда
+- показывать диалоги (`host.Confirm` / `host.Restart` / `host.Push`). Встроенный `ExamplePlugin` демонстрирует `host.Confirm` из подсекции настроек, а оверлей отладочного плагина позволяет протестировать все три способа; деструктивные удаления в `CustomUserGroups`, `FakeSupporter` и `UsernameVisuals` подтверждаются через `host.Confirm` перед удалением переопределений.
 - ставить собственные Harmony-патчи через `host.AddPatch(...)` или обёртки `PatchHelper.AttachPrefix/AttachPostfix/AttachConstructorPostfix/AttachMethodPostfix`, возвращающие одноразовый хендл патча, который хост может отозвать
 - сохранять свой конфиг (`GetSettings` / `GetStorage`)
 

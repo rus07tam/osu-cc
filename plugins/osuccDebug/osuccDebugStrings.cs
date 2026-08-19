@@ -23,6 +23,8 @@ namespace osuccDebug
 
         public static LocalisableString NotificationsPanelTitle => OsuCcLocalisation.Get(getKey(nameof(NotificationsPanelTitle)), "Notifications");
 
+        public static LocalisableString DialogsPanelTitle => OsuCcLocalisation.Get(getKey(nameof(DialogsPanelTitle)), "Dialogs");
+
         public static LocalisableString PersonalBestPanelTitle => OsuCcLocalisation.Get(getKey(nameof(PersonalBestPanelTitle)), "Personal best");
 
         public static LocalisableString NotificationMessageLabel => OsuCcLocalisation.Get(getKey(nameof(NotificationMessageLabel)), "Notification message");
@@ -30,6 +32,30 @@ namespace osuccDebug
         public static LocalisableString NotificationKindLabel => OsuCcLocalisation.Get(getKey(nameof(NotificationKindLabel)), "Notification kind");
 
         public static LocalisableString PostNotificationButton => OsuCcLocalisation.Get(getKey(nameof(PostNotificationButton)), "Post notification");
+
+        public static LocalisableString DialogConfirmButton => OsuCcLocalisation.Get(getKey(nameof(DialogConfirmButton)), "Show confirmation dialog");
+
+        public static LocalisableString DialogConfirmTitle => OsuCcLocalisation.Get(getKey(nameof(DialogConfirmTitle)), "Confirm test");
+
+        public static LocalisableString DialogConfirmBody => OsuCcLocalisation.Get(getKey(nameof(DialogConfirmBody)), "This is a destructive-action confirmation, using the hold-to-confirm button.");
+
+        public static LocalisableString DialogConfirmed => OsuCcLocalisation.Get(getKey(nameof(DialogConfirmed)), "confirmation dialog confirmed");
+
+        public static LocalisableString DialogRestartButton => OsuCcLocalisation.Get(getKey(nameof(DialogRestartButton)), "Show restart dialog");
+
+        public static LocalisableString DialogRestartTitle => OsuCcLocalisation.Get(getKey(nameof(DialogRestartTitle)), "Restart test");
+
+        public static LocalisableString DialogRestartBody => OsuCcLocalisation.Get(getKey(nameof(DialogRestartBody)), "This is a non-destructive confirm for actions that need a restart.");
+
+        public static LocalisableString DialogRestarted => OsuCcLocalisation.Get(getKey(nameof(DialogRestarted)), "restart dialog confirmed");
+
+        public static LocalisableString DialogPushButton => OsuCcLocalisation.Get(getKey(nameof(DialogPushButton)), "Push a custom dialog");
+
+        public static LocalisableString DialogPushTitle => OsuCcLocalisation.Get(getKey(nameof(DialogPushTitle)), "Custom dialog");
+
+        public static LocalisableString DialogPushBody => OsuCcLocalisation.Get(getKey(nameof(DialogPushBody)), "This dialog was built inside the plugin and pushed with the generic host.Push.");
+
+        public static LocalisableString DialogOk => OsuCcLocalisation.Get(getKey(nameof(DialogOk)), "OK");
 
         public static LocalisableString TitleLabel => OsuCcLocalisation.Get(getKey(nameof(TitleLabel)), "Title");
 

@@ -5,6 +5,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using osu.Game.Overlays.Dialog;
 using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
 using osucc.Celebrations;
@@ -71,6 +72,14 @@ namespace osucc.Plugin
         }
 
         public void Celebrate(Celebration celebration) => ClientCelebrations.Show(celebration);
+
+        public bool Confirm(LocalisableString title, LocalisableString body, Action confirmed)
+            => ClientDialogs.Confirm(title, body, confirmed);
+
+        public bool Restart(LocalisableString title, LocalisableString body, LocalisableString confirmText, Action confirmed)
+            => ClientDialogs.Restart(title, body, confirmText, confirmed);
+
+        public bool Push(PopupDialog dialog) => ClientDialogs.Push(dialog);
 
         public IDisposable AddToolbarButton(Func<ToolbarButton> button, ToolbarButtonPlacement placement = ToolbarButtonPlacement.Right, float? layoutPosition = null)
             => track(PluginManager.RegisterToolbarButton(button, placement, layoutPosition));

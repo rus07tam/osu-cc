@@ -30,6 +30,8 @@ namespace CustomUserGroups
     {
         private readonly CustomUserGroupsApi api;
 
+        private readonly IOsuCcPluginHost host;
+
         private readonly FormNumberBox idBox;
         private readonly FormTextBox nameBox;
         private readonly FormTextBox shortNameBox;
@@ -48,9 +50,10 @@ namespace CustomUserGroups
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
-        public CustomUserGroupsGroupEditorSection(CustomUserGroupsApi api)
+        public CustomUserGroupsGroupEditorSection(CustomUserGroupsApi api, IOsuCcPluginHost host)
         {
             this.api = api;
+            this.host = host;
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -335,7 +338,10 @@ namespace CustomUserGroups
                                     Icon = FontAwesome.Solid.Times,
                                     TooltipText = CustomUserGroupsStrings.GroupDeleteTooltip,
                                     IconColour = OsuCcColours.Error,
-                                    Action = () => deleteGroup(group),
+                                    Action = () => host.Confirm(
+                                        CustomUserGroupsStrings.GroupDeleteTitle,
+                                        CustomUserGroupsStrings.GroupDeleteBody(group),
+                                        () => deleteGroup(group)),
                                 },
                             },
                         },

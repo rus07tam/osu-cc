@@ -15,7 +15,7 @@ namespace FakeSupporter
     {
         protected override LocalisableString Header => SupporterFakerStrings.Name;
 
-        public SupporterFakerSettingsSubsection(PluginSettings settings, SupporterFakerApi api)
+        public SupporterFakerSettingsSubsection(PluginSettings settings, SupporterFakerApi api, IOsuCcPluginHost host)
         {
             var supporterEnabled = this.AddCheckbox(settings, "enabled", false, SupporterFakerStrings.EnabledCaption, SupporterFakerStrings.EnabledHint);
 
@@ -41,7 +41,7 @@ namespace FakeSupporter
 
             supporterEnabled.Current.BindValueChanged(e => supporterLevel.Current.Disabled = !e.NewValue, true);
 
-            Add(new SupporterFakerUserOverridesSection(api));
+            Add(new SupporterFakerUserOverridesSection(api, host));
         }
     }
 }

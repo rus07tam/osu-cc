@@ -84,19 +84,12 @@ namespace osucc.Client
                 return true;
             }
 
-            var overlay = Reflection.GetDialogOverlay(ClientApi.Game);
-
-            if (overlay == null)
-            {
-                TimingLog.Info("First-run disclaimer: DialogOverlay not available yet; will retry");
-                return false;
-            }
-
-            overlay.Push(new OsuCcDisclaimerDialog(() =>
+            if (!ClientDialogs.Push(new OsuCcDisclaimerDialog(() =>
             {
                 ClientConfig.FirstRunSetupComplete.Value = true;
                 TimingLog.Info("First-run disclaimer acknowledged; FirstRunSetupComplete set to true");
-            }));
+            })))
+                return false;
 
             TimingLog.Info("First-run disclaimer shown");
             return true;
