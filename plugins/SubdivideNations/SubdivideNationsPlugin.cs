@@ -38,8 +38,8 @@ namespace SubdivideNations
         public override void AttachToGame()
         {
             var storage = Host.GetStorage();
-            RegionService.Attach(storage);
-            RegionFlagStore.Attach(storage);
+            RegionService.Attach(storage, Host);
+            RegionFlagStore.Attach(storage, Host);
             Host.Log("attached");
         }
 

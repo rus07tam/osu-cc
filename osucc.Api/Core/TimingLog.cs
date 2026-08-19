@@ -34,11 +34,15 @@ namespace osucc.Core
             }
         }
 
-        public static void Info(string message) => write("INFO", message);
+        public static void Debug(string message) => write(LogLevel.Debug, message);
 
-        public static void Error(string message) => write("ERROR", message);
+        public static void Info(string message) => write(LogLevel.Info, message);
 
-        private static void write(string level, string message)
+        public static void Warn(string message) => write(LogLevel.Warn, message);
+
+        public static void Error(string message) => write(LogLevel.Error, message);
+
+        private static void write(LogLevel level, string message)
         {
             try
             {
@@ -46,7 +50,7 @@ namespace osucc.Core
                 {
                     string path = LogPath;
 
-                    File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss.fff}] [{level}] {message}{Environment.NewLine}", Encoding.UTF8);
+                    File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss.fff}] [{level.ToString().ToUpperInvariant()}] {message}{Environment.NewLine}", Encoding.UTF8);
                 }
             }
             catch

@@ -58,6 +58,9 @@ namespace FakeSupporter
         /// <summary>The singleton the plugin exports and its patches resolve through.</summary>
         public static SupporterFakerApi Instance { get; internal set; } = null!;
 
+        /// <summary>The plugin host, set by <see cref="Attach"/> so the API can log into its own file.</summary>
+        private static IOsuCcPluginHost host = null!;
+
         private static readonly JsonSerializerOptions jsonOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -98,8 +101,9 @@ namespace FakeSupporter
         public event Action? Changed;
 
         /// <summary>Wires the API to the plugin's persisted settings. Called once during <see cref="IOsuCcPlugin.Load"/>.</summary>
-        public void Attach(PluginSettings settings)
+        public void Attach(PluginSettings settings, IOsuCcPluginHost host)
         {
+            SupporterFakerApi.host = host;
             enabled = settings.Bind(enabledKey, false);
             level = settings.Bind(levelKey, 2);
             userOverrides = settings.Bind(userOverridesKey, string.Empty);
@@ -236,7 +240,7 @@ namespace FakeSupporter
         public void SetLoginOverlay(LoginOverlay? overlay)
         {
             loginOverlay = overlay;
-            TimingLog.Info($"ToolbarUserButton: login overlay {(overlay == null ? "unavailable" : "captured")}");
+            host.Log(LogLevel.Info, $"login overlay {(overlay == null ? "unavailable" : "captured")}");
         }
 
         /// <summary>
@@ -261,7 +265,7 @@ namespace FakeSupporter
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FakeSupporter: failed to track mini panel {panel.GetType().Name}: {ex}");
+                host.Log(LogLevel.Error, $"failed to track mini panel {panel.GetType().Name}: {ex}");
             }
         }
 
@@ -434,7 +438,7 @@ namespace FakeSupporter
 
             if (overlay == null)
             {
-                TimingLog.Info("Login overlay unavailable (not captured)");
+                host.Log(LogLevel.Info, "login overlay unavailable (not captured)");
                 return;
             }
 
@@ -443,14 +447,14 @@ namespace FakeSupporter
             {
                 // The `Child` getter throws on an empty container, so use the children list; the
                 // online flow may not be built yet right after SetLocalUser (Connecting -> Online).
-                TimingLog.Info("Login panel not ready for mini-card swap");
+                host.Log(LogLevel.Info, "login panel not ready for mini-card swap");
                 return;
             }
 
             var oldPanel = flow.Children.OfType<UserRankPanel>().FirstOrDefault();
             if (oldPanel == null)
             {
-                TimingLog.Info("Login panel has no user card to swap");
+                host.Log(LogLevel.Info, "login panel has no user card to swap");
                 return;
             }
 
@@ -477,7 +481,7 @@ namespace FakeSupporter
             if (dropdown != null)
                 flow.Add(dropdown);
 
-            TimingLog.Info($"Login panel mini-card swapped (level={Level})");
+            host.Log(LogLevel.Info, $"login panel mini-card swapped (level={Level})");
         }
 
         /// <summary>Re-stamps a tracked mini panel's user and rebuilds its layout when anything changed.</summary>
@@ -492,11 +496,11 @@ namespace FakeSupporter
                     return;
 
                 rebuildLayout(panel);
-                TimingLog.Info($"FakeSupporter: mini panel rebuilt ({panel.GetType().Name} userId={panel.User.OnlineID})");
+                host.Log(LogLevel.Info, $"mini panel rebuilt ({panel.GetType().Name} userId={panel.User.OnlineID})");
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FakeSupporter: failed to refresh mini panel {panel.GetType().Name}: {ex}");
+                host.Log(LogLevel.Error, $"failed to refresh mini panel {panel.GetType().Name}: {ex}");
             }
         }
 
@@ -619,7 +623,7 @@ namespace FakeSupporter
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"triggerPropagated failed: {ex}");
+                host.Log(LogLevel.Error, $"failed to re-raise user bindable: {ex}");
             }
         }
 

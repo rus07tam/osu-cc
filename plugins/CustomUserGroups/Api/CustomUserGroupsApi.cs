@@ -82,6 +82,9 @@ namespace CustomUserGroups
         /// <summary>The singleton the plugin exports and its patches resolve through.</summary>
         public static CustomUserGroupsApi Instance { get; internal set; } = null!;
 
+        /// <summary>The plugin host, set by <see cref="Attach"/> so the API can log into its own file.</summary>
+        private static IOsuCcPluginHost host = null!;
+
         private static readonly JsonSerializerOptions jsonOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -170,8 +173,9 @@ namespace CustomUserGroups
         }
 
         /// <summary>Wires the API to the plugin's persisted settings. Called once during <see cref="IOsuCcPlugin.Load"/>.</summary>
-        public void Attach(PluginSettings settings)
+        public void Attach(PluginSettings settings, IOsuCcPluginHost host)
         {
+            CustomUserGroupsApi.host = host;
             enabled = settings.Bind(enabledKey, false);
             applyUsernameColour = settings.Bind("apply_username_colour", true);
             groups = settings.Bind(groupsKey, string.Empty);
@@ -636,7 +640,7 @@ namespace CustomUserGroups
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"triggerPropagated failed: {ex}");
+                host.Log(LogLevel.Error, $"failed to re-raise user bindable: {ex}");
             }
         }
 

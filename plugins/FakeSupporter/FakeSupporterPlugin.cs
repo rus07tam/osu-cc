@@ -26,7 +26,7 @@ namespace FakeSupporter
 
             var api = new SupporterFakerApi();
             SupporterFakerApi.Instance = api;
-            api.Attach(settings);
+            api.Attach(settings, Host);
 
             Host.ExportApi(api);
             Host.Log("exported public api");

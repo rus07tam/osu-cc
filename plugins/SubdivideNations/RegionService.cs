@@ -1,6 +1,7 @@
 using osu.Framework.IO.Network;
 using osu.Framework.Platform;
 using osucc.Core;
+using osucc.Plugin;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
@@ -37,15 +38,19 @@ namespace SubdivideNations
         /// <summary>Whether region resolution is active at all (settings toggle).</summary>
         public static bool Enabled => isEnabled();
 
+        /// <summary>The plugin host, set by <see cref="Attach"/> so the service can log into its own file.</summary>
+        private static IOsuCcPluginHost host = null!;
+
         public static void SetEnabled(Func<bool> enabled) => isEnabled = enabled;
 
         /// <summary>
         /// Loads the embedded region dataset and the persisted lookup cache. Called from
         /// <see cref="IOsuCcPlugin.AttachToGame"/> once the plugin storage exists.
         /// </summary>
-        public static void Attach(Storage? pluginStorage)
+        public static void Attach(Storage? pluginStorage, IOsuCcPluginHost host)
         {
             storage = pluginStorage;
+            RegionService.host = host;
             loadDataset();
             loadDiskCache();
         }
@@ -143,7 +148,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: osuworld batch fetch failed ({string.Join(",", ids)}): {ex.Message}");
+                host.Log(LogLevel.Error, $"osuworld batch fetch failed ({string.Join(",", ids)}): {ex.Message}");
                 failAll(ids);
             }
             finally
@@ -210,7 +215,7 @@ namespace SubdivideNations
                 using var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.Regions.json");
                 if (stream == null)
                 {
-                    TimingLog.Error("SubdivideNations: Regions.json embedded resource missing");
+                    host.Log(LogLevel.Error, "Regions.json embedded resource missing");
                     return;
                 }
 
@@ -237,11 +242,11 @@ namespace SubdivideNations
                 }
 
                 countries = parsed;
-                TimingLog.Info($"SubdivideNations: dataset loaded ({countries.Count} countries)");
+                host.Log(LogLevel.Info, $"dataset loaded ({countries.Count} countries)");
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to load dataset: {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to load dataset: {ex.Message}");
             }
         }
 
@@ -274,7 +279,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to load lookup cache: {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to load lookup cache: {ex.Message}");
             }
         }
 
@@ -296,7 +301,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to persist lookup cache: {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to persist lookup cache: {ex.Message}");
             }
         }
 

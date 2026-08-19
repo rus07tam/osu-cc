@@ -17,13 +17,17 @@ namespace FakeSupporter
     /// </summary>
     internal static class SupporterIconSupportLevelPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
         {
+            SupporterIconSupportLevelPatch.host = host;
+
             var setter = Reflection.GetGameType("osu.Game.Overlays.Profile.Header.Components.SupporterIcon")?.GetProperty("SupportLevel")?.GetSetMethod(true);
 
             if (setter == null)
             {
-                TimingLog.Error("SupporterIconSupportLevelPatch: SupporterIcon.SupportLevel setter not found");
+                host.Log(LogLevel.Error, "SupporterIcon.SupportLevel setter not found");
                 return null;
             }
 
@@ -48,7 +52,7 @@ namespace FakeSupporter
                     codes[i - 2] = new CodeInstruction(OpCodes.Nop);
                     codes[i - 1] = new CodeInstruction(OpCodes.Nop);
                     codes[i] = new CodeInstruction(OpCodes.Nop);
-                    TimingLog.Info("SupporterIconSupportLevelPatch: clamp removed");
+                    host.Log(LogLevel.Info, "clamp removed");
                     break;
                 }
             }

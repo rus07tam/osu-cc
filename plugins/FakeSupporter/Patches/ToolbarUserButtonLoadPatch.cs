@@ -13,8 +13,13 @@ namespace FakeSupporter
     /// </summary>
     internal static class ToolbarUserButtonLoadPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonLoadPatch), nameof(Postfix));
+        {
+            ToolbarUserButtonLoadPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", typeof(ToolbarUserButtonLoadPatch), nameof(Postfix));
+        }
 
         private static void Postfix(LoginOverlay login)
         {
@@ -24,7 +29,7 @@ namespace FakeSupporter
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"ToolbarUserButtonLoadPatch.Postfix: {ex}");
+                host.Log(LogLevel.Error, $"failed to capture login overlay: {ex}");
             }
         }
     }

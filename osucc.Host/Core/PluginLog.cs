@@ -6,7 +6,8 @@ namespace osucc.Core
     /// <summary>
     /// Per-plugin append-only log, one <c>{sessionTimestamp}.{pluginId}.osu-cc.log</c> per plugin
     /// per launch, in the osu-cc data root's <c>logs</c> folder. Keeps a plugin's own diagnostics
-    /// isolated from the shared session log (<see cref="TimingLog"/>). Plugins are only identified
+    /// isolated from the shared session log (<see cref="TimingLog"/>). Line format matches
+    /// <see cref="TimingLog"/>: <c>[HH:mm:ss.fff] [LEVEL] message</c>. Plugins are only identified
     /// by their stable id, so the plugin name must be supplied where useful.
     /// </summary>
     public static class PluginLog
@@ -15,13 +16,13 @@ namespace osucc.Core
 
         private static readonly long sessionStartupTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        /// <summary>Appends a line to the given plugin's log file. Never throws.</summary>
-        public static void Write(string pluginId, string message)
+        /// <summary>Appends a line at the given level to the given plugin's log file. Never throws.</summary>
+        public static void Write(string pluginId, LogLevel level, string message)
         {
             try
             {
                 string path = resolvePath(pluginId);
-                string line = $"[{DateTime.Now:HH:mm:ss.fff}] {message}{Environment.NewLine}";
+                string line = $"[{DateTime.Now:HH:mm:ss.fff}] [{level.ToString().ToUpperInvariant()}] {message}{Environment.NewLine}";
 
                 lock (lockObject)
                     File.AppendAllText(path, line, Encoding.UTF8);

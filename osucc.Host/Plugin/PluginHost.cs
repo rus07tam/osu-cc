@@ -49,11 +49,9 @@ namespace osucc.Plugin
 
         private IOsuCcPluginEvents? events;
 
-        public void Log(string message)
-        {
-            TimingLog.Info($"[plugin:{entry.Name}] {message}");
-            PluginLog.Write(entry.Id, message);
-        }
+        public void Log(string message) => Log(LogLevel.Info, message);
+
+        public void Log(LogLevel level, string message) => PluginLog.Write(entry.Id, level, message);
 
         public void Notify(LocalisableString text, NotificationKind kind)
             => ClientNotifications.PostPlugin(text, kind, entry.Id, OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name), resolveIcon(), resolveIconTexture());

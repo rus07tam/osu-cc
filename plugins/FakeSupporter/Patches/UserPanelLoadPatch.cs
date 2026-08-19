@@ -13,8 +13,13 @@ namespace FakeSupporter
     /// </summary>
     internal static class UserPanelLoadPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Users.UserPanel", "load", typeof(UserPanelLoadPatch), nameof(Postfix));
+        {
+            UserPanelLoadPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Users.UserPanel", "load", typeof(UserPanelLoadPatch), nameof(Postfix));
+        }
 
         private static void Postfix(UserPanel __instance)
         {
@@ -24,7 +29,7 @@ namespace FakeSupporter
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"UserPanelLoadPatch.Postfix: {ex}");
+                host.Log(LogLevel.Error, $"failed to handle created user panel: {ex}");
             }
         }
     }

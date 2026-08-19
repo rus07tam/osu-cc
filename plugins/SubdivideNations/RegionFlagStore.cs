@@ -2,6 +2,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Network;
 using osu.Framework.Platform;
 using osucc.Core;
+using osucc.Plugin;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
@@ -36,7 +37,14 @@ namespace SubdivideNations
 
         public static void SetShowFlags(Func<bool> enabled) => showFlags = enabled;
 
-        public static void Attach(Storage? pluginStorage) => storage = pluginStorage;
+        /// <summary>The plugin host, set by <see cref="Attach"/> so the store can log into its own file.</summary>
+        private static IOsuCcPluginHost host = null!;
+
+        public static void Attach(Storage? pluginStorage, IOsuCcPluginHost host)
+        {
+            storage = pluginStorage;
+            RegionFlagStore.host = host;
+        }
 
         /// <summary>
         /// Resolves the PNG bytes for a region, downloading and caching them on first use.
@@ -106,7 +114,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to fetch region flag ({regionCode}): {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to fetch region flag ({regionCode}): {ex.Message}");
                 recordFailure(regionCode);
                 return null;
             }
@@ -154,7 +162,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to read cached flag ({regionCode}): {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to read cached flag ({regionCode}): {ex.Message}");
                 return null;
             }
         }
@@ -171,7 +179,7 @@ namespace SubdivideNations
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"SubdivideNations: failed to persist flag ({regionCode}): {ex.Message}");
+                host.Log(LogLevel.Error, $"failed to persist flag ({regionCode}): {ex.Message}");
             }
         }
     }

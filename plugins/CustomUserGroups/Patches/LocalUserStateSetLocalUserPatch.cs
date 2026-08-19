@@ -11,8 +11,13 @@ namespace CustomUserGroups
     /// </summary>
     internal static class LocalUserStateSetLocalUserPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "SetLocalUser", typeof(LocalUserStateSetLocalUserPatch), nameof(Postfix));
+        {
+            LocalUserStateSetLocalUserPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "SetLocalUser", typeof(LocalUserStateSetLocalUserPatch), nameof(Postfix));
+        }
 
         private static void Postfix(LocalUserState __instance)
         {
@@ -22,7 +27,7 @@ namespace CustomUserGroups
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"LocalUserStateSetLocalUserPatch.Postfix: {ex}");
+                host.Log(LogLevel.Error, $"failed to stamp local user: {ex}");
             }
         }
     }

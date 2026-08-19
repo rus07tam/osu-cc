@@ -739,7 +739,7 @@ namespace osucc.Plugin
 
                 try
                 {
-                    step.Apply(entry.Host.GetSettings(), message => TimingLog.Info($"[plugin:{entry.Name}] {message}"));
+                    step.Apply(entry.Host.GetSettings(), message => PluginLog.Write(entry.Id, LogLevel.Info, message));
                     PluginStateStore.SetSchemaVersion(entry.Id, step.ToVersion);
                     TimingLog.Info($"PluginManager: '{entry.Name}' applied data migration -> schema v{step.ToVersion}");
                 }

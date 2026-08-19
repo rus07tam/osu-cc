@@ -17,7 +17,7 @@ namespace osucc.Plugin
 {
     /// <summary>
     /// Scoped surface given to each plugin. Every call is bound to the calling plugin
-    /// (id, storage folder, log prefix), so plugins stay isolated. Registrations and patches
+    /// (id, storage folder, log file), so plugins stay isolated. Registrations and patches
     /// are tracked by the host so they can be revoked on live disable.
     /// </summary>
     public interface IOsuCcPluginHost
@@ -40,8 +40,11 @@ namespace osucc.Plugin
         /// <summary>Client lifecycle events a plugin can subscribe to.</summary>
         IOsuCcPluginEvents Events { get; }
 
-        /// <summary>Logs a line with the plugin's name prefix.</summary>
+        /// <summary>Logs a line at <see cref="LogLevel.Info"/> into this plugin's own log file.</summary>
         void Log(string message);
+
+        /// <summary>Logs a line at the given level into this plugin's own log file.</summary>
+        void Log(LogLevel level, string message);
 
         /// <summary>Posts a toast into the game's notification overlay.</summary>
         void Notify(LocalisableString text, NotificationKind kind);

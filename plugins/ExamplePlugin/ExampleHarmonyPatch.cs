@@ -12,14 +12,19 @@ namespace ExamplePlugin
     /// </summary>
     public static class ExampleHarmonyPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachConstructorPostfix(host, "osu.Game.OsuGameBase", typeof(ExampleHarmonyPatch), nameof(Postfix));
+        {
+            ExampleHarmonyPatch.host = host;
+            return PatchHelper.AttachConstructorPostfix(host, "osu.Game.OsuGameBase", typeof(ExampleHarmonyPatch), nameof(Postfix));
+        }
 
         /// <summary>
         /// Runs right after <c>OsuGameBase</c> is constructed — proving the plugin's patch
         /// attached before the game instance existed.
         /// </summary>
         private static void Postfix(object __instance)
-            => TimingLog.Info($"[example] OsuGameBase constructed: {__instance.GetType().Name}");
+            => host.Log(LogLevel.Info, $"OsuGameBase constructed: {__instance.GetType().Name}");
     }
 }

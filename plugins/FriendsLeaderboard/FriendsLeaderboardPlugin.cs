@@ -20,6 +20,7 @@ namespace FriendsLeaderboard
             settings = Host.GetSettings();
             var enabled = settings.Bind("enabled", true);
             FriendsScoresAggregator.SetEnabledProvider(() => enabled.Value);
+            FriendsScoresAggregator.SetHost(Host);
 
             Host.AddSettingsSubsection(() => new FriendsLeaderboardSettingsSubsection(settings));
 

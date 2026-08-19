@@ -8,8 +8,13 @@ namespace CustomUserGroups
     /// <summary>Forgets the cached local user on logout (<c>LocalUserState.ClearLocalUser</c>).</summary>
     internal static class LocalUserStateClearLocalUserPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "ClearLocalUser", typeof(LocalUserStateClearLocalUserPatch), nameof(Postfix));
+        {
+            LocalUserStateClearLocalUserPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.LocalUserState", "ClearLocalUser", typeof(LocalUserStateClearLocalUserPatch), nameof(Postfix));
+        }
 
         private static void Postfix(LocalUserState __instance)
         {
@@ -19,7 +24,7 @@ namespace CustomUserGroups
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"LocalUserStateClearLocalUserPatch.Postfix: {ex}");
+                host.Log(LogLevel.Error, $"failed to clear cached local user: {ex}");
             }
         }
     }

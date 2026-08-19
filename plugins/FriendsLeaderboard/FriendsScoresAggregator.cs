@@ -5,6 +5,7 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Play.Leaderboards;
 using osucc.Core;
+using osucc.Plugin;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -37,6 +38,11 @@ namespace FriendsLeaderboard
         private static MethodInfo? triggerFailureMethod;
 
         public static void SetEnabledProvider(Func<bool> provider) => enabledProvider = provider;
+
+        /// <summary>The plugin host, set by the plugin on load so the aggregator can log into its own file.</summary>
+        private static IOsuCcPluginHost host = null!;
+
+        public static void SetHost(IOsuCcPluginHost host) => FriendsScoresAggregator.host = host;
 
         internal static bool Enabled => enabledProvider?.Invoke() ?? false;
 
@@ -100,7 +106,7 @@ namespace FriendsLeaderboard
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FriendsLeaderboard: aggregation start failed: {ex}");
+                host.Log(LogLevel.Error, $"aggregation start failed: {ex}");
                 fail(request);
             }
         }
@@ -151,7 +157,7 @@ namespace FriendsLeaderboard
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FriendsLeaderboard: aggregation failed: {ex}");
+                host.Log(LogLevel.Error, $"aggregation failed: {ex}");
                 fail(request);
             }
         }
@@ -182,7 +188,7 @@ namespace FriendsLeaderboard
                 }
                 catch (Exception ex)
                 {
-                    TimingLog.Info($"FriendsLeaderboard: no scores for user {user.Id}: {ex.Message}");
+                    host.Log(LogLevel.Info, $"no scores for user {user.Id}: {ex.Message}");
                 }
             });
 
@@ -234,7 +240,7 @@ namespace FriendsLeaderboard
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FriendsLeaderboard: completing request failed: {ex}");
+                host.Log(LogLevel.Error, $"completing request failed: {ex}");
             }
         }
 
@@ -253,7 +259,7 @@ namespace FriendsLeaderboard
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"FriendsLeaderboard: failing request failed: {ex}");
+                host.Log(LogLevel.Error, $"failing request failed: {ex}");
             }
         }
 

@@ -14,8 +14,13 @@ namespace CustomUserGroups
     /// </summary>
     internal static class APIRequestPerformPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(APIRequestPerformPatch), nameof(Postfix));
+        {
+            APIRequestPerformPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Online.API.APIRequest", "Perform", typeof(APIRequestPerformPatch), nameof(Postfix));
+        }
 
         private static void Postfix(APIRequest __instance)
         {
@@ -27,7 +32,7 @@ namespace CustomUserGroups
             }
             catch (Exception ex)
             {
-                TimingLog.Error($"APIRequestPerformPatch.Postfix: {ex}");
+                host.Log(LogLevel.Error, $"failed to stamp API response: {ex}");
             }
         }
     }

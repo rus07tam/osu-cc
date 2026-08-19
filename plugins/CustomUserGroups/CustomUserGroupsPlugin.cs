@@ -30,7 +30,7 @@ namespace CustomUserGroups
 
             api = new CustomUserGroupsApi();
             CustomUserGroupsApi.Instance = api;
-            api.Attach(settings);
+            api.Attach(settings, Host);
 
             Host.ExportApi(api);
             Host.Log("exported public api");

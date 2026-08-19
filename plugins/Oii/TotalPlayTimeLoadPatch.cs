@@ -14,10 +14,15 @@ namespace Oii
     /// </summary>
     internal static class TotalPlayTimeLoadPatch
     {
+        private static IOsuCcPluginHost host = null!;
+
         private static readonly ConcurrentBag<WeakReference<OiiIndicator>> inserted = new();
 
         public static IDisposable? Install(IOsuCcPluginHost host)
-            => PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", typeof(TotalPlayTimeLoadPatch), nameof(Postfix));
+        {
+            TotalPlayTimeLoadPatch.host = host;
+            return PatchHelper.AttachPostfix(host, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", typeof(TotalPlayTimeLoadPatch), nameof(Postfix));
+        }
 
         /// <summary>
         /// Removes every indicator this plugin inserted from its parent flow, so disabling the
@@ -53,7 +58,7 @@ namespace Oii
             inserted.Add(new WeakReference<OiiIndicator>(indicator));
             flow.Insert((int)flow.GetLayoutPosition(instance) + 1, indicator);
 
-            TimingLog.Info("Oii indicator inserted");
+            host.Log(LogLevel.Info, "total playtime indicator inserted");
         }
     }
 }
