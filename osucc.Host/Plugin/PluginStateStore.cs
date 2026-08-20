@@ -143,6 +143,13 @@ namespace osucc.Plugin
             save();
         }
 
+        /// <summary>Cancels a pending deletion for the given plugin id (see <see cref="MarkDeleted"/>).</summary>
+        public static void UnmarkDeleted(string id)
+        {
+            deleted.Remove(id);
+            save();
+        }
+
         /// <summary>Snapshot of all pending-delete plugin ids.</summary>
         public static IEnumerable<string> DeletedIds => deleted.ToArray();
 
@@ -163,6 +170,18 @@ namespace osucc.Plugin
         public static void SetSchemaVersion(string id, int schema)
         {
             schemas[id] = schema;
+            save();
+        }
+
+        /// <summary>
+        /// Forgets the recorded version and data schema for a plugin id so the plugin's data
+        /// migrations re-run on the next launch (used by "clear plugin data"). Enabled state,
+        /// priority and pending deletion are kept.
+        /// </summary>
+        public static void ClearData(string id)
+        {
+            versions.Remove(id);
+            schemas.Remove(id);
             save();
         }
 

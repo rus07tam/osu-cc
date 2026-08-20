@@ -26,6 +26,30 @@ namespace osucc.Localisation
         public static LocalisableString DeleteConfirmed(LocalisableString name)
             => OsuCcLocalisation.Get(getKey(nameof(DeleteConfirmed)), "Plugin \"{0}\" will be removed on the next launch", name);
 
+        public static LocalisableString DeleteRestored(LocalisableString name)
+            => OsuCcLocalisation.Get(getKey(nameof(DeleteRestored)), "Deletion of plugin \"{0}\" cancelled", name);
+
+        public static LocalisableString CancelDelete => OsuCcLocalisation.Get(getKey(nameof(CancelDelete)), "Cancel deletion");
+
+        public static LocalisableString OpenRepository => OsuCcLocalisation.Get(getKey(nameof(OpenRepository)), "Open repository");
+
+        public static LocalisableString RepositoryOpenFailed(string url)
+            => OsuCcLocalisation.Get(getKey(nameof(RepositoryOpenFailed)), "Could not open repository: {0}", url);
+
+        public static LocalisableString ToggleEnabled => OsuCcLocalisation.Get(getKey(nameof(ToggleEnabled)), "Enable plugin");
+
+        public static LocalisableString ToggleDisabled => OsuCcLocalisation.Get(getKey(nameof(ToggleDisabled)), "Disable plugin");
+
+        public static LocalisableString ClearDataTitle => OsuCcLocalisation.Get(getKey(nameof(ClearDataTitle)), "Delete plugin data?");
+
+        public static LocalisableString ClearDataBody(LocalisableString name)
+            => OsuCcLocalisation.Get(getKey(nameof(ClearDataBody)), "\"{0}\" settings and data will be reset to defaults on the next launch. The plugin itself is not removed.", name);
+
+        public static LocalisableString ClearDataConfirmed(LocalisableString name)
+            => OsuCcLocalisation.Get(getKey(nameof(ClearDataConfirmed)), "Plugin \"{0}\" data cleared (applies on next launch)", name);
+
+        public static LocalisableString DetailsActionsTitle => OsuCcLocalisation.Get(getKey(nameof(DetailsActionsTitle)), "Actions");
+
         public static LocalisableString StatusActive => OsuCcLocalisation.Get(getKey(nameof(StatusActive)), "Loaded and attached");
 
         public static LocalisableString StatusPendingEnable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingEnable)), "Enabling...");

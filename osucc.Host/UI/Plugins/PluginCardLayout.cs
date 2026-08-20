@@ -7,6 +7,7 @@ using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Users;
 using osucc.Core;
 using osucc.Localisation;
@@ -125,6 +126,60 @@ namespace osucc.UI.Plugins
             };
         }
 
+        /// <summary>Localised plugin name from the <c>&lt;id&gt;:name</c> key, falling back to the attribute value.</summary>
+        public static LocalisableString LocalisedName(PluginEntry entry) => LocalisedName(entry.Id, entry.Name);
+
+        /// <summary>Localised plugin name from the <c>&lt;id&gt;:name</c> key, falling back to the given fallback.</summary>
+        public static LocalisableString LocalisedName(string id, string name) => OsuCcLocalisation.Get($"{id}:name", name);
+
+        /// <summary>Localised description text from the <c>&lt;id&gt;:description</c> key, falling back to the attribute value.</summary>
+        public static LocalisableString Description(PluginEntry entry) => OsuCcLocalisation.Get($"{entry.Id}:description", entry.Description ?? string.Empty);
+
+        /// <summary>Human-readable status text for the given plugin entry.</summary>
+        public static LocalisableString StatusText(PluginEntry entry)
+        {
+            return entry.Status switch
+            {
+                PluginStatus.Active => PluginsOverlayStrings.StatusActive,
+                PluginStatus.PendingEnable => PluginsOverlayStrings.StatusPendingEnable,
+                PluginStatus.PendingDisable => PluginsOverlayStrings.StatusPendingDisable,
+                PluginStatus.PendingDelete => PluginsOverlayStrings.StatusPendingDelete,
+                PluginStatus.Disabled => PluginsOverlayStrings.StatusDisabled,
+                PluginStatus.Error => entry.LoadError == null ? PluginsOverlayStrings.StatusFailed : PluginsOverlayStrings.StatusFailedWithError(entry.LoadError.Message),
+                _ => string.Empty,
+            };
+        }
+
+        /// <summary>Colour used to render the given plugin status.</summary>
+        public static Color4 StatusColour(PluginStatus status)
+        {
+            return status switch
+            {
+                PluginStatus.Active => OsuCcColours.Success,
+                PluginStatus.PendingEnable or PluginStatus.PendingDisable => OsuCcColours.Info,
+                PluginStatus.PendingDelete or PluginStatus.Disabled => OsuCcColours.Disabled,
+                PluginStatus.Error => OsuCcColours.Error,
+                _ => OsuCcColours.Info,
+            };
+        }
+
+        /// <summary>A plain white icon button with a tooltip.</summary>
+        public static IconButton CreateActionButton(IconUsage icon, LocalisableString tooltip, Action action) => new()
+        {
+            Icon = icon,
+            TooltipText = tooltip,
+            Action = action,
+            IconColour = Color4.White,
+        };
+
+        /// <summary>A dimmed ", " separator for joining text segments.</summary>
+        private static OsuSpriteText createSeparator(float fontSize) => new()
+        {
+            Text = ", ",
+            Font = OsuFont.Default.With(size: fontSize),
+            Colour = Color4.White.Opacity(0.55f),
+        };
+
         /// <summary>
         /// Renders the "Depends on" value: one segment per dependency, joined by commas.
         /// Dependencies that are missing (not discovered) or disabled are shown with a suffix and
@@ -178,14 +233,7 @@ namespace osucc.UI.Plugins
                 }
 
                 if (i > 0)
-                {
-                    flow.Add(new OsuSpriteText
-                    {
-                        Text = ", ",
-                        Font = OsuFont.Default.With(size: fontSize),
-                        Colour = Color4.White.Opacity(0.55f),
-                    });
-                }
+                    flow.Add(createSeparator(fontSize));
 
                 flow.Add(segment);
             }
@@ -211,14 +259,7 @@ namespace osucc.UI.Plugins
                 string id = dependentIds[i];
 
                 if (i > 0)
-                {
-                    flow.Add(new OsuSpriteText
-                    {
-                        Text = ", ",
-                        Font = OsuFont.Default.With(size: fontSize),
-                        Colour = Color4.White.Opacity(0.55f),
-                    });
-                }
+                    flow.Add(createSeparator(fontSize));
 
                 if (nameById.TryGetValue(id, out var name))
                     flow.Add(new PluginNameLink(id, name, fontSize: fontSize));
@@ -255,14 +296,7 @@ namespace osucc.UI.Plugins
             for (int i = 0; i < entry.Authors.Count; i++)
             {
                 if (i > 0)
-                {
-                    flow.Add(new OsuSpriteText
-                    {
-                        Text = ", ",
-                        Font = OsuFont.Default.With(size: fontSize),
-                        Colour = Color4.White.Opacity(0.55f),
-                    });
-                }
+                    flow.Add(createSeparator(fontSize));
 
                 PluginAuthor author = entry.Authors[i];
 
@@ -296,7 +330,11 @@ namespace osucc.UI.Plugins
         public static string FormatAuthorNames(PluginEntry entry)
             => string.Join(", ", entry.Authors.Select(a => a.Name));
 
-        public static FillFlowContainer CreateTagsValue(PluginEntry entry, Action<string>? onSelected = null, float fontSize = 12, int maxShown = int.MaxValue)
+        /// <summary>Renders the plugin's tags as non-clickable pills, capped at <paramref name="maxShown"/> with a "+N" counter for the rest.</summary>
+        public static FillFlowContainer CreateTagsValue(
+            PluginEntry entry,
+            float fontSize = 12,
+            int maxShown = int.MaxValue)
         {
             var flow = new FillFlowContainer
             {
@@ -312,10 +350,7 @@ namespace osucc.UI.Plugins
                 if (shown >= maxShown)
                     break;
 
-                flow.Add(new TagChip(tag, fontSize)
-                {
-                    OnSelected = onSelected,
-                });
+                flow.Add(new TagChip(tag, fontSize));
 
                 shown++;
             }
@@ -323,7 +358,7 @@ namespace osucc.UI.Plugins
             int hidden = entry.Tags.Count - shown;
 
             if (hidden > 0)
-                flow.Add(new TagChip($"+{hidden}", fontSize));
+                flow.Add(new TagChip($"+{hidden}", fontSize, more: true));
 
             return flow;
         }

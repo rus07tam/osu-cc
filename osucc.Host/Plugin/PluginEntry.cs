@@ -8,6 +8,13 @@ namespace osucc.Plugin
     /// </summary>
     public class PluginEntry
     {
+        /// <summary>
+        /// Raised whenever mutable overlay state (<see cref="Enabled"/>, <see cref="PendingDelete"/>)
+        /// changes. Consumed by the plugins overlay so its cards restyle from the shared data instead
+        /// of tracking UI behaviour.
+        /// </summary>
+        public event Action? StateChanged;
+
         public string Id { get; init; } = string.Empty;
 
         public string Name { get; init; } = string.Empty;
@@ -17,6 +24,12 @@ namespace osucc.Plugin
         public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
 
         public string? Description { get; init; }
+
+        /// <summary>
+        /// Repository the plugin is published from (from <see cref="OsuCcPluginAttribute.Repository"/>),
+        /// shown as a link in the plugins overlay when set.
+        /// </summary>
+        public string? Repository { get; init; }
 
         public string Version { get; init; } = string.Empty;
 
@@ -72,7 +85,20 @@ namespace osucc.Plugin
         /// they can be re-enabled. Persisted by <see cref="PluginManager"/>; changes apply on the
         /// next launch.
         /// </summary>
-        public bool Enabled { get; internal set; } = true;
+        private bool enabled = true;
+
+        public bool Enabled
+        {
+            get => enabled;
+            internal set
+            {
+                if (enabled == value)
+                    return;
+
+                enabled = value;
+                StateChanged?.Invoke();
+            }
+        }
 
         public bool Loaded => Plugin != null && LoadError == null;
 
@@ -84,7 +110,20 @@ namespace osucc.Plugin
         /// (the loaded dll cannot be deleted mid-session on Windows); until then the plugin
         /// stays loaded but is shown as non-interactive in the plugins overlay.
         /// </summary>
-        public bool PendingDelete { get; internal set; }
+        private bool pendingDelete;
+
+        public bool PendingDelete
+        {
+            get => pendingDelete;
+            internal set
+            {
+                if (pendingDelete == value)
+                    return;
+
+                pendingDelete = value;
+                StateChanged?.Invoke();
+            }
+        }
 
         /// <summary>
         /// Overlay status, resolved in order: pending deletion wins, then errors, then the

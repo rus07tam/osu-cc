@@ -377,6 +377,7 @@ namespace osucc.Plugin
                 Authors = resolveAuthors(attribute),
                 Tags = attribute.Tags,
                 Description = attribute.Description,
+                Repository = string.IsNullOrWhiteSpace(attribute.Repository) ? null : attribute.Repository,
                 Version = attribute.Version,
                 IconResource = attribute.IconResource,
                 Icon = attribute.Icon,
@@ -615,6 +616,58 @@ namespace osucc.Plugin
 
                 if (entry != null)
                     entry.PendingDelete = true;
+            }
+        }
+
+        /// <summary>
+        /// Cancels a pending deletion (the delete button on the details card): unmarks the plugin
+        /// in <see cref="PluginStateStore"/> and clears the in-memory <see cref="PluginEntry.PendingDelete"/>
+        /// flag so the plugin is fully interactive again.
+        /// </summary>
+        public static void RestorePlugin(string id)
+        {
+            lock (lockObject)
+            {
+                PluginStateStore.UnmarkDeleted(id);
+
+                if (plugins.FirstOrDefault(p => p.Id == id) is { } entry)
+                    entry.PendingDelete = false;
+            }
+        }
+
+        /// <summary>
+        /// Clears a plugin's data: its persisted settings (<c>plugin.ini</c>), its
+        /// <c>osu-cc/data/&lt;id&gt;</c> folder and the recorded version/schema tracking (so the
+        /// plugin's migrations re-run on the next launch). The plugin itself stays installed and
+        /// enabled; the reset becomes visible on the next launch once the plugin reads its storage
+        /// again. Safe to call before the game attaches (storage may be unavailable, then it is a
+        /// no-op).
+        /// </summary>
+        public static void ClearPluginData(string id)
+        {
+            var gameStorage = Reflection.GetStorage(ClientApi.Game);
+
+            if (gameStorage == null)
+                return;
+
+            try
+            {
+                var settingsStorage = gameStorage.GetStorageForDirectory($"osu-cc/plugins/{id}");
+
+                if (settingsStorage.Exists("plugin.ini"))
+                    settingsStorage.Delete("plugin.ini");
+
+                var dataRoot = gameStorage.GetStorageForDirectory("osu-cc/data");
+
+                if (dataRoot.ExistsDirectory(id))
+                    dataRoot.DeleteDirectory(id);
+
+                PluginStateStore.ClearData(id);
+                TimingLog.Info($"PluginManager: cleared data for '{id}' (applies on next launch)");
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginManager: failed to clear data for '{id}': {ex}");
             }
         }
 
