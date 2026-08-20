@@ -3,6 +3,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
@@ -55,6 +56,7 @@ namespace osucc.UI.Plugins
         {
             Header.Title = PluginsOverlayStrings.OverlayTitle;
             Header.Description = PluginsOverlayStrings.OverlayDescription;
+            Header.HeaderIcon = FontAwesome.Solid.PuzzlePiece;
 
             MainAreaContent.Add(new Container
             {

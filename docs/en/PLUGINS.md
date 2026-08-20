@@ -65,6 +65,49 @@ On top of `Load` / `AttachToGame` a plugin can implement optional interfaces to 
 
 The last-seen version (`version.<id>`) and schema (`schema.<id>`) are persisted in `plugin-states.ini` next to the plugins folder; both are cleared when a plugin is removed, so a re-install fires `OnInstall` again. Version diffs compare the `<PluginVersion>` declared in the project file, so bump it on every release that changes behaviour or data, otherwise `OnUpdate` will not fire.
 
+### Full-screen overlays
+
+A plugin can render its own full-screen UI on top of the game with one of the two style bases shipped in `osucc.Api` (`osucc.UI.Overlays`):
+
+- `OsuCcShearedOverlay` — the sheared (slanted) look used across osu!cc (the debug overlay itself is one).
+- `OsuCcWaveOverlay` — wave style like the game's online overlays (beatmap listing, changelog, wiki): four coloured wave bands sweep over the dimmed background while the page quickly fades in on top. The header (`OsuCcOverlayHeader`) is a stock-style title bar with icon/title/description plus a content row for tabs/filters, and it scrolls together with the content.
+
+Both derive from the shared `OsuCcOverlayBase` and bring the same guarantees: mutual exclusion ("last opened wins" - opening one hides the other osu!cc overlays), depth so the overlay renders above the game's own overlays, shared dimming of the screen content, close/back handling that restores the previously visible overlay, and a `MainAreaContent` `PopoverContainer` for popovers.
+
+To use one, subclass it, pick an `OverlayColourScheme`, set the header title/description/icon, optionally add tabs to `Header.ContentRow` and content into `MainAreaContent`, then register it with the game's overlay manager through `host.RegisterBlockingOverlay(overlay)`:
+
+```csharp
+public class MyOverlay : OsuCcWaveOverlay
+{
+    public MyOverlay() : base(OverlayColourScheme.Blue) { }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        Header.TitleText = "My overlay";
+        Header.DescriptionText = "Wave style";
+        Header.HeaderIcon = OsuIcon.Online;
+
+        // Optional: row of tabs under the title bar (stock header look).
+        Header.ContentRow.Add(new OsuTabControl<MySection> { ... });
+
+        MainAreaContent.Add(/* your content (no extra scroll: the overlay already provides one) */);
+    }
+}
+```
+
+Register it in `AttachToGame`:
+
+```csharp
+public override void AttachToGame()
+{
+    overlay = new MyOverlay();
+    Host.RegisterBlockingOverlay(overlay);
+}
+```
+
+The debug plugin's **Overlays** panel demonstrates this: "Show wave overlay" opens a `DebugWaveOverlay` on top of the debug overlay and back.
+
 ### Best Practices
 
 - **Dynamic Settings**: Settings must always apply dynamically at runtime without requiring a game restart (except for heavy architectural changes like UI theming/skinning).

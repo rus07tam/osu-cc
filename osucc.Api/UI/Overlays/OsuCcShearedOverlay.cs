@@ -1,198 +1,165 @@
-using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
-using osu.Game.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Localisation;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
-using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
+using osuTK;
+using System.Linq;
 
 namespace osucc.UI.Overlays
 {
     /// <summary>
     /// Base class for osu!cc's sheared full-screen overlays: dimmed main content, canonical
-    /// background, sheared header with title/description/close, scrollable main area. Not based on
-    /// <see cref="osu.Game.Overlays.Mods.ShearedOverlayContainer"/>: that registers itself as the
-    /// footer's active overlay in <c>PopIn()</c>, and <see cref="osu.Game.Screens.Footer.ScreenFooter"/>
-    /// only allows a single active footer overlay, so opening two such overlays in a row throws
-    /// "Cannot set overlay content while one is already present". Deriving from
-    /// <see cref="OsuFocusedOverlayContainer"/> (like the game's toolbar overlays) keeps us in the
-    /// plain <c>overlayContent</c> layer, so multiple osu!cc overlays open independently.
+    /// background, a sheared header with title/description/close and a scrollable main area —
+    /// the same shared lifetime semantics as <see cref="OsuCcWaveOverlay"/> (mutual exclusion,
+    /// depth, dim, close/back/restore), only with the sheared visual style.
     /// </summary>
-    public abstract partial class OsuCcShearedOverlay : OsuFocusedOverlayContainer
+    public abstract partial class OsuCcShearedOverlay : OsuCcOverlayBase
     {
-        public new const float Padding = 14;
+        /// <summary>The sheared header (title/description/close). Typed for direct member access.</summary>
+        protected new OsuCcShearedOverlayHeader Header => (OsuCcShearedOverlayHeader)base.Header;
 
-        /// <summary>
-        /// Every live osu!cc overlay. Showing one hides the others, so the most recently opened
-        /// overlay always renders on top instead of stacking behind previously opened ones.
-        /// </summary>
-        private static readonly List<OsuCcShearedOverlay> registeredOverlays = new();
+        protected override float HeaderHeight => ShearedOverlayHeader.HEIGHT;
 
-        /// <summary>
-        /// The overlay that was visible when this one opened (hidden by the mutual exclusion).
-        /// Closed explicitly (header close, click outside, back) this overlay returns to it.
-        /// </summary>
-        private OsuCcShearedOverlay? previousOverlay;
-
-        private bool restorePrevious;
-
-        private const double fadeInDuration = 400;
-        private const double fadeOutDuration = 500;
-
-        // Depth raised while shown so this overlay renders above the game's own (depth-0) overlays
-        // in the shared overlayContent layer. Negative so it is always in front of them.
-        private const float showDepth = -1;
-
-        [Cached]
-        public OverlayColourProvider ColourProvider { get; }
-
-        /// <summary>The sheared header (title/description/close).</summary>
-        protected ShearedOverlayHeader Header { get; private set; } = null!;
-
-        /// <summary>
-        /// Content displayed below the header. A <see cref="PopoverContainer"/> so popovers
-        /// (e.g. the colour picker in <see cref="osucc.Plugin.OsuCcColourPalette"/>) find a parent
-        /// container: the game's only PopoverContainer lives in ScreenContainer, which is not an
-        /// ancestor of this overlay layer.
-        /// </summary>
-        protected PopoverContainer MainAreaContent { get; private set; } = null!;
-
-        protected override bool StartHidden => true;
-
-        protected override bool BlockNonPositionalInput => true;
-
-        // Use the game's shared blocking-overlay dim (via IOverlayManager.ShowBlockingOverlay).
-        // The dim targets ScreenContainer, which does not contain the overlayContent layer this
-        // overlay lives on, so we never dim ourselves; multiple visible overlays share one dim.
-        protected override bool DimMainContent => true;
+        private Box? backdrop;
 
         protected OsuCcShearedOverlay(OverlayColourScheme colourScheme)
+            : base(colourScheme)
         {
-            RelativeSizeAxes = Axes.Both;
-
-            ColourProvider = new OverlayColourProvider(colourScheme);
         }
 
-        [BackgroundDependencyLoader]
-        private void load()
+        protected override Drawable CreateBackdrop() => backdrop = new Box
         {
-            Child = new Container
+            RelativeSizeAxes = Axes.Both,
+            Colour = ColourProvider.Background6.Opacity(0.75f),
+        };
+
+        protected override Drawable CreateHeader() => new OsuCcShearedOverlayHeader { Close = CloseWithRestore };
+
+        public override void ChangeColourScheme(OverlayColourScheme scheme)
+        {
+            base.ChangeColourScheme(scheme);
+            UpdateColours();
+        }
+
+        protected virtual void UpdateColours()
+        {
+            if (backdrop != null)
+                backdrop.Colour = ColourProvider.Background6.Opacity(0.75f);
+
+            if (base.Header is OsuCcShearedOverlayHeader header)
+                header.UpdateColours(ColourProvider);
+        }
+
+        protected override void OnOverlayShown() => Header.MoveToY(0, FadeInDuration, Easing.OutQuint);
+
+        protected override void OnOverlayHidden() => Header.MoveToY(-Header.DrawHeight, FadeOutDuration, Easing.OutQuint);
+
+        public partial class OsuCcShearedOverlayHeader : ShearedOverlayHeader
+        {
+            private readonly Container iconContainer;
+            private IconUsage icon;
+
+            public IconUsage HeaderIcon
             {
-                RelativeSizeAxes = Axes.Both,
-                Children = new Drawable[]
+                get => icon;
+                set
                 {
-                    // Canonical sheared-overlay background (same as the game's ShearedOverlayContainer).
-                    new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = ColourProvider.Background6.Opacity(0.75f),
-                    },
-                    Header = new ShearedOverlayHeader
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Depth = float.MinValue,
-                        Origin = Anchor.TopCentre,
-                        Close = closeWithRestore,
-                    },
-                    MainAreaContent = new PopoverContainer
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding
-                        {
-                            Top = ShearedOverlayHeader.HEIGHT,
-                            Bottom = Padding,
-                        },
-                    },
+                    icon = value;
+                    updateIcon();
                 }
-            };
-        }
-
-        /// <summary>Hides this overlay, restoring the overlay it was opened on top of (if any).</summary>
-        private void closeWithRestore()
-        {
-            restorePrevious = true;
-            Hide();
-        }
-
-
-        public override bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
-        {
-            if (e.Repeat)
-                return false;
-
-            if (e.Action == GlobalAction.Back)
-            {
-                closeWithRestore();
-                return true;
             }
 
-            return base.OnPressed(e);
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
-
-            lock (registeredOverlays)
-                registeredOverlays.Add(this);
-        }
-
-        protected override void PopIn()
-        {
-            // "Last opened wins": hide every other visible osu!cc overlay so the newly opened one
-            // is never rendered behind previously opened overlays in the shared overlayContent layer.
-            lock (registeredOverlays)
+            public IconUsage Icon
             {
-                foreach (var overlay in registeredOverlays)
+                get => icon;
+                set
                 {
-                    if (!ReferenceEquals(overlay, this) && overlay.State.Value == Visibility.Visible)
+                    icon = value;
+                    updateIcon();
+                }
+            }
+
+            public LocalisableString TitleText
+            {
+                set => Title = value;
+            }
+
+            public LocalisableString DescriptionText
+            {
+                set => Description = value;
+            }
+
+            private const float corner_radius = 14;
+
+            public OsuCcShearedOverlayHeader()
+            {
+                iconContainer = new Container
+                {
+                    Size = new Vector2(38),
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreRight,
+                    X = 88,
+                    Margin = new MarginPadding
                     {
-                        previousOverlay = overlay;
-                        overlay.Hide();
+                        Top = corner_radius,
+                    },
+                    Alpha = 0,
+                };
+
+                if (InternalChild is Container root && root.Children.Count >= 2 && root.Children[1] is Container content)
+                {
+                    content.Add(iconContainer);
+                }
+            }
+
+            private void updateIcon()
+            {
+                if (icon.Equals(default) || icon.Icon == 0)
+                {
+                    iconContainer.Clear();
+                    iconContainer.Alpha = 0;
+                    return;
+                }
+
+                iconContainer.Alpha = 1;
+                iconContainer.Child = new SpriteIcon
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    FillMode = FillMode.Fit,
+                    Icon = icon,
+                };
+            }
+
+            public void UpdateColours(OverlayColourProvider colourProvider)
+            {
+                if (InternalChild is Container root && root.Children.Count >= 2)
+                {
+                    if (root.Children[0] is Container underlay)
+                    {
+                        underlay.BorderColour = osu.Framework.Graphics.Colour.ColourInfo.GradientVertical(Colour4.Black, colourProvider.Dark4);
+                        if (underlay.Children.OfType<Box>().FirstOrDefault() is Box underlayBox)
+                            underlayBox.Colour = colourProvider.Dark4;
+                    }
+
+                    if (root.Children[1] is Container content)
+                    {
+                        content.BorderColour = osu.Framework.Graphics.Colour.ColourInfo.GradientVertical(colourProvider.Dark3, colourProvider.Dark1);
+                        if (content.Children.OfType<Box>().FirstOrDefault() is Box contentBox)
+                            contentBox.Colour = colourProvider.Dark3;
+
+                        if (content.Children.OfType<IconButton>().FirstOrDefault() is IconButton closeBtn)
+                            closeBtn.IconHoverColour = colourProvider.Highlight1;
                     }
                 }
             }
-
-            // The game places all full-screen overlays in the single overlayContent container; ours
-            // are registered early, so without this they would sit at the bottom of that layer and
-            // render behind any other visible overlay. Raising the depth keeps the freshly opened
-            // overlay on top (lower depth = drawn in front).
-            (Parent as Container)?.ChangeChildDepth(this, showDepth);
-
-            this.FadeIn(fadeInDuration, Easing.OutQuint);
-            Header.MoveToY(0, fadeInDuration, Easing.OutQuint);
-        }
-
-        protected override void PopOut()
-        {
-            base.PopOut();
-            (Parent as Container)?.ChangeChildDepth(this, 0);
-
-            this.FadeOut(fadeOutDuration, Easing.OutQuint);
-            Header.MoveToY(-Header.DrawHeight, fadeOutDuration, Easing.OutQuint);
-
-            // Only explicit user closes restore the previous overlay. Bulk hides (CloseAllOverlays,
-            // plugin toolbar toggles, opening another overlay) leave it hidden.
-            if (!restorePrevious)
-                return;
-
-            restorePrevious = false;
-
-            var toRestore = previousOverlay;
-            previousOverlay = null;
-            toRestore?.Show();
-        }
-
-        protected override void Dispose(bool isDisposing)
-        {
-            base.Dispose(isDisposing);
-
-            lock (registeredOverlays)
-                registeredOverlays.Remove(this);
         }
     }
 }

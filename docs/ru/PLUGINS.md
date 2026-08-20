@@ -65,6 +65,49 @@
 
 Последняя версия (`version.<id>`) и схема (`schema.<id>`) сохраняются в `plugin-states.ini` рядом с каталогом плагинов; при удалении плагина они стираются, так что повторная установка вызовет `OnInstall` заново. Различие версий сверяется по свойству `<PluginVersion>` из файла проекта, так что повышайте его при любых изменениях в логике или данных, иначе `OnUpdate` не сработает.
 
+### Полноэкранные оверлеи
+
+Плагин может рисовать собственный полноэкранный интерфейс поверх игры на одном из двух стилевых базисов, поставляемых в `osucc.Api` (`osucc.UI.Overlays`):
+
+- `OsuCcShearedOverlay` — «скошенный» (sheared) вид, используемый по всему osu!cc (сам отладочный оверлей — такой).
+- `OsuCcWaveOverlay` — волновой стиль, как у онлайн-оверлеев игры (beatmap listing, changelog, wiki): четыре цветные волны пробегают по затемнённому фону, а страница быстро проявляется поверх. Заголовок (`OsuCcOverlayHeader`) — сток-бар с иконкой/названием/описанием и рядом для вкладок/фильтров, скроллится вместе с контентом.
+
+Оба наследуются от общего `OsuCcOverlayBase` и дают одинаковые гарантии: взаимное исключение («последняя открытая побеждает» — открытие одного скрывает остальные оверлеи osu!cc), глубина (рендер поверх оверлеев игры), общее затемнение фона, обработка закрытия/кнопки «назад» с восстановлением ранее открытого оверлея и контейнер `MainAreaContent`-`PopoverContainer` для поповеров.
+
+Чтобы воспользоваться: унаследуйтесь от нужного базиса, выберите `OverlayColourScheme`, задайте заголовок/описание/иконку, при желании добавьте вкладки в `Header.ContentRow` и контент в `MainAreaContent`, затем зарегистрируйте оверлей через `host.RegisterBlockingOverlay(overlay)`:
+
+```csharp
+public class MyOverlay : OsuCcWaveOverlay
+{
+    public MyOverlay() : base(OverlayColourScheme.Blue) { }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        Header.TitleText = "My overlay";
+        Header.DescriptionText = "Wave style";
+        Header.HeaderIcon = OsuIcon.Online;
+
+        // Необязательно: ряд вкладок под заголовком (сток-вид).
+        Header.ContentRow.Add(new OsuTabControl<MySection> { ... });
+
+        MainAreaContent.Add(/* ваш контент (дополнительный скролл не нужен — оверлей уже скроллит) */);
+    }
+}
+```
+
+Регистрация в `AttachToGame`:
+
+```csharp
+public override void AttachToGame()
+{
+    overlay = new MyOverlay();
+    Host.RegisterBlockingOverlay(overlay);
+}
+```
+
+Отладочный плагин демонстрирует это панелью **Overlays**: кнопка «Show wave overlay» открывает `DebugWaveOverlay` поверх отладочного оверлея и обратно.
+
 ### Рекомендации (Best Practices)
 
 - **Динамические настройки**: Изменение настроек должно применяться динамически в рантайме без необходимости перезапуска игры (за исключением тяжелых архитектурных изменений, таких как темы оформления).

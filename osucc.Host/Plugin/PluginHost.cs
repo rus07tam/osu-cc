@@ -197,15 +197,22 @@ namespace osucc.Plugin
                 if (disposed)
                     return;
 
-                token = Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay);
-
-                if (token != null)
+                try
                 {
-                    TimingLog.Info("PluginHost: blocking overlay registered");
-                    return;
-                }
+                    token = Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay);
 
-                scheduler?.Add(retryTopMostOverlay);
+                    if (token != null)
+                    {
+                        TimingLog.Info("PluginHost: blocking overlay registered");
+                        return;
+                    }
+
+                    scheduler?.Add(retryTopMostOverlay);
+                }
+                catch (Exception ex)
+                {
+                    TimingLog.Error($"PluginHost: failed to register blocking overlay '{overlay.GetType().Name}': {ex}");
+                }
             }
 
             public void Dispose()

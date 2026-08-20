@@ -73,6 +73,7 @@ namespace osucc.UI.Overlays
             }, true);
 
             Header.Description = ThemePreviewStrings.Description;
+            Header.HeaderIcon = FontAwesome.Solid.PaintBrush;
 
             previewRoot = new Container
             {

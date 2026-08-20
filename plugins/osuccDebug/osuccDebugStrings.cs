@@ -27,6 +27,52 @@ namespace osuccDebug
 
         public static LocalisableString PersonalBestPanelTitle => OsuCcLocalisation.Get(getKey(nameof(PersonalBestPanelTitle)), "Personal best");
 
+        public static LocalisableString OverlaysPanelTitle => OsuCcLocalisation.Get(getKey(nameof(OverlaysPanelTitle)), "Overlays");
+
+        public static LocalisableString CustomTitleLabel => OsuCcLocalisation.Get(getKey(nameof(CustomTitleLabel)), "Custom title");
+
+        public static LocalisableString ShowWaveOverlayButton => OsuCcLocalisation.Get(getKey(nameof(ShowWaveOverlayButton)), "Show wave overlay");
+
+        public static LocalisableString ShowShearedOverlayButton => OsuCcLocalisation.Get(getKey(nameof(ShowShearedOverlayButton)), "Show sheared overlay");
+
+        public static LocalisableString WaveOverlayTitle => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayTitle)), "Wave overlay");
+
+        public static LocalisableString WaveOverlayColourSchemeLabel => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayColourSchemeLabel)), "Colour scheme");
+
+        public static LocalisableString WaveOverlayDescription => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayDescription)), "Full-screen wave-style overlay test");
+
+        public static LocalisableString WaveOverlaySectionTitle => OsuCcLocalisation.Get(getKey(nameof(WaveOverlaySectionTitle)), "Wave overlay");
+
+        public static LocalisableString WaveOverlayBodyText => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayBodyText)), "The coloured bands sweep over the dimmed background while the page (a stock-style header with icon, title, description and tabs, plus a scrollable main area) fades in on top. Close via the back key or clicking outside.");
+
+        public static LocalisableString ShearedOverlayTitle => OsuCcLocalisation.Get(getKey(nameof(ShearedOverlayTitle)), "Sheared overlay");
+
+        public static LocalisableString ShearedOverlayDescription => OsuCcLocalisation.Get(getKey(nameof(ShearedOverlayDescription)), "Full-screen sheared-style overlay test");
+
+        public static LocalisableString ShearedOverlayBodyText => OsuCcLocalisation.Get(getKey(nameof(ShearedOverlayBodyText)), "The sheared-style overlay features an animated sheared header with close button, dimmed background, and a scrollable content area. Close via the header close button, back key or clicking outside.");
+
+        public static LocalisableString ShearedOverlayNotifyButton => OsuCcLocalisation.Get(getKey(nameof(ShearedOverlayNotifyButton)), "Post notification from here");
+
+        public static LocalisableString ShearedOverlayNotified => OsuCcLocalisation.Get(getKey(nameof(ShearedOverlayNotified)), "notification posted from the sheared overlay");
+
+        public static LocalisableString WaveOverlayOverviewTab => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayOverviewTab)), "Overview");
+
+        public static LocalisableString WaveOverlayColoursTab => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayColoursTab)), "Colours");
+
+        public static LocalisableString WaveOverlayWaveBandsLabel => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayWaveBandsLabel)), "Wave band colours");
+
+        public static LocalisableString WaveOverlayNotifyButton => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayNotifyButton)), "Post notification from here");
+
+        public static LocalisableString WaveOverlayNotified => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayNotified)), "notification posted from the wave overlay");
+
+        public static LocalisableString WaveBandLight4 => OsuCcLocalisation.Get(getKey(nameof(WaveBandLight4)), "Light4");
+
+        public static LocalisableString WaveBandLight3 => OsuCcLocalisation.Get(getKey(nameof(WaveBandLight3)), "Light3");
+
+        public static LocalisableString WaveBandDark4 => OsuCcLocalisation.Get(getKey(nameof(WaveBandDark4)), "Dark4");
+
+        public static LocalisableString WaveBandDark3 => OsuCcLocalisation.Get(getKey(nameof(WaveBandDark3)), "Dark3");
+
         public static LocalisableString NotificationMessageLabel => OsuCcLocalisation.Get(getKey(nameof(NotificationMessageLabel)), "Notification message");
 
         public static LocalisableString NotificationKindLabel => OsuCcLocalisation.Get(getKey(nameof(NotificationKindLabel)), "Notification kind");

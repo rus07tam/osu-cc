@@ -31,6 +31,15 @@ namespace osuccDebug
 
         private readonly FillFlowContainer panels;
 
+        private DebugWaveOverlay? waveOverlay;
+        private DebugShearedOverlay? shearedOverlay;
+
+        private readonly osu.Framework.Bindables.Bindable<string> overlayCustomTitle =
+            new osu.Framework.Bindables.Bindable<string>(string.Empty);
+
+        private readonly osu.Framework.Bindables.Bindable<OverlayColourScheme> overlayColourScheme =
+            new osu.Framework.Bindables.Bindable<OverlayColourScheme>(OverlayColourScheme.Blue);
+
         public osuccDebugOverlay(IOsuCcPluginHost host)
             : base(OverlayColourScheme.Purple)
         {
@@ -56,12 +65,25 @@ namespace osuccDebug
         {
             Header.Title = osuccDebugStrings.OverlayTitle;
             Header.Description = osuccDebugStrings.OverlayDescription;
+            Header.HeaderIcon = OsuIcon.Online;
 
             MainAreaContent.Add(new OverlayScrollContainer
             {
                 RelativeSizeAxes = Axes.Both,
                 Child = panels,
             });
+
+            // The test overlays are other full-screen osu!cc overlays; registering them lets the
+            // base mutual exclusion keep exactly one overlay visible (the panels button shows them).
+            waveOverlay = new DebugWaveOverlay(host);
+            waveOverlay.ColourScheme.BindTo(overlayColourScheme);
+            waveOverlay.CustomTitle.BindTo(overlayCustomTitle);
+            host.RegisterBlockingOverlay(waveOverlay);
+
+            shearedOverlay = new DebugShearedOverlay(host);
+            shearedOverlay.ColourScheme.BindTo(overlayColourScheme);
+            shearedOverlay.CustomTitle.BindTo(overlayCustomTitle);
+            host.RegisterBlockingOverlay(shearedOverlay);
         }
 
         protected override void LoadComplete()
@@ -79,6 +101,14 @@ namespace osuccDebug
             panels.Add(new SectionPanel(osuccDebugStrings.PersonalBestPanelTitle)
             {
                 PanelContent = new CelebrationTestPanel(),
+            });
+            panels.Add(new SectionPanel(osuccDebugStrings.OverlaysPanelTitle)
+            {
+                PanelContent = new OverlayTestPanel(
+                    overlayCustomTitle,
+                    overlayColourScheme,
+                    () => waveOverlay?.Show(),
+                    () => shearedOverlay?.Show()),
             });
         }
 
