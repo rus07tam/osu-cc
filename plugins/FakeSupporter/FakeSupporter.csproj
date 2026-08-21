@@ -7,21 +7,18 @@
     <AssemblyName>FakeSupporter</AssemblyName>
     <RootNamespace>FakeSupporter</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>fake-supporter</PluginId>
-    <PluginName>Fake Supporter</PluginName>
-    <PluginDescription>Fakes the current player's osu!supporter tag (level 1–10) everywhere, plus
-      per-user supporter overrides and a public rule API.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginIconGlyph>Heart</PluginIconGlyph>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>fake-supporter</PackageId>
+    <Title>Fake Supporter</Title>
+    <Description>Fakes the current player's osu!supporter tag (level 1–10) everywhere, plus
+      per-user supporter overrides and a public rule API.</Description>
+    <Version>1.0.1</Version>
+    <IconGlyph>Heart</IconGlyph>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>supporter;profile;fun;library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="supporter" />
-    <PluginTag Include="profile" />
-    <PluginTag Include="fun" />
-    <PluginTag Include="library" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

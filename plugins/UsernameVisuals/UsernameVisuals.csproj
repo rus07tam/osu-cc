@@ -7,20 +7,17 @@
     <AssemblyName>UsernameVisuals</AssemblyName>
     <RootNamespace>UsernameVisuals</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>username-visuals</PluginId>
-    <PluginName>Username Visuals</PluginName>
-    <PluginDescription>Username visuals plus an own-username display override (custom text / hide).</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginIconGlyph>FillDrip</PluginIconGlyph>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>username-visuals</PackageId>
+    <Title>Username Visuals</Title>
+    <Description>Username visuals plus an own-username display override (custom text / hide).</Description>
+    <Version>1.0.1</Version>
+    <IconGlyph>FillDrip</IconGlyph>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>profile;username;visual;library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="profile" />
-    <PluginTag Include="username" />
-    <PluginTag Include="visual" />
-    <PluginTag Include="library" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

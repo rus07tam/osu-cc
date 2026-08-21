@@ -7,17 +7,17 @@
     <AssemblyName>FriendsLeaderboard</AssemblyName>
     <RootNamespace>FriendsLeaderboard</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>friends-leaderboard</PluginId>
-    <PluginName>Friends Leaderboard</PluginName>
-    <PluginDescription>Shows the friend leaderboard without an osu!supporter tag by aggregating each
-      friend's best score client-side.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>friends-leaderboard</PackageId>
+    <Title>Friends Leaderboard</Title>
+    <Description>Shows the friend leaderboard without an osu!supporter tag by aggregating each
+      friend's best score client-side.</Description>
+    <Version>1.0.1</Version>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>leaderboard</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="leaderboard" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

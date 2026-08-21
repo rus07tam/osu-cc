@@ -7,17 +7,17 @@
     <AssemblyName>Oii</AssemblyName>
     <RootNamespace>Oii</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>oii</PluginId>
-    <PluginName>oii</PluginName>
-    <PluginDescription>Shows the improvement indicator next to total play time on user profiles.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginIcon>icon.png</PluginIcon>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>oii</PackageId>
+    <Title>oii</Title>
+    <Description>Shows the improvement indicator next to total play time on user profiles.</Description>
+    <Version>1.0.1</Version>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>profile</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="profile" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

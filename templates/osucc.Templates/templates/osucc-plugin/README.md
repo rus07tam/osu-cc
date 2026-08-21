@@ -20,31 +20,27 @@ Drop `my-plugin.zip` into the game's plugin folder:
 - Linux: `~/.local/share/osu/osu-cc/plugins/`
 
 The manager extracts the archive into a folder named after the plugin `Id` declared in the
-project file (`<PluginId>` — here `my-plugin`) on the next launch, and the plugin shows up in
+project file (`<PackageId>` — here `my-plugin`) on the next launch, and the plugin shows up in
 the Plugins overlay.
 
 ## Plugin metadata
 
 Metadata lives in the project file, not in source:
 
-- `<PluginId>` / `<PluginName>` / `<PluginAuthor>` / `<PluginDescription>` / `<PluginVersion>`
-  — `PluginAuthor` is a list: one item per author, each a plain nickname or, with an
+- `<PackageId>` / `<Title>` / `<Description>` / `<Version>` / `<RepositoryUrl>`
+- `<Author>` items (or `<Authors>` property) — each a plain nickname or, with an
   `OsuProfileId` metadata, an osu! profile-linked username (clickable in the UI):
-  `<PluginAuthor Include="peppy" OsuProfileId="1013" />`
-- `<PluginPriority>` — load/display order (lower first)
-- `<PluginIcon>Assets/icon.webp</PluginIcon>` — an image file icon (any name/path/format);
-  `<PluginIconGlyph>FillDrip</PluginIconGlyph>` — a FontAwesome glyph icon;
-  `<PluginIconResource>` — an embedded resource
+  `<Author Include="peppy" OsuProfileId="1013" />`
+- `<Priority>` — load/display order (lower first)
+- `<PackageIcon>Assets/icon.webp</PackageIcon>` — an image file icon (any name/path/format);
+  `<IconGlyph>FillDrip</IconGlyph>` — a FontAwesome glyph icon name
 - `<PluginDependency Include="other-plugin-id" />` items — plugin dependencies
-- `<PluginTag Include="category" />` items — display tags: shown as clickable chips in the
+- `<Tag Include="category" />` items or `<PackageTags>` property — display tags: shown as clickable chips in the
   Plugins overlay; clicking a chip (or typing a name/author/id/tag in the overlay's search box)
-  filters the list to the matching plugins. Recommended values: classifiers `library`
-  (exposes a public API) and `integration` (third-party service), scope tags such as `profile`,
-  `menu`, `playfield`, `settings`, and descriptive tags `tools`, `fun`, `dev`, `ui`, `visual`,
-  `audio`.
+  filters the list to the matching plugins.
 
 ## Plugin lifecycle
 
-Bump `<PluginVersion>` in the project file to trigger `OnUpdate` on upgrade; raise
+Bump `<Version>` in the project file to trigger `OnUpdate` on upgrade; raise
 `SchemaVersion` and add `IPluginMigration` steps to migrate persisted settings. See the
 [plugin docs](https://github.com/osucc/osucc) for the full host API (`IOsuCcPluginHost`).

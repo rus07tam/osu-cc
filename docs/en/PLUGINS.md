@@ -6,21 +6,23 @@ Notes for developers writing plugins for osu!cc.
 
 ## Plugins
 
-A plugin is a classlib that implements `IOsuCcPlugin` (or extends `OsuCcPluginBase`); see `plugins/ExamplePlugin` for a working example. Plugin metadata is declared in the **project file**, never in source: the build turns the `PluginId` / `PluginName` / `PluginAuthor` / `PluginDescription` / `PluginVersion` / `PluginPriority` properties, the `PluginIcon` (image file), `PluginIconGlyph` (FontAwesome name) and `PluginIconResource` (embedded resource) values, and the `PluginDependency` items into an assembly-level `[OsuCcPlugin]` manifest (generated into `obj/PluginMetadata.g.cs`), which the manager reads at discovery. `PluginAuthor` is a list: declare one item per author, each either a plain nickname or, with an `OsuProfileId`, an osu! profile-linked username that the UI renders as a clickable username opening the profile **in-game** (routed through osu's `LinkFlowContainer.AddUserLink`, so it also inherits the Username Visuals gradient):
+A plugin is a classlib that extends `OsuCcPlugin`; see `plugins/ExamplePlugin` for a working example. Plugin metadata is declared in the **project file** using standard .NET/MSBuild properties: `<PackageId>`, `<Title>`, `<Description>`, `<Version>`, `<RepositoryUrl>`, `<PackageTags>`, `<PackageIcon>` (image file), `<IconGlyph>` (FontAwesome icon name), and `<Priority>`. The build turns these properties into an assembly-level `[OsuCcPlugin]` manifest (generated into `obj/PluginMetadata.g.cs`), which the manager reads at discovery.
+
+Authors are declared using `<Author>` items (or `<Authors>` string). Each item is a plain nickname or, with an `OsuProfileId`, an osu! profile-linked username that the UI renders as a clickable username opening the profile **in-game**:
 
 ```xml
 <ItemGroup>
-  <PluginAuthor Include="osu-cc" />
-  <PluginAuthor Include="peppy" OsuProfileId="1013" />
+  <Author Include="osu-cc" />
+  <Author Include="peppy" OsuProfileId="1013" />
 </ItemGroup>
 ```
 
-Display tags are declared as `<PluginTag>` items - they are rendered as clickable chips in the plugins UI, and the overlay's search box (filtering by name, author, id or tag) selects the matching plugins:
+Display tags can be declared via the `<PackageTags>` property (e.g. `<PackageTags>profile;library</PackageTags>`) or as `<Tag>` items:
 
 ```xml
 <ItemGroup>
-  <PluginTag Include="profile" />
-  <PluginTag Include="library" />
+  <Tag Include="profile" />
+  <Tag Include="library" />
 </ItemGroup>
 ```
 

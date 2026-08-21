@@ -7,21 +7,19 @@
     <AssemblyName>OsuCcUpdater</AssemblyName>
     <RootNamespace>OsuCcUpdater</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>osucc-updater</PluginId>
-    <PluginName>Updater</PluginName>
-    <PluginDescription>Checks the official osu-cc repository for a new build (a GitHub release
+    <PackageId>osucc-updater</PackageId>
+    <Title>Updater</Title>
+    <Description>Checks the official osu-cc repository for a new build (a GitHub release
       bundle or a local dotnet build) and stages it; the osucc launcher applies the staged update on
-      the next launch.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginIconGlyph>CloudDownloadAlt</PluginIconGlyph>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+      the next launch.</Description>
+    <Version>1.0.1</Version>
+    <IconGlyph>CloudDownloadAlt</IconGlyph>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>updater;system;library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="updater" />
-    <PluginTag Include="system" />
-    <PluginTag Include="library" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

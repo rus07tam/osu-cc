@@ -6,21 +6,23 @@
 
 ## Плагины
 
-Плагин это classlib, реализующий `IOsuCcPlugin` (или наследующий `OsuCcPluginBase`). Рабочий пример: `plugins/ExamplePlugin`. Метаданные плагина объявляются в **проектном файле**, а не в коде: сборка превращает свойства `PluginId` / `PluginName` / `PluginAuthor` / `PluginDescription` / `PluginVersion` / `PluginPriority`, значения `PluginIcon` (файл-картинка), `PluginIconGlyph` (имя FontAwesome) и `PluginIconResource` (встроенный ресурс), а также элементы `PluginDependency` в assembly-уровневый атрибут `[OsuCcPlugin]` (генерируется в `obj/PluginMetadata.g.cs`), который менеджер читает при обнаружении. `PluginAuthor` это список: по одному элементу на автора, каждый либо обычный ник, либо - с метаданными `OsuProfileId` - osu! профиль, который UI показывает кликабельным юзернеймом, открывающим профиль **in-game** (через osu-шный `LinkFlowContainer.AddUserLink`, поэтому юзернейм также наследует градиент от Username Visuals):
+Плагин это classlib, реализующий `OsuCcPlugin`. Рабочий пример: `plugins/ExamplePlugin`. Метаданные плагина объявляются в **проектном файле** с использованием стандартных свойств .NET/MSBuild: `<PackageId>`, `<Title>`, `<Description>`, `<Version>`, `<RepositoryUrl>`, `<PackageTags>`, `<PackageIcon>` (файл-картинка), `<IconGlyph>` (имя FontAwesome) и `<Priority>`. Сборка превращает эти свойства в assembly-уровневый атрибут `[OsuCcPlugin]` (генерируется в `obj/PluginMetadata.g.cs`), который менеджер читает при обнаружении.
+
+Авторы объявляются элементами `<Author>` (или строкой `<Authors>`). По одному элементу на автора, каждый либо обычный ник, либо — с атрибутом `OsuProfileId` — osu! профиль, который UI показывает кликабельным юзернеймом, открывающим профиль **in-game**:
 
 ```xml
 <ItemGroup>
-  <PluginAuthor Include="osu-cc" />
-  <PluginAuthor Include="peppy" OsuProfileId="1013" />
+  <Author Include="osu-cc" />
+  <Author Include="peppy" OsuProfileId="1013" />
 </ItemGroup>
 ```
 
-Теги отображаются элементами `<PluginTag>` - они рисуются кликабельными чипами в UI плагинов, а поисковая строка оверлея (фильтрация по имени, автору, id или тегу) выбирает подходящие плагины:
+Теги отображения можно объявить через свойство `<PackageTags>` (например, `<PackageTags>profile;library</PackageTags>`) или элементы `<Tag>`:
 
 ```xml
 <ItemGroup>
-  <PluginTag Include="profile" />
-  <PluginTag Include="library" />
+  <Tag Include="profile" />
+  <Tag Include="library" />
 </ItemGroup>
 ```
 

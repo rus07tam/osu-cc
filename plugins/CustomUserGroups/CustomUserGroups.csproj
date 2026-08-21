@@ -7,21 +7,18 @@
     <AssemblyName>CustomUserGroups</AssemblyName>
     <RootNamespace>CustomUserGroups</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>custom-user-groups</PluginId>
-    <PluginName>Custom User Groups</PluginName>
-    <PluginDescription>Shows custom user groups (colour, short name, name, playmodes) on profiles and user cards,
-      appended to real osu! groups, with per-user overrides and a public rule API.</PluginDescription>
-    <PluginVersion>1.0.0</PluginVersion>
-    <PluginIconGlyph>Users</PluginIconGlyph>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>custom-user-groups</PackageId>
+    <Title>Custom User Groups</Title>
+    <Description>Shows custom user groups (colour, short name, name, playmodes) on profiles and user cards,
+      appended to real osu! groups, with per-user overrides and a public rule API.</Description>
+    <Version>1.0.0</Version>
+    <IconGlyph>Users</IconGlyph>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>profile;visual;fun;library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="profile" />
-    <PluginTag Include="visual" />
-    <PluginTag Include="fun" />
-    <PluginTag Include="library" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

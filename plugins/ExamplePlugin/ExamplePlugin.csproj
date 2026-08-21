@@ -7,20 +7,19 @@
     <AssemblyName>ExamplePlugin</AssemblyName>
     <RootNamespace>ExamplePlugin</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>example</PluginId>
-    <PluginName>Example Plugin</PluginName>
-    <PluginDescription>Demonstrates the osu!cc plugin API: toolbar button, notifications,
-      celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginPriority>100</PluginPriority>
-    <PluginIcon>icon.png</PluginIcon>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>example</PackageId>
+    <Title>Example Plugin</Title>
+    <Description>Demonstrates the osu!cc plugin API: toolbar button, notifications,
+      celebrations, settings, a Harmony patch, lifecycle hooks and a data migration.</Description>
+    <Version>1.0.1</Version>
+    <Priority>100</Priority>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>example;dev</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="example" />
-    <PluginTag Include="dev" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>

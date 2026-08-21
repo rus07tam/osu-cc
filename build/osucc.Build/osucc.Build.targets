@@ -19,11 +19,16 @@
   <PropertyGroup Condition="'$(IsPlugin)' == 'true'">
     <!-- Only the plugin's own dll is deployed; osu.* / osucc / 0Harmony resolve from the host. -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <!-- Defaults for the metadata declared in the project file. -->
-    <PluginId Condition="'$(PluginId)' == ''">$(AssemblyName)</PluginId>
-    <PluginName Condition="'$(PluginName)' == ''">$(PluginId)</PluginName>
-    <PluginVersion Condition="'$(PluginVersion)' == ''">$(Version)</PluginVersion>
-    <PluginPriority Condition="'$(PluginPriority)' == ''">0</PluginPriority>
+    <!-- Defaults for the standard metadata declared in the project file. -->
+    <_PluginId Condition="'$(PackageId)' != ''">$(PackageId)</_PluginId>
+    <_PluginId Condition="'$(_PluginId)' == ''">$(AssemblyName)</_PluginId>
+    <_PluginName Condition="'$(Title)' != ''">$(Title)</_PluginName>
+    <_PluginName Condition="'$(_PluginName)' == '' and '$(Product)' != ''">$(Product)</_PluginName>
+    <_PluginName Condition="'$(_PluginName)' == ''">$(_PluginId)</_PluginName>
+    <_PluginVersion Condition="'$(Version)' != ''">$(Version)</_PluginVersion>
+    <_PluginVersion Condition="'$(_PluginVersion)' == ''">1.0.0</_PluginVersion>
+    <_PluginPriority Condition="'$(Priority)' != ''">$(Priority)</_PluginPriority>
+    <_PluginPriority Condition="'$(_PluginPriority)' == ''">0</_PluginPriority>
   </PropertyGroup>
 
   <UsingTask TaskName="GeneratePluginManifest" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
@@ -32,7 +37,9 @@
       <Id ParameterType="System.String" Required="true" />
       <Name ParameterType="System.String" Required="true" />
       <Authors ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <AuthorsString ParameterType="System.String" />
       <Tags ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <TagsString ParameterType="System.String" />
       <Description ParameterType="System.String" />
       <Version ParameterType="System.String" />
       <Priority ParameterType="System.String" />
@@ -46,6 +53,7 @@
     <Task>
       <Code Type="Class" Language="cs"><![CDATA[
         #nullable enable
+        #pragma warning disable CS8600, CS8602, CS8604, CS8618, CS8632
         using System;
         using System.Collections.Generic;
         using System.IO;
@@ -58,7 +66,9 @@
             public string Id { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
             public Microsoft.Build.Framework.ITaskItem[]? Authors { get; set; }
+            public string? AuthorsString { get; set; }
             public Microsoft.Build.Framework.ITaskItem[]? Tags { get; set; }
+            public string? TagsString { get; set; }
             public string? Description { get; set; }
             public string? Version { get; set; }
             public string? Priority { get; set; }
@@ -73,25 +83,25 @@
             {
                 if (string.IsNullOrWhiteSpace(Id))
                 {
-                    Log.LogError("Plugin metadata is missing: set <PluginId> in the project file (it defaults to the assembly name, which is empty here).");
+                    Log.LogError("Plugin metadata is missing: set <PackageId> in the project file (it defaults to the assembly name, which is empty here).");
                     return false;
                 }
 
                 if (string.IsNullOrWhiteSpace(Name))
                 {
-                    Log.LogError("Plugin metadata is missing: set <PluginName> in the project file.");
+                    Log.LogError("Plugin metadata is missing: set <Title> in the project file.");
                     return false;
                 }
 
                 if (Priority != null && !int.TryParse(Priority, out _))
                 {
-                    Log.LogError($"<PluginPriority> must be an integer, got '{Priority}'.");
+                    Log.LogError($"<Priority> must be an integer, got '{Priority}'.");
                     return false;
                 }
 
                 if (ApiVersion != null && !int.TryParse(ApiVersion, out _))
                 {
-                    Log.LogError($"<PluginApiVersion> must be an integer, got '{ApiVersion}'.");
+                    Log.LogError($"Plugin API version must be an integer, got '{ApiVersion}'.");
                     return false;
                 }
 
@@ -134,39 +144,67 @@
 
                 var named = new List<string>();
 
+                var authorNames = new List<string>();
+                var authorIds = new List<int>();
+
                 if (Authors is { Length: > 0 })
                 {
-                    var authorNames = new string[Authors.Length];
-                    var authorIds = new int[Authors.Length];
-
-                    for (int i = 0; i < Authors.Length; i++)
+                    foreach (Microsoft.Build.Framework.ITaskItem item in Authors)
                     {
-                        Microsoft.Build.Framework.ITaskItem item = Authors[i];
-                        authorNames[i] = item.ItemSpec;
+                        if (string.IsNullOrWhiteSpace(item.ItemSpec))
+                            continue;
 
+                        authorNames.Add(item.ItemSpec);
                         if (int.TryParse(item.GetMetadata("OsuProfileId"), out int profileId) && profileId > 0)
-                            authorIds[i] = profileId;
+                            authorIds.Add(profileId);
                         else
-                            authorIds[i] = -1;
+                            authorIds.Add(-1);
                     }
-
-                    named.Add($"AuthorNames = new[] {{ {string.Join(", ", Array.ConvertAll(authorNames, Quote))} }}");
-                    named.Add($"AuthorOsuIds = new[] {{ {string.Join(", ", Array.ConvertAll(authorIds, id => id.ToString()))} }}");
                 }
+                else if (!string.IsNullOrWhiteSpace(AuthorsString))
+                {
+                    string[] raw = AuthorsString.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string author in raw)
+                    {
+                        string trimmed = author.Trim();
+                        if (!string.IsNullOrEmpty(trimmed))
+                        {
+                            authorNames.Add(trimmed);
+                            authorIds.Add(-1);
+                        }
+                    }
+                }
+
+                if (authorNames.Count > 0)
+                {
+                    named.Add($"AuthorNames = new[] {{ {string.Join(", ", Array.ConvertAll(authorNames.ToArray(), Quote))} }}");
+                    named.Add($"AuthorOsuIds = new[] {{ {string.Join(", ", Array.ConvertAll(authorIds.ToArray(), id => id.ToString()))} }}");
+                }
+
+                var tagList = new List<string>();
 
                 if (Tags is { Length: > 0 })
                 {
-                    var tags = new List<string>();
-
                     foreach (Microsoft.Build.Framework.ITaskItem item in Tags)
                     {
-                        if (!string.IsNullOrWhiteSpace(item.ItemSpec) && !tags.Contains(item.ItemSpec))
-                            tags.Add(item.ItemSpec);
+                        if (!string.IsNullOrWhiteSpace(item.ItemSpec) && !tagList.Contains(item.ItemSpec))
+                            tagList.Add(item.ItemSpec);
                     }
-
-                    if (tags.Count > 0)
-                        named.Add($"Tags = new[] {{ {string.Join(", ", Array.ConvertAll(tags.ToArray(), Quote))} }}");
                 }
+
+                if (!string.IsNullOrWhiteSpace(TagsString))
+                {
+                    string[] raw = TagsString.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string tag in raw)
+                    {
+                        string trimmed = tag.Trim();
+                        if (!string.IsNullOrEmpty(trimmed) && !tagList.Contains(trimmed))
+                            tagList.Add(trimmed);
+                    }
+                }
+
+                if (tagList.Count > 0)
+                    named.Add($"Tags = new[] {{ {string.Join(", ", Array.ConvertAll(tagList.ToArray(), Quote))} }}");
 
                 if (!string.IsNullOrWhiteSpace(Description))
                     named.Add($"Description = {Quote(Description)}");
@@ -213,39 +251,36 @@
   <Target Name="GeneratePluginManifest" BeforeTargets="CoreCompile" Condition="'$(IsPlugin)' == 'true'">
     <PropertyGroup>
       <_ManifestFile>$(IntermediateOutputPath)PluginMetadata.g.cs</_ManifestFile>
-      <!-- The declared image icon is copied into the output preserving its relative path, so the
-           manifest's IconPath (e.g. "Assets/icon.webp") resolves inside the plugin folder after
-           the archive is extracted. -->
-      <_IconOutput>$(OutDir)$(PluginIcon)</_IconOutput>
+      <_IconOutput>$(OutDir)$(PackageIcon)</_IconOutput>
     </PropertyGroup>
 
-    <Error Condition="'$(PluginIcon)' != '' and !Exists('$(PluginIcon)')" Text="Plugin icon file '$(PluginIcon)' does not exist. Fix &lt;PluginIcon&gt; in the project file." />
+    <Error Condition="'$(PackageIcon)' != '' and !Exists('$(PackageIcon)')" Text="Plugin icon file '$(PackageIcon)' does not exist. Fix &lt;PackageIcon&gt; in the project file." />
 
-    <!-- Authors are the PluginAuthor items (each a nickname or, with OsuProfileId metadata, an osu!
-         profile link). -->
     <ItemGroup>
-      <_PluginAuthors Include="@(PluginAuthor)" Condition="'@(PluginAuthor)' != ''" />
-      <_PluginTags Include="@(PluginTag)" Condition="'@(PluginTag)' != ''" />
+      <_PluginAuthors Include="@(Author)" Condition="'@(Author)' != ''" />
+      <_PluginTags Include="@(Tag)" Condition="'@(Tag)' != ''" />
+      <_PluginDependencies Include="@(PluginDependency)" Condition="'@(PluginDependency)' != ''" />
+      <_PluginDependencies Include="@(Dependency)" Condition="'@(Dependency)' != ''" />
     </ItemGroup>
 
-    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_IconOutput)'))" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" />
-    <Copy SourceFiles="$(PluginIcon)" DestinationFiles="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(PluginIcon)')" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_IconOutput)'))" Condition="'$(PackageIcon)' != '' and Exists('$(PackageIcon)')" />
+    <Copy SourceFiles="$(PackageIcon)" DestinationFiles="$(_IconOutput)" Condition="'$(PackageIcon)' != '' and Exists('$(PackageIcon)')" SkipUnchangedFiles="true" />
 
     <GeneratePluginManifest
         OutputFile="$(_ManifestFile)"
-        Id="$(PluginId)"
-        Name="$(PluginName)"
+        Id="$(_PluginId)"
+        Name="$(_PluginName)"
         Authors="@(_PluginAuthors)"
+        AuthorsString="$(Authors)"
         Tags="@(_PluginTags)"
-        Description="$(PluginDescription)"
-        Version="$(PluginVersion)"
-        Priority="$(PluginPriority)"
-        ApiVersion="$(PluginApiVersion)"
-        IconPath="$(PluginIcon)"
-        Icon="$(PluginIconGlyph)"
-        IconResource="$(PluginIconResource)"
-        Repository="$(PluginRepository)"
-        Dependencies="@(PluginDependency)" />
+        TagsString="$(PackageTags)"
+        Description="$(Description)"
+        Version="$(_PluginVersion)"
+        Priority="$(_PluginPriority)"
+        IconPath="$(PackageIcon)"
+        Icon="$(IconGlyph)"
+        Repository="$(RepositoryUrl)"
+        Dependencies="@(_PluginDependencies)" />
 
     <ItemGroup>
       <Compile Include="$(_ManifestFile)" />
@@ -255,13 +290,13 @@
   <Target Name="PackagePluginArchive" AfterTargets="Build" Condition="'$(IsPlugin)' == 'true'">
     <PropertyGroup>
       <_Staging>$(BaseOutputPath)package\$(Configuration)</_Staging>
-      <_Archive>$(OutDir)$(PluginId).zip</_Archive>
-      <_IconOutput>$(OutDir)$(PluginIcon)</_IconOutput>
+      <_Archive>$(OutDir)$(_PluginId).zip</_Archive>
+      <_IconOutput>$(OutDir)$(PackageIcon)</_IconOutput>
     </PropertyGroup>
 
     <ItemGroup>
       <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
-      <_PackageFiles Include="$(_IconOutput)" Condition="'$(PluginIcon)' != '' and Exists('$(_IconOutput)')" />
+      <_PackageFiles Include="$(_IconOutput)" Condition="'$(PackageIcon)' != '' and Exists('$(_IconOutput)')" />
     </ItemGroup>
 
     <MakeDir Directories="$(_Staging)" />

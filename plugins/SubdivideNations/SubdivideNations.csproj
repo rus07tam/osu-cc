@@ -7,18 +7,17 @@
     <AssemblyName>SubdivideNations</AssemblyName>
     <RootNamespace>SubdivideNations</RootNamespace>
     <IsPlugin>true</IsPlugin>
-    <PluginId>subdivide-nations</PluginId>
-    <PluginName>Subdivide Nations</PluginName>
-    <PluginDescription>Shows each user's sub-national region on profiles and user cards.</PluginDescription>
-    <PluginVersion>1.0.1</PluginVersion>
-    <PluginIcon>icon.png</PluginIcon>
-    <PluginRepository>https://github.com/RuJect/osu-cc</PluginRepository>
+    <PackageId>subdivide-nations</PackageId>
+    <Title>Subdivide Nations</Title>
+    <Description>Shows each user's sub-national region on profiles and user cards.</Description>
+    <Version>1.0.1</Version>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/RuJect/osu-cc</RepositoryUrl>
+    <PackageTags>profile;region</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginAuthor Include="rus07tam" OsuProfileId="33701908" />
-    <PluginTag Include="profile" />
-    <PluginTag Include="region" />
+    <Author Include="rus07tam" OsuProfileId="33701908" />
   </ItemGroup>
 
   <ItemGroup>
