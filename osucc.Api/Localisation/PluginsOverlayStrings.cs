@@ -120,5 +120,55 @@ namespace osucc.Localisation
 
         public static LocalisableString DocumentFileNotFound(string path)
             => OsuCcLocalisation.Get(getKey(nameof(DocumentFileNotFound)), "Document file not found: {0}", path);
+
+        public static LocalisableString DiagnosticsErrorCount(int count)
+            => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsErrorCount)), "{0} error(s)", count);
+
+        public static LocalisableString DiagnosticsWarningCount(int count)
+            => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsWarningCount)), "{0} warning(s)", count);
+
+        public static LocalisableString DiagnosticsNoticeCount(int count)
+            => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsNoticeCount)), "{0} notice(s)", count);
+
+        public static LocalisableString DetailsDiagnosticsTitle => OsuCcLocalisation.Get(getKey(nameof(DetailsDiagnosticsTitle)), "Diagnostics");
+
+        public static LocalisableString DiagnosticsEmpty => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsEmpty)), "No issues detected");
+
+        public static LocalisableString DiagnosticsSourceLifecycle => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsSourceLifecycle)), "Lifecycle");
+
+        public static LocalisableString DiagnosticsSourcePatch => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsSourcePatch)), "Patch");
+
+        public static LocalisableString DiagnosticsSourceDependency => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsSourceDependency)), "Dependency");
+
+        public static LocalisableString DiagnosticsSourceBundle => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsSourceBundle)), "Bundled file");
+
+        public static LocalisableString DiagnosticsSourceGeneral => OsuCcLocalisation.Get(getKey(nameof(DiagnosticsSourceGeneral)), "General");
+
+        public static LocalisableString DependencyOsuCcOutdated(string required, string current)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyOsuCcOutdated)), "Requires newer osu!cc (>= {0}, current: {1})", required, current);
+
+        public static LocalisableString DependencyOsuCcTooNew(string required, string current)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyOsuCcTooNew)), "Designed for older osu!cc (<= {0}, current: {1})", required, current);
+
+        public static LocalisableString DependencyOsuGameOutdated(string required, string current)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyOsuGameOutdated)), "Requires newer osu!lazer (>= {0}, current: {1})", required, current);
+
+        public static LocalisableString DependencyOsuGameTooNew(string required, string current)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyOsuGameTooNew)), "Designed for older osu!lazer (<= {0}, current: {1})", required, current);
+
+        public static LocalisableString DependencyPluginMissingWithVersion(string id, string version)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyPluginMissingWithVersion)), "Requires plugin \"{0}\" {1}", id, version);
+
+        public static LocalisableString DependencyPluginDisabledNotice(string name)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyPluginDisabledNotice)), "Optional integration with \"{0}\" is available if enabled", name);
+
+        public static LocalisableString DependencyPluginVersionMismatch(string name, string current, string required)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyPluginVersionMismatch)), "Plugin \"{0}\" version {1} is incompatible (expected {2})", name, current, required);
+
+        public static LocalisableString DependencyBundledMissing(string dll)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyBundledMissing)), "Bundled assembly \"{0}\" is missing", dll);
+
+        public static LocalisableString DependencyBundledVersionMismatch(string dll, string current, string required)
+            => OsuCcLocalisation.Get(getKey(nameof(DependencyBundledVersionMismatch)), "Bundled assembly \"{0}\" version {1} is incompatible (expected {2})", dll, current, required);
     }
 }

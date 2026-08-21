@@ -78,6 +78,44 @@ namespace osucc.Plugin
         public string[] DependsOn { get; set; } = Array.Empty<string>();
 
         /// <summary>
+        /// Rich encoded dependency declarations (host, plugin and bundled dependencies with version constraints).
+        /// </summary>
+        public string[] EncodedDependencies { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Resolves all declared dependencies into structured <see cref="PluginDependencyDeclaration"/> objects.
+        /// </summary>
+        public IReadOnlyList<PluginDependencyDeclaration> ResolveDependencyDeclarations()
+        {
+            var list = new List<PluginDependencyDeclaration>();
+
+            if (EncodedDependencies != null && EncodedDependencies.Length > 0)
+            {
+                foreach (var raw in EncodedDependencies)
+                {
+                    if (PluginDependencyDeclaration.Decode(raw) is { } decl)
+                        list.Add(decl);
+                }
+            }
+
+            if (DependsOn != null && DependsOn.Length > 0)
+            {
+                foreach (var dep in DependsOn)
+                {
+                    if (!list.Any(d => d.Id.Equals(dep, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (PluginDependencyDeclaration.Decode(dep) is { } decl)
+                            list.Add(decl);
+                        else
+                            list.Add(new PluginDependencyDeclaration(dep, PluginDependencyKind.Plugin));
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
         /// Repository the plugin is published from (e.g. <c>"https://github.com/RuJect/osu-cc"</c>).
         /// Consumed by the plugin store to resolve versions and fetch install payloads; not tied to
         /// any specific git host. Declared from the <c>PluginRepository</c> project property.

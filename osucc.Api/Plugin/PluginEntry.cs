@@ -66,6 +66,70 @@ namespace osucc.Plugin
         /// <summary>Directory the plugin DLL + assets live in. Updated when the payload moves into the id-folder.</summary>
         public string Directory { get; set; } = string.Empty;
 
+        /// <summary>Declared structured dependencies.</summary>
+        public IReadOnlyList<PluginDependencyDeclaration> DependencyDeclarations { get; init; } = Array.Empty<PluginDependencyDeclaration>();
+
+        private readonly object diagnosticsLock = new();
+        private readonly List<PluginDiagnostic> diagnostics = new();
+
+        /// <summary>All diagnostic records (errors, warnings, notices) registered for this plugin.</summary>
+        public IReadOnlyList<PluginDiagnostic> Diagnostics
+        {
+            get
+            {
+                lock (diagnosticsLock)
+                    return diagnostics.ToArray();
+            }
+        }
+
+        public int ErrorCount
+        {
+            get
+            {
+                lock (diagnosticsLock)
+                    return diagnostics.Count(d => d.Level == PluginDiagnosticLevel.Error);
+            }
+        }
+
+        public int WarningCount
+        {
+            get
+            {
+                lock (diagnosticsLock)
+                    return diagnostics.Count(d => d.Level == PluginDiagnosticLevel.Warning);
+            }
+        }
+
+        public int NoticeCount
+        {
+            get
+            {
+                lock (diagnosticsLock)
+                    return diagnostics.Count(d => d.Level == PluginDiagnosticLevel.Notice);
+            }
+        }
+
+        public void AddDiagnostic(PluginDiagnostic diagnostic)
+        {
+            lock (diagnosticsLock)
+                diagnostics.Add(diagnostic);
+
+            StateChanged?.Invoke();
+        }
+
+        public void ClearDiagnostics(PluginDiagnosticSource? source = null)
+        {
+            lock (diagnosticsLock)
+            {
+                if (source == null)
+                    diagnostics.Clear();
+                else
+                    diagnostics.RemoveAll(d => d.Source == source.Value);
+            }
+
+            StateChanged?.Invoke();
+        }
+
         /// <summary>The live plugin instance, <c>null</c> if discovery/load failed or the plugin is disabled.</summary>
         public OsuCcPlugin? Plugin { get; set; }
 
@@ -141,7 +205,7 @@ namespace osucc.Plugin
                 if (PendingDelete)
                     return PluginStatus.PendingDelete;
 
-                if (LoadError != null)
+                if (LoadError != null || (Enabled && ErrorCount > 0 && !Loaded))
                     return PluginStatus.Error;
 
                 if (Enabled != InitialEnabled)

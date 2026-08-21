@@ -19,6 +19,7 @@ public class StartupHook
     /// <summary>DOTNET_STARTUP_HOOKS entry point.</summary>
     public static void Initialize()
     {
+        TimingLog.LogDirectoryProvider = () => PluginDirectories.ResolveLogsDirectory();
         TimingLog.Info("Initialize() called");
 
         // Route the shared resolver's diagnostics into the osu-cc timing log.

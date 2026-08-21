@@ -43,6 +43,8 @@ namespace osucc.Client
             SetDefault(SpecialsSetting.OsuCcTheme, Core.OsuCcThemeRegistry.DefaultId);
             SetDefault(SpecialsSetting.KeyHistoryMode, KeyHistoryOverlayMode.Disabled);
             SetDefault(SpecialsSetting.LivePluginReloading, false);
+            SetDefault(SpecialsSetting.BypassHostDependencyCheck, false);
+            SetDefault(SpecialsSetting.BypassPluginDependencyCheck, false);
         }
     }
 }

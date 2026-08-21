@@ -25,6 +25,8 @@ namespace osucc.Client
         public static readonly Bindable<bool> ProfileFavouriteDownloadButton = new(false);
         public static readonly Bindable<KeyHistoryOverlayMode> KeyHistoryMode = new(KeyHistoryOverlayMode.Disabled);
         public static readonly Bindable<bool> LivePluginReloading = new(false);
+        public static readonly Bindable<bool> BypassHostDependencyCheck = new(false);
+        public static readonly Bindable<bool> BypassPluginDependencyCheck = new(false);
 
         /// <summary>Active theme's id (an <see cref="OsuCcThemeDefinition.Id"/> from <see cref="OsuCcThemeRegistry"/>), applied once at startup. Changing it prompts a restart.</summary>
         public static readonly Bindable<string> OsuCcTheme = new(osucc.Core.OsuCcThemeRegistry.DefaultId);
@@ -46,6 +48,8 @@ namespace osucc.Client
             bind(config, SpecialsSetting.OsuCcTheme, OsuCcTheme);
             bind(config, SpecialsSetting.KeyHistoryMode, KeyHistoryMode);
             bind(config, SpecialsSetting.LivePluginReloading, LivePluginReloading);
+            bind(config, SpecialsSetting.BypassHostDependencyCheck, BypassHostDependencyCheck);
+            bind(config, SpecialsSetting.BypassPluginDependencyCheck, BypassPluginDependencyCheck);
         }
 
         private static void bind<T>(SpecialsConfigManager config, SpecialsSetting setting, Bindable<T> strong)

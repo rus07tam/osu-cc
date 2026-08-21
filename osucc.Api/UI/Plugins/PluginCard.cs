@@ -42,6 +42,7 @@ namespace osucc.UI.Plugins
         private readonly Box iconDivider;
         private readonly Box versionBadgeBackground;
         private readonly Box statusIndicatorDot;
+        private readonly FillFlowContainer diagnosticsFlow;
         private readonly OsuSpriteText statusText;
         private readonly Drawable iconDrawable;
         private readonly SpriteIcon? fallbackIcon;
@@ -120,19 +121,38 @@ namespace osucc.UI.Plugins
                             RelativeSizeAxes = Axes.Both,
                         },
                         iconDrawable,
-                        // Status dot at top-left
-                        new Container
+                        // Status dot and diagnostic pills at top-left
+                        new FillFlowContainer
                         {
-                            Size = new Vector2(10),
-                            Margin = new MarginPadding(8),
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(4, 0),
+                            Margin = new MarginPadding(6),
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
-                            Masking = true,
-                            CornerRadius = 5,
-                            Child = statusIndicatorDot = new Box
+                            Children = new Drawable[]
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Colour = PluginCardLayout.StatusColour(entry.Status),
+                                new Container
+                                {
+                                    Size = new Vector2(10),
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Masking = true,
+                                    CornerRadius = 5,
+                                    Child = statusIndicatorDot = new Box
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Colour = PluginCardLayout.StatusColour(entry.Status),
+                                    },
+                                },
+                                diagnosticsFlow = new FillFlowContainer
+                                {
+                                    AutoSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Horizontal,
+                                    Spacing = new Vector2(3, 0),
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                },
                             },
                         },
                         iconDivider = new Box
@@ -342,6 +362,14 @@ namespace osucc.UI.Plugins
             statusText.Text = PluginCardLayout.StatusText(Entry);
             statusText.Colour = PluginCardLayout.StatusColour(Entry.Status);
             statusIndicatorDot.Colour = PluginCardLayout.StatusColour(Entry.Status);
+
+            diagnosticsFlow.Clear();
+            if (Entry.ErrorCount > 0)
+                diagnosticsFlow.Add(new DiagnosticPill(PluginDiagnosticLevel.Error, Entry.ErrorCount));
+            if (Entry.WarningCount > 0)
+                diagnosticsFlow.Add(new DiagnosticPill(PluginDiagnosticLevel.Warning, Entry.WarningCount));
+            if (Entry.NoticeCount > 0 && (Entry.ErrorCount == 0 || Entry.WarningCount == 0))
+                diagnosticsFlow.Add(new DiagnosticPill(PluginDiagnosticLevel.Notice, Entry.NoticeCount));
 
             enabled.Disabled = Entry.PendingDelete;
 

@@ -40,6 +40,7 @@ namespace osucc.UI.Plugins
 
         private OsuSpriteText? statusText;
         private IconButton? repositoryButton;
+        private IconButton? diagnosticsButton;
         private IconButton? toggleButton;
         private IconButton? clearDataButton;
         private IconButton? deleteButton;
@@ -256,6 +257,7 @@ namespace osucc.UI.Plugins
                 repositoryButton = PluginCardLayout.CreateActionButton(FontAwesome.Brands.Github, PluginsOverlayStrings.OpenRepository, () => openRepository(entry.Repository!));
             }
 
+            diagnosticsButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Bug, PluginsOverlayStrings.DetailsDiagnosticsTitle, () => openDiagnostics(entry));
             toggleButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.ToggleOn, PluginsOverlayStrings.ToggleDisabled, () => toggleEnabled(entry));
             clearDataButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Eraser, PluginsOverlayStrings.ClearDataTitle, () => clearPluginData(entry));
             deleteButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Trash, PluginsOverlayStrings.DeletePluginTooltip, () => confirmDelete(entry));
@@ -265,6 +267,7 @@ namespace osucc.UI.Plugins
             if (repositoryButton != null)
                 buttons.Add(repositoryButton);
 
+            buttons.Add(diagnosticsButton);
             buttons.Add(toggleButton);
             buttons.Add(clearDataButton);
             buttons.Add(deleteButton);
@@ -294,6 +297,11 @@ namespace osucc.UI.Plugins
                     },
                 },
             };
+        }
+
+        private static void openDiagnostics(PluginEntry entry)
+        {
+            PluginsOverlayComponent.Instance?.ShowDiagnostics(entry);
         }
 
         private static void toggleEnabled(PluginEntry entry)

@@ -154,7 +154,7 @@ namespace osucc.UI.Plugins
                 PluginStatus.PendingDisable => PluginsOverlayStrings.StatusPendingDisable,
                 PluginStatus.PendingDelete => PluginsOverlayStrings.StatusPendingDelete,
                 PluginStatus.Disabled => PluginsOverlayStrings.StatusDisabled,
-                PluginStatus.Error => entry.LoadError == null ? PluginsOverlayStrings.StatusFailed : PluginsOverlayStrings.StatusFailedWithError(entry.LoadError.Message),
+                PluginStatus.Error => PluginsOverlayStrings.StatusFailed,
                 _ => string.Empty,
             };
         }

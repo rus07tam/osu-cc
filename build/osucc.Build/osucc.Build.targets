@@ -49,6 +49,9 @@
       <IconResource ParameterType="System.String" />
       <Repository ParameterType="System.String" />
       <Dependencies ParameterType="System.String[]" />
+      <PluginDependencies ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <HostDependencies ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <BundledDependencies ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
       <Documents ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
     </ParameterGroup>
     <Task>
@@ -79,6 +82,9 @@
             public string? IconResource { get; set; }
             public string? Repository { get; set; }
             public string[]? Dependencies { get; set; }
+            public Microsoft.Build.Framework.ITaskItem[]? PluginDependencies { get; set; }
+            public Microsoft.Build.Framework.ITaskItem[]? HostDependencies { get; set; }
+            public Microsoft.Build.Framework.ITaskItem[]? BundledDependencies { get; set; }
             public Microsoft.Build.Framework.ITaskItem[]? Documents { get; set; }
 
             public override bool Execute()
@@ -226,8 +232,77 @@
                 if (!string.IsNullOrWhiteSpace(Repository))
                     named.Add($"Repository = {Quote(Repository)}");
 
+                var legacyDeps = new List<string>();
+                var encodedDeps = new List<string>();
+
                 if (Dependencies is { Length: > 0 })
-                    named.Add($"DependsOn = new[] {{ {string.Join(", ", Array.ConvertAll(Dependencies!, Quote))} }}");
+                {
+                    foreach (string d in Dependencies)
+                    {
+                        if (!string.IsNullOrWhiteSpace(d) && !legacyDeps.Contains(d))
+                            legacyDeps.Add(d);
+                    }
+                }
+
+                if (PluginDependencies is { Length: > 0 })
+                {
+                    foreach (Microsoft.Build.Framework.ITaskItem item in PluginDependencies)
+                    {
+                        string depId = item.ItemSpec;
+                        if (string.IsNullOrWhiteSpace(depId))
+                            continue;
+
+                        if (!legacyDeps.Contains(depId))
+                            legacyDeps.Add(depId);
+
+                        string minVer = item.GetMetadata("MinVersion");
+                        if (string.IsNullOrWhiteSpace(minVer))
+                            minVer = item.GetMetadata("Version");
+                        string maxVer = item.GetMetadata("MaxVersion");
+
+                        encodedDeps.Add($"plugin:{depId}|{minVer}|{maxVer}");
+                    }
+                }
+
+                if (HostDependencies is { Length: > 0 })
+                {
+                    foreach (Microsoft.Build.Framework.ITaskItem item in HostDependencies)
+                    {
+                        string depId = item.ItemSpec;
+                        if (string.IsNullOrWhiteSpace(depId))
+                            continue;
+
+                        string minVer = item.GetMetadata("MinVersion");
+                        if (string.IsNullOrWhiteSpace(minVer))
+                            minVer = item.GetMetadata("Version");
+                        string maxVer = item.GetMetadata("MaxVersion");
+
+                        encodedDeps.Add($"host:{depId}|{minVer}|{maxVer}");
+                    }
+                }
+
+                if (BundledDependencies is { Length: > 0 })
+                {
+                    foreach (Microsoft.Build.Framework.ITaskItem item in BundledDependencies)
+                    {
+                        string depId = item.ItemSpec;
+                        if (string.IsNullOrWhiteSpace(depId))
+                            continue;
+
+                        string minVer = item.GetMetadata("MinVersion");
+                        if (string.IsNullOrWhiteSpace(minVer))
+                            minVer = item.GetMetadata("Version");
+                        string maxVer = item.GetMetadata("MaxVersion");
+
+                        encodedDeps.Add($"bundle:{depId}|{minVer}|{maxVer}");
+                    }
+                }
+
+                if (legacyDeps.Count > 0)
+                    named.Add($"DependsOn = new[] {{ {string.Join(", ", Array.ConvertAll(legacyDeps.ToArray(), Quote))} }}");
+
+                if (encodedDeps.Count > 0)
+                    named.Add($"EncodedDependencies = new[] {{ {string.Join(", ", Array.ConvertAll(encodedDeps.ToArray(), Quote))} }}");
 
                 var docPaths = new List<string>();
                 var docTitles = new List<string>();
@@ -298,6 +373,8 @@
       <_PluginTags Include="@(Tag)" Condition="'@(Tag)' != ''" />
       <_PluginDependencies Include="@(PluginDependency)" Condition="'@(PluginDependency)' != ''" />
       <_PluginDependencies Include="@(Dependency)" Condition="'@(Dependency)' != ''" />
+      <_HostDependencies Include="@(HostDependency)" Condition="'@(HostDependency)' != ''" />
+      <_BundledDependencies Include="@(BundledDependency)" Condition="'@(BundledDependency)' != ''" />
       <_PluginDocuments Include="@(PluginDocument)" Condition="'@(PluginDocument)' != ''" />
       <_PluginDocuments Include="@(Document)" Condition="'@(Document)' != ''" />
     </ItemGroup>
@@ -320,6 +397,9 @@
         Icon="$(IconGlyph)"
         Repository="$(RepositoryUrl)"
         Dependencies="@(_PluginDependencies)"
+        PluginDependencies="@(_PluginDependencies)"
+        HostDependencies="@(_HostDependencies)"
+        BundledDependencies="@(_BundledDependencies)"
         Documents="@(_PluginDocuments)" />
 
     <ItemGroup>
@@ -338,6 +418,10 @@
       <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
       <_PackageFiles Include="$(_IconOutput)" Condition="'$(PackageIcon)' != '' and Exists('$(_IconOutput)')" />
 
+      <!-- Collect declared BundledDependency items -->
+      <_BundledFiles Include="@(BundledDependency)" Condition="'@(BundledDependency)' != '' and Exists('%(Identity)')" />
+      <_BundledFiles Include="$(OutDir)%(BundledDependency.Identity)" Condition="'@(BundledDependency)' != '' and Exists('$(OutDir)%(BundledDependency.Identity)')" />
+
       <!-- Collect declared PluginDocument items -->
       <_PluginDocFiles Include="@(PluginDocument)" Condition="'@(PluginDocument)' != '' and Exists('%(Identity)')" />
       <_PluginDocFiles Include="@(Document)" Condition="'@(Document)' != '' and Exists('%(Identity)')" />
@@ -352,6 +436,7 @@
 
     <MakeDir Directories="$(_Staging)" />
     <Copy SourceFiles="@(_PackageFiles)" DestinationFolder="$(_Staging)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_BundledFiles)" DestinationFolder="$(_Staging)" Condition="'@(_BundledFiles)' != ''" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(_PluginDocFiles)" DestinationFiles="@(_PluginDocFiles->'$(_Staging)\%(Identity)')" Condition="'@(_PluginDocFiles)' != ''" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(_PluginResFiles)" DestinationFiles="@(_PluginResFiles->'$(_Staging)\%(Identity)')" Condition="'@(_PluginResFiles)' != ''" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(_DiskResFiles)" DestinationFiles="@(_DiskResFiles->'$(_Staging)\res\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'@(_DiskResFiles)' != ''" SkipUnchangedFiles="true" />

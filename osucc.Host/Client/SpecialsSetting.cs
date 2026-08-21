@@ -42,6 +42,12 @@ namespace osucc.Client
         KeyHistoryMode,
 
         /// <summary>Experimental: enable or disable plugins at runtime without restarting the game. Restart-gated.</summary>
-        LivePluginReloading
+        LivePluginReloading,
+
+        /// <summary>Experimental: bypass osu!cc and osu!lazer version compatibility checks in plugin dependencies.</summary>
+        BypassHostDependencyCheck,
+
+        /// <summary>Experimental: bypass inter-plugin dependency version compatibility checks and warnings.</summary>
+        BypassPluginDependencyCheck
     }
 }

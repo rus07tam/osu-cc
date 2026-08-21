@@ -95,5 +95,9 @@
   "osucc.Localisation.Mods:ScoreSubmissionDisabled": "Отправка результатов сейчас отключена — включить её можно в настройках osu!cc.",
   "osucc.Localisation.Experiments:SubsectionHeader": "Эксперименты",
   "osucc.Localisation.Experiments:LivePluginReloadingCaption": "Перезагрузка плагинов на лету",
-  "osucc.Localisation.Experiments:LivePluginReloadingHint": "Позволяет включать и отключать плагины во время игры без перезапуска. Нестабильная экспериментальная функция. Применяется после перезапуска игры."
+  "osucc.Localisation.Experiments:LivePluginReloadingHint": "Позволяет включать и отключать плагины во время игры без перезапуска. Нестабильная экспериментальная функция. Применяется после перезапуска игры.",
+  "osucc.Localisation.Experiments:BypassHostDependencyCheckCaption": "Игнорировать проверки зависимостей хоста",
+  "osucc.Localisation.Experiments:BypassHostDependencyCheckHint": "Разрешает запуск плагинов даже при несовместимости требуемых версий osu!cc или osu!lazer с текущим клиентом.",
+  "osucc.Localisation.Experiments:BypassPluginDependencyCheckCaption": "Игнорировать проверки зависимостей между плагинами",
+  "osucc.Localisation.Experiments:BypassPluginDependencyCheckHint": "Отключает проверки и предупреждения о несовместимости версий между плагинами."
 }

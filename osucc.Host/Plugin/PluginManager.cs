@@ -191,6 +191,7 @@ namespace osucc.Plugin
                 entry.Host = null;
                 entry.Attached = false;
                 entry.LoadError = ex;
+                entry.AddDiagnostic(PluginDiagnostic.Error("Failed to enable plugin at runtime", ex, source: PluginDiagnosticSource.Lifecycle));
 
                 TimingLog.Error($"PluginManager: '{entry.Name}' failed to enable: {ex}");
             }
@@ -212,6 +213,7 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
+                entry.AddDiagnostic(PluginDiagnostic.Error("DisposeRuntime failed", ex, source: PluginDiagnosticSource.Lifecycle));
                 TimingLog.Error($"PluginManager: '{name}' DisposeRuntime failed: {ex}");
             }
 
@@ -221,6 +223,7 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
+                entry.AddDiagnostic(PluginDiagnostic.Error("Plugin Dispose() failed", ex, source: PluginDiagnosticSource.Lifecycle));
                 TimingLog.Error($"PluginManager: '{name}' Dispose failed: {ex}");
             }
 
@@ -374,11 +377,11 @@ namespace osucc.Plugin
         /// Builds a <see cref="PluginEntry"/> from the plugin metadata (the build-emitted
         /// attribute) and the discovered plugin type.
         /// </summary>
-        private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath, Type? pluginType)
+        private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath, Type? pluginType, IEnumerable<PluginDiagnostic>? initialDiagnostics = null)
         {
             bool isEnabled = PluginStateStore.IsEnabled(attribute.Id);
 
-            return new()
+            var entry = new PluginEntry
             {
                 Id = attribute.Id,
                 Name = attribute.Name,
@@ -394,11 +397,20 @@ namespace osucc.Plugin
                 Directory = directory,
                 IconPath = iconPath,
                 Dependencies = attribute.DependsOn,
+                DependencyDeclarations = attribute.ResolveDependencyDeclarations(),
                 Documents = resolveDocuments(attribute),
                 PluginType = pluginType,
                 Enabled = isEnabled,
                 InitialEnabled = isEnabled,
             };
+
+            if (initialDiagnostics != null)
+            {
+                foreach (var diag in initialDiagnostics)
+                    entry.AddDiagnostic(diag);
+            }
+
+            return entry;
         }
 
         private static PluginDocument[] resolveDocuments(OsuCcPluginAttribute attribute)
@@ -530,13 +542,15 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
-                addEntry(new PluginEntry
+                var errorEntry = new PluginEntry
                 {
                     Id = fallbackId,
                     Name = fallbackId,
                     Directory = pluginDirectory,
                     LoadError = ex,
-                });
+                };
+                errorEntry.AddDiagnostic(PluginDiagnostic.Error($"Failed to load assembly {Path.GetFileName(path)}", ex, source: PluginDiagnosticSource.Lifecycle));
+                addEntry(errorEntry);
 
                 TimingLog.Error($"PluginManager: failed to load assembly {path}: {ex}");
             }
@@ -578,7 +592,7 @@ namespace osucc.Plugin
 
             if (!IsEnabled(id))
             {
-                var disabledEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
+                var disabledEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
                 disabledEntry.Enabled = false;
 
                 addEntry(disabledEntry);
@@ -587,10 +601,20 @@ namespace osucc.Plugin
                 return;
             }
 
+            if (candidate.IsBlocked || candidate.Diagnostics.Any(d => d.Level == PluginDiagnosticLevel.Error))
+            {
+                var blockedEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
+                addEntry(blockedEntry);
+
+                TimingLog.Error($"PluginManager: '{candidate.Metadata.Name}' blocked from loading due to dependency errors");
+                return;
+            }
+
             if (candidate.Metadata.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion)
             {
-                var versionEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
+                var versionEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
                 versionEntry.LoadError = new NotSupportedException($"plugin API v{candidate.Metadata.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
+                versionEntry.AddDiagnostic(PluginDiagnostic.Error($"plugin API v{candidate.Metadata.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})", versionEntry.LoadError, source: PluginDiagnosticSource.Lifecycle));
 
                 addEntry(versionEntry);
 
@@ -601,7 +625,7 @@ namespace osucc.Plugin
             try
             {
                 var instance = (OsuCcPlugin)Activator.CreateInstance(candidate.Type)!;
-                var entry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
+                var entry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
                 entry.Plugin = instance;
 
                 var host = new PluginHost(entry);
@@ -615,8 +639,9 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
-                var failedEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type);
+                var failedEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
                 failedEntry.LoadError = ex;
+                failedEntry.AddDiagnostic(PluginDiagnostic.Error("Plugin Load() threw an exception", ex, source: PluginDiagnosticSource.Lifecycle));
 
                 addEntry(failedEntry);
 
@@ -785,6 +810,7 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
+                entry.AddDiagnostic(PluginDiagnostic.Error("AttachToGame() failed", ex, source: PluginDiagnosticSource.Lifecycle));
                 TimingLog.Error($"PluginManager: '{entry.Name}' AttachToGame failed: {ex}");
             }
         }
@@ -841,6 +867,7 @@ namespace osucc.Plugin
                 }
                 catch (Exception ex)
                 {
+                    entry.AddDiagnostic(PluginDiagnostic.Error($"Data migration to schema v{step.ToVersion} failed", ex, source: PluginDiagnosticSource.Lifecycle));
                     TimingLog.Error($"PluginManager: '{entry.Name}' data migration to v{step.ToVersion} failed: {ex}");
                     return;
                 }
@@ -882,6 +909,7 @@ namespace osucc.Plugin
             }
             catch (Exception ex)
             {
+                entry.AddDiagnostic(PluginDiagnostic.Error("Lifecycle hook (OnInstall/OnUpdate) failed", ex, source: PluginDiagnosticSource.Lifecycle));
                 TimingLog.Error($"PluginManager: '{entry.Name}' lifecycle hook failed: {ex}");
             }
         }

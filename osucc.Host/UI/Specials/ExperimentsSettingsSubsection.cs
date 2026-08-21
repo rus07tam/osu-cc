@@ -17,6 +17,8 @@ namespace osucc.UI.Specials
         public ExperimentsSettingsSubsection()
         {
             addCheckbox(ClientConfig.LivePluginReloading, ExperimentsSettingsStrings.LivePluginReloadingCaption, ExperimentsSettingsStrings.LivePluginReloadingHint);
+            addCheckbox(ClientConfig.BypassHostDependencyCheck, ExperimentsSettingsStrings.BypassHostDependencyCheckCaption, ExperimentsSettingsStrings.BypassHostDependencyCheckHint);
+            addCheckbox(ClientConfig.BypassPluginDependencyCheck, ExperimentsSettingsStrings.BypassPluginDependencyCheckCaption, ExperimentsSettingsStrings.BypassPluginDependencyCheckHint);
         }
 
         private FormCheckBox addCheckbox(Bindable<bool> current, LocalisableString caption, LocalisableString hint)

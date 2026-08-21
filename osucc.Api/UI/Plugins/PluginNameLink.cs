@@ -9,6 +9,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osucc.Localisation;
+using osucc.Plugin;
 
 namespace osucc.UI.Plugins
 {
@@ -19,6 +20,8 @@ namespace osucc.UI.Plugins
     public partial class PluginNameLink : ClickableContainer
     {
         public static Action<string>? ShowDetailsHandler { get; set; }
+
+        public static Action<PluginEntry>? ShowDetailsEntryHandler { get; set; }
 
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;

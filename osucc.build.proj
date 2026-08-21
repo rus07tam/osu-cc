@@ -100,11 +100,15 @@
     </PropertyGroup>
     <ItemGroup>
       <_DeployHook Include="$(HookOutput)/osucc*.dll" />
+      <_DeployHook Include="$(HookOutput)/0Harmony.dll" />
+      <_DeployHook Include="$(HookOutput)/SharpCompress.dll" />
       <_DeployPlugins Include="$(OsuCcRoot)plugins/**/bin/$(Configuration)/net8.0/*.zip" />
+      <_DeployThemes Include="$(HookOutput)/Themes/*.json" />
     </ItemGroup>
     <Message Text="Deploying hook and plugins to $(_GameDataDir)..." Importance="high" />
     <Copy SourceFiles="@(_DeployHook)" DestinationFolder="$(_GameDataDir)/hook" SkipUnchangedFiles="false" />
     <Copy SourceFiles="@(_DeployPlugins)" DestinationFolder="$(_GameDataDir)/plugins" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(_DeployThemes)" DestinationFolder="$(_GameDataDir)/data/core/Themes" SkipUnchangedFiles="false" />
     <Message Text="Deploy completed successfully." Importance="high" />
   </Target>
 

@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Templates", "template
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Api", "osucc.Api\osucc.Api.csproj", "{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Launcher", "osucc.Launcher\osucc.Launcher.csproj", "{8E6CA68A-2D99-4DA3-8393-F6AC3954F11B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Launcher.Desktop", "osucc.Launcher.Desktop\osucc.Launcher.Desktop.csproj", "{2A0E298E-9304-4E36-9BB5-9C8C2E69FB2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +80,14 @@ Global
 		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F788A75F-1DBE-4FFE-A939-EBF6F4E9AC80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E6CA68A-2D99-4DA3-8393-F6AC3954F11B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E6CA68A-2D99-4DA3-8393-F6AC3954F11B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E6CA68A-2D99-4DA3-8393-F6AC3954F11B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E6CA68A-2D99-4DA3-8393-F6AC3954F11B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A0E298E-9304-4E36-9BB5-9C8C2E69FB2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A0E298E-9304-4E36-9BB5-9C8C2E69FB2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A0E298E-9304-4E36-9BB5-9C8C2E69FB2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A0E298E-9304-4E36-9BB5-9C8C2E69FB2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F34E2034-533A-4CBE-B1A4-27A860F2256F} = {D5247426-E866-4970-9314-D381E8B6BB7B}

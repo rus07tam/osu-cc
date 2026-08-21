@@ -20,8 +20,10 @@ namespace osucc.UI.Plugins
 
         private readonly PluginsOverlay overlay;
         private readonly PluginDetailsOverlay detailsOverlay;
+        private readonly PluginDiagnosticsOverlay diagnosticsOverlay;
         private IDisposable? overlayRegistration;
         private IDisposable? detailsRegistration;
+        private IDisposable? diagnosticsRegistration;
 
         [Resolved]
         private OsuGameBase game { get; set; } = null!;
@@ -30,8 +32,10 @@ namespace osucc.UI.Plugins
         {
             Instance = this;
             PluginNameLink.ShowDetailsHandler = ShowDetails;
+            PluginNameLink.ShowDetailsEntryHandler = ShowDetails;
             overlay = new PluginsOverlay();
             detailsOverlay = new PluginDetailsOverlay();
+            diagnosticsOverlay = new PluginDiagnosticsOverlay();
         }
 
         protected override void LoadComplete()
@@ -39,6 +43,7 @@ namespace osucc.UI.Plugins
             base.LoadComplete();
             overlayRegistration = Reflection.RegisterBlockingOverlay(game, overlay);
             detailsRegistration = Reflection.RegisterBlockingOverlay(game, detailsOverlay);
+            diagnosticsRegistration = Reflection.RegisterBlockingOverlay(game, diagnosticsOverlay);
         }
 
         /// <summary>Toggles the plugins overlay.</summary>
@@ -67,12 +72,25 @@ namespace osucc.UI.Plugins
             detailsOverlay.ShowPlugin(entry);
         }
 
+        /// <summary>Shows the details card of the given plugin entry directly.</summary>
+        public void ShowDetails(PluginEntry entry)
+        {
+            detailsOverlay.ShowPlugin(entry);
+        }
+
+        /// <summary>Shows the diagnostics overlay for the given plugin entry.</summary>
+        public void ShowDiagnostics(PluginEntry entry)
+        {
+            diagnosticsOverlay.ShowPlugin(entry);
+        }
+
         protected override void Dispose(bool isDisposing)
         {
             base.Dispose(isDisposing);
 
             overlayRegistration?.Dispose();
             detailsRegistration?.Dispose();
+            diagnosticsRegistration?.Dispose();
 
             if (ReferenceEquals(Instance, this))
                 Instance = null;

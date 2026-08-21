@@ -49,6 +49,21 @@ namespace osucc.Plugin
         /// <summary>Logs a line at the given level into this plugin's own log file.</summary>
         void Log(LogLevel level, string message);
 
+        /// <summary>Records a diagnostic issue (error, warning, notice) for this plugin.</summary>
+        void ReportDiagnostic(PluginDiagnostic diagnostic);
+
+        /// <summary>Records an informational notice for this plugin.</summary>
+        void ReportNotice(LocalisableString message, string? details = null, string? target = null);
+
+        /// <summary>Records a non-critical warning for this plugin.</summary>
+        void ReportWarning(LocalisableString message, string? details = null, string? target = null);
+
+        /// <summary>Records a critical error for this plugin.</summary>
+        void ReportError(LocalisableString message, Exception? exception = null, string? details = null, string? target = null);
+
+        /// <summary>All diagnostic records recorded for this plugin.</summary>
+        IReadOnlyList<PluginDiagnostic> Diagnostics { get; }
+
         /// <summary>Posts a toast into the game's notification overlay.</summary>
         void Notify(LocalisableString text, NotificationKind kind);
 

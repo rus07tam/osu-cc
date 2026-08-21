@@ -80,9 +80,19 @@ namespace osucc.Core
             return patch;
         }
 
+        /// <summary>Optional diagnostic hook invoked whenever this patch encounters an error during install or execution.</summary>
+        public Action<string, Exception?>? ErrorReporter { get; set; }
+
         public virtual void LogError(string message, Exception? ex = null)
         {
             TimingLog.Error(ex != null ? $"[{Name}] {message}: {ex}" : $"[{Name}] {message}");
+            try
+            {
+                ErrorReporter?.Invoke(message, ex);
+            }
+            catch
+            {
+            }
         }
 
         public virtual void LogInfo(string message)

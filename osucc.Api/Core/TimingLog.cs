@@ -22,7 +22,20 @@ namespace osucc.Core
         // failures via TimingLog.Error — never re-enter that from within a resolve attempt.
         private static string? logDirectory;
         private static bool resolvingLogDirectory;
-        public static Func<string>? LogDirectoryProvider { get; set; }
+        private static Func<string>? logDirectoryProvider;
+
+        public static Func<string>? LogDirectoryProvider
+        {
+            get => logDirectoryProvider;
+            set
+            {
+                lock (lockObject)
+                {
+                    logDirectoryProvider = value;
+                    logDirectory = null;
+                }
+            }
+        }
 
         /// <summary>Path of this session's log file.</summary>
         public static string LogPath
@@ -46,6 +59,9 @@ namespace osucc.Core
         {
             try
             {
+                if (level == LogLevel.Error)
+                    Console.Error.WriteLine($"[osu-cc] [{DateTime.Now:HH:mm:ss.fff}] [ERROR] {message}");
+
                 lock (lockObject)
                 {
                     string path = LogPath;
@@ -53,9 +69,9 @@ namespace osucc.Core
                     File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss.fff}] [{level.ToString().ToUpperInvariant()}] {message}{Environment.NewLine}", Encoding.UTF8);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Never let logging break the hook.
+                Console.Error.WriteLine($"[osu-cc] Logging failed: {ex}");
             }
         }
 

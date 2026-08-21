@@ -55,6 +55,19 @@ namespace osucc.Plugin
 
         public void Log(LogLevel level, string message) => PluginLog.Write(entry.Id, level, message);
 
+        public void ReportDiagnostic(PluginDiagnostic diagnostic) => entry.AddDiagnostic(diagnostic);
+
+        public void ReportNotice(LocalisableString message, string? details = null, string? target = null)
+            => entry.AddDiagnostic(PluginDiagnostic.Notice(message, details, PluginDiagnosticSource.General, target));
+
+        public void ReportWarning(LocalisableString message, string? details = null, string? target = null)
+            => entry.AddDiagnostic(PluginDiagnostic.Warning(message, details, PluginDiagnosticSource.General, target));
+
+        public void ReportError(LocalisableString message, Exception? exception = null, string? details = null, string? target = null)
+            => entry.AddDiagnostic(PluginDiagnostic.Error(message, exception, details, PluginDiagnosticSource.General, target));
+
+        public IReadOnlyList<PluginDiagnostic> Diagnostics => entry.Diagnostics;
+
         public void Notify(LocalisableString text, NotificationKind kind)
             => ClientNotifications.PostPlugin(text, kind, entry.Id, OsuCcLocalisation.Get($"{entry.Id}:name", entry.Name), resolveIcon(), resolveIconTexture());
 
@@ -142,8 +155,13 @@ namespace osucc.Plugin
 
         public bool AddPatch(OsuCcPatch patch)
         {
+            patch.ErrorReporter = (msg, ex) => entry.AddDiagnostic(PluginDiagnostic.Error(msg, ex, source: PluginDiagnosticSource.Patch, target: patch.Name));
             var harmony = patchHarmony ??= HookDependencies.Create($"{entry.Id}.patches");
-            return patch.Install(harmony);
+            bool installed = patch.Install(harmony);
+            if (!installed)
+                entry.AddDiagnostic(PluginDiagnostic.Error($"Failed to install patch '{patch.Name}'", source: PluginDiagnosticSource.Patch, target: patch.Name));
+
+            return installed;
         }
 
         public IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, osucc.Core.MethodType type)
