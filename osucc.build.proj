@@ -91,4 +91,21 @@
     <Message Text="Runtime bundle: $(BootstrapArchive)" Importance="high" />
   </Target>
 
+  <Target Name="DeployLocal" DependsOnTargets="Build">
+    <PropertyGroup>
+      <_GameDataDir Condition="'$(_GameDataDir)' == '' and '$([System.OperatingSystem]::IsLinux())' == 'true'">$([System.Environment]::GetEnvironmentVariable('HOME'))/.local/share/osu/osu-cc</_GameDataDir>
+      <_GameDataDir Condition="'$(_GameDataDir)' == '' and '$([System.OperatingSystem]::IsWindows())' == 'true'">$([System.Environment]::GetEnvironmentVariable('APPDATA'))/osu/osu-cc</_GameDataDir>
+      <_GameDataDir Condition="'$(_GameDataDir)' == '' and '$([System.OperatingSystem]::IsMacOS())' == 'true'">$([System.Environment]::GetEnvironmentVariable('HOME'))/Library/Application Support/osu/osu-cc</_GameDataDir>
+      <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
+    </PropertyGroup>
+    <ItemGroup>
+      <_DeployHook Include="$(HookOutput)/osucc*.dll" />
+      <_DeployPlugins Include="$(OsuCcRoot)plugins/**/bin/$(Configuration)/net8.0/*.zip" />
+    </ItemGroup>
+    <Message Text="Deploying hook and plugins to $(_GameDataDir)..." Importance="high" />
+    <Copy SourceFiles="@(_DeployHook)" DestinationFolder="$(_GameDataDir)/hook" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(_DeployPlugins)" DestinationFolder="$(_GameDataDir)/plugins" SkipUnchangedFiles="false" />
+    <Message Text="Deploy completed successfully." Importance="high" />
+  </Target>
+
 </Project>

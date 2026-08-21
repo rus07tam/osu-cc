@@ -20,4 +20,8 @@
     <ProjectReference Include="..\osucc.Shared\osucc.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
+  </ItemGroup>
+
 </Project>

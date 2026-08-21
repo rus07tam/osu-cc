@@ -35,5 +35,8 @@
   "osucc-debug:BackgroundDimLabel": "Затемнення фону",
   "osucc-debug:TotalDurationLabel": "Повна тривалість (мс)",
   "osucc-debug:ParticleDurationLabel": "Тривалість частинок (мс)",
-  "osucc-debug:ShowPersonalBestButton": "Показати особистий рекорд"
+  "osucc-debug:ShowPersonalBestButton": "Показати особистий рекорд",
+  "osucc-debug:PluginCardsPanelTitle": "Картки плагінів",
+  "osucc-debug:PluginCardsSectionSubtitle": "Інтерактивний попередній перегляд карток плагінів з усіма можливими життєвими циклами (Active, PendingEnable, PendingDisable, Disabled, PendingDelete, Error).",
+  "osucc-debug:WaveOverlayCardsTab": "Картки плагінів"
 }

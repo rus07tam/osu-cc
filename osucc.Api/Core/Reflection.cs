@@ -226,14 +226,47 @@ namespace osucc.Core
         public static IDisposable? RegisterBlockingOverlay(osu.Framework.Game? game, osu.Framework.Graphics.Containers.OverlayContainer overlay)
         {
             if (game == null)
+            {
+                TimingLog.Warn($"Reflection: Cannot register blocking overlay '{overlay.GetType().Name}' - game instance is null");
                 return null;
+            }
 
             var overlayManagerType = typeof(OsuGameBase).Assembly.GetType("osu.Game.Overlays.IOverlayManager");
-            if (overlayManagerType == null || !overlayManagerType.IsInstanceOfType(game))
+            if (overlayManagerType == null)
+            {
+                TimingLog.Warn($"Reflection: Cannot register blocking overlay '{overlay.GetType().Name}' - IOverlayManager type not found");
                 return null;
+            }
 
-            var method = overlayManagerType.GetMethod("RegisterBlockingOverlay", new[] { typeof(osu.Framework.Graphics.Containers.OverlayContainer) });
-            return method?.Invoke(game, new object[] { overlay }) as IDisposable;
+            if (!overlayManagerType.IsInstanceOfType(game))
+            {
+                TimingLog.Warn($"Reflection: Cannot register blocking overlay '{overlay.GetType().Name}' - game does not implement IOverlayManager");
+                return null;
+            }
+
+            try
+            {
+                var method = overlayManagerType.GetMethod("RegisterBlockingOverlay", new[] { typeof(osu.Framework.Graphics.Containers.OverlayContainer) });
+                if (method == null)
+                {
+                    TimingLog.Warn($"Reflection: Cannot register blocking overlay '{overlay.GetType().Name}' - RegisterBlockingOverlay method not found");
+                    return null;
+                }
+
+                var token = method.Invoke(game, new object[] { overlay }) as IDisposable;
+
+                if (token != null)
+                    TimingLog.Info($"Reflection: registered blocking overlay '{overlay.GetType().Name}' via IOverlayManager");
+                else
+                    TimingLog.Warn($"Reflection: RegisterBlockingOverlay('{overlay.GetType().Name}') returned null");
+
+                return token;
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"Reflection: RegisterBlockingOverlay failed for '{overlay.GetType().Name}': {ex.InnerException ?? ex}");
+                return null;
+            }
         }
 
         /// <summary>

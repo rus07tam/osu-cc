@@ -29,6 +29,7 @@ namespace osucc.UI.Plugins
         public PluginsOverlayComponent()
         {
             Instance = this;
+            PluginNameLink.ShowDetailsHandler = ShowDetails;
             overlay = new PluginsOverlay();
             detailsOverlay = new PluginDetailsOverlay();
         }
@@ -36,36 +37,8 @@ namespace osucc.UI.Plugins
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            Schedule(registerOverlay);
-            Schedule(registerDetailsOverlay);
-        }
-
-        private void registerOverlay()
-        {
             overlayRegistration = Reflection.RegisterBlockingOverlay(game, overlay);
-
-            if (overlayRegistration == null)
-            {
-                // overlayContent is only created inside OsuGame.load; retry until it exists.
-                Schedule(registerOverlay);
-                return;
-            }
-
-            TimingLog.Info("Plugins overlay registered via IOverlayManager");
-        }
-
-        private void registerDetailsOverlay()
-        {
             detailsRegistration = Reflection.RegisterBlockingOverlay(game, detailsOverlay);
-
-            if (detailsRegistration == null)
-            {
-                // overlayContent is only created inside OsuGame.load; retry until it exists.
-                Schedule(registerDetailsOverlay);
-                return;
-            }
-
-            TimingLog.Info("Plugin details overlay registered via IOverlayManager");
         }
 
         /// <summary>Toggles the plugins overlay.</summary>

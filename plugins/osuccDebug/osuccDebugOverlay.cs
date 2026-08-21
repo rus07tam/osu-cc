@@ -110,6 +110,10 @@ namespace osuccDebug
                     () => waveOverlay?.Show(),
                     () => shearedOverlay?.Show()),
             });
+            panels.Add(new SectionPanel(osuccDebugStrings.PluginCardsPanelTitle)
+            {
+                PanelContent = new PluginCardsTestPanel(host),
+            });
         }
 
         /// <summary>A rounded container used to group one debug panel.</summary>

@@ -98,6 +98,10 @@ namespace osuccDebug
                 case DebugWaveSection.Colours:
                     MainAreaContent.Add(createColoursContent());
                     break;
+
+                case DebugWaveSection.Cards:
+                    MainAreaContent.Add(new PluginCardsTestPanel(host));
+                    break;
             }
         }
 
@@ -216,6 +220,9 @@ namespace osuccDebug
 
             [LocalisableDescription(typeof(osuccDebugStrings), nameof(osuccDebugStrings.WaveOverlayColoursTab))]
             Colours,
+
+            [LocalisableDescription(typeof(osuccDebugStrings), nameof(osuccDebugStrings.WaveOverlayCardsTab))]
+            Cards,
         }
     }
 }

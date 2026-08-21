@@ -109,5 +109,13 @@ namespace osucc.Localisation
         public static LocalisableString DetailsSettingsTitle => OsuCcLocalisation.Get(getKey(nameof(DetailsSettingsTitle)), "Settings");
 
         public static LocalisableString DetailsRelationsNone => OsuCcLocalisation.Get(getKey(nameof(DetailsRelationsNone)), "None");
+
+        public static LocalisableString InstalledTab => OsuCcLocalisation.Get(getKey(nameof(InstalledTab)), "Installed");
+
+        public static LocalisableString BrowserTab => OsuCcLocalisation.Get(getKey(nameof(BrowserTab)), "Plugin Catalog");
+
+        public static LocalisableString BrowserStubTitle => OsuCcLocalisation.Get(getKey(nameof(BrowserStubTitle)), "Plugin catalog coming soon");
+
+        public static LocalisableString BrowserStubDescription => OsuCcLocalisation.Get(getKey(nameof(BrowserStubDescription)), "In future updates, you will be able to discover, browse and install community plugins directly from here.");
     }
 }

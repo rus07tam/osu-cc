@@ -32,21 +32,7 @@ namespace osucc.UI.Overlays
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            Schedule(registerOverlay);
-        }
-
-        private void registerOverlay()
-        {
             overlayRegistration = Reflection.RegisterBlockingOverlay(game, overlay);
-
-            if (overlayRegistration == null)
-            {
-                // overlayContent is only created inside OsuGame.load; retry until it exists.
-                Schedule(registerOverlay);
-                return;
-            }
-
-            TimingLog.Info("Theme preview overlay registered via IOverlayManager");
         }
 
         /// <summary>Shows the theme preview overlay. If the user is changing the theme, start it on that one.</summary>

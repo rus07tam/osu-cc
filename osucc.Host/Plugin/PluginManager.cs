@@ -204,7 +204,7 @@ namespace osucc.Plugin
             // tear down whatever it inserted into the live tree.
             try
             {
-                entry.Host?.DisposeRuntime();
+                (entry.Host as PluginHost)?.DisposeRuntime();
             }
             catch (Exception ex)
             {
@@ -503,7 +503,7 @@ namespace osucc.Plugin
         }
 
         private static bool isPluginType(Type type)
-            => !type.IsAbstract && !type.IsInterface && typeof(OsuCcPlugin).IsAssignableFrom(type);
+            => !type.IsNested && !type.IsAbstract && !type.IsInterface && typeof(OsuCcPlugin).IsAssignableFrom(type);
 
         /// <summary>
         /// Resolves the plugin's image icon: the manifest's declared <c>IconPath</c> (relative to
@@ -728,7 +728,7 @@ namespace osucc.Plugin
 
             try
             {
-                entry.Host?.ReloadSettings();
+                (entry.Host as PluginHost)?.ReloadSettings();
 
                 // Migrations run before AttachToGame so the plugin always reads current-schema data.
                 bool freshInstall = PluginStateStore.GetVersion(entry.Id) == null;

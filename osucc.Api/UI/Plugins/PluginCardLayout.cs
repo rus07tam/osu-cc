@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -14,16 +20,14 @@ using osucc.Localisation;
 using osucc.Plugin;
 using osuTK;
 using osuTK.Graphics;
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace osucc.UI.Plugins
 {
     /// <summary>
     /// Shared layout helpers for rendering plugin metadata (icon, dependency and "used by"
-    /// values). Used by <see cref="PluginDetailsOverlay"/>.
+    /// values). Used by <see cref="PluginDetailsOverlay"/> and <see cref="PluginCard"/>.
     /// </summary>
-    internal static class PluginCardLayout
+    public static class PluginCardLayout
     {
         /// <summary>
         /// Builds the plugin icon. Precedence: plugin-provided FontAwesome icon, FontAwesome icon
@@ -40,12 +44,17 @@ namespace osucc.UI.Plugins
             if (ResolveFontAwesomeIcon(entry.Icon) is { } declaredIcon)
                 return createIcon(declaredIcon, size);
 
-            if (!string.IsNullOrEmpty(entry.IconPath))
+            if (!string.IsNullOrEmpty(entry.IconPath) && File.Exists(entry.IconPath))
             {
-                var texture = entry.Host?.LoadTextureFromFile(entry.IconPath);
-
-                if (texture != null)
-                    return createTextureIcon(texture, size);
+                try
+                {
+                    var texture = TextureHelper.FromBytes(File.ReadAllBytes(entry.IconPath));
+                    if (texture != null)
+                        return createTextureIcon(texture, size);
+                }
+                catch
+                {
+                }
             }
 
             if (!string.IsNullOrEmpty(entry.IconResource))

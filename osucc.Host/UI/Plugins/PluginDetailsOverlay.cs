@@ -22,14 +22,12 @@ using System.Diagnostics;
 namespace osucc.UI.Plugins
 {
     /// <summary>
-    /// Full-screen details card for a single plugin. Two columns: a narrower left one with the
-    /// summary (icon, name, status), metadata rows, action buttons (repository, enable/disable,
-    /// clear data, delete/cancel deletion) and the description; a wider right one with the plugin's
-    /// settings subsection. Opened by clicking a plugin card or a <see cref="PluginNameLink"/>.
-    /// Built on <see cref="OsuCcShearedOverlay"/> so only one osu!cc overlay stays visible at a
-    /// time ("last opened wins").
+    /// Full-screen details card for a single plugin based on <see cref="OsuCcWaveOverlay"/>.
+    /// Two columns: a narrower left one with the summary (icon, name, status), metadata rows,
+    /// action buttons (repository, enable/disable, clear data, delete/cancel deletion) and the
+    /// description; a wider right one with the plugin's settings subsection.
     /// </summary>
-    public partial class PluginDetailsOverlay : OsuCcShearedOverlay
+    public partial class PluginDetailsOverlay : OsuCcWaveOverlay
     {
         private readonly FillFlowContainer content;
 
@@ -57,8 +55,7 @@ namespace osucc.UI.Plugins
                 Spacing = new Vector2(0, 16),
                 Padding = new MarginPadding
                 {
-                    Horizontal = Padding * 2,
-                    Vertical = Padding,
+                    Vertical = 20,
                 },
             };
         }
@@ -66,11 +63,8 @@ namespace osucc.UI.Plugins
         [BackgroundDependencyLoader]
         private void load()
         {
-            MainAreaContent.Add(new OverlayScrollContainer
-            {
-                RelativeSizeAxes = Axes.Both,
-                Child = content,
-            });
+            Header.HeaderIcon = FontAwesome.Solid.PuzzlePiece;
+            MainAreaContent.Add(content);
         }
 
         protected override void Dispose(bool isDisposing)
@@ -103,10 +97,10 @@ namespace osucc.UI.Plugins
             clearDataButton = null;
             deleteButton = null;
 
-            Header.Title = PluginCardLayout.LocalisedName(entry);
+            Header.TitleText = PluginCardLayout.LocalisedName(entry);
 
             string? authorSummary = entry.Authors.Count > 0 ? PluginCardLayout.FormatAuthorNames(entry) : null;
-            Header.Description = LocalisableString.Format("{0} \u2022 v{1}", authorSummary ?? (LocalisableString)OsuCcStrings.UnknownAuthor, entry.Version);
+            Header.DescriptionText = LocalisableString.Format("{0} \u2022 v{1}", authorSummary ?? (LocalisableString)OsuCcStrings.UnknownAuthor, entry.Version);
 
             content.Add(new GridContainer
             {
@@ -572,7 +566,15 @@ namespace osucc.UI.Plugins
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
                 Masking = true;
-                CornerRadius = 8;
+                CornerRadius = 10;
+
+                EdgeEffect = new osu.Framework.Graphics.Effects.EdgeEffectParameters
+                {
+                    Type = osu.Framework.Graphics.Effects.EdgeEffectType.Shadow,
+                    Colour = Color4.Black.Opacity(0.15f),
+                    Radius = 4,
+                    Offset = new Vector2(0, 2),
+                };
 
                 AddInternal(contentContainer = new Container
                 {
@@ -589,8 +591,6 @@ namespace osucc.UI.Plugins
             [BackgroundDependencyLoader]
             private void load()
             {
-                // Added on load (not in the constructor): setting `Child` in an object initializer
-                // calls Clear(), which would otherwise dispose this background.
                 AddInternal(background = new Box
                 {
                     RelativeSizeAxes = Axes.Both,

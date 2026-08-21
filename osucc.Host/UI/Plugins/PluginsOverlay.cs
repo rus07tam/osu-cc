@@ -1,10 +1,16 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -18,19 +24,31 @@ using osuTK.Graphics;
 
 namespace osucc.UI.Plugins
 {
+    public enum PluginsOverlaySection
+    {
+        [LocalisableDescription(typeof(PluginsOverlayStrings), nameof(PluginsOverlayStrings.InstalledTab))]
+        Installed,
+
+        [LocalisableDescription(typeof(PluginsOverlayStrings), nameof(PluginsOverlayStrings.BrowserTab))]
+        Browser,
+    }
+
     /// <summary>
-    /// Full-screen overlay listing every discovered plugin (icon, name, author, version,
-    /// description, tags, load status), with a search box that filters the list by name, author,
-    /// id or tag. Opened from the Specials settings section.
+    /// Full-screen wave overlay managing plugins (Installed tab with multi-keyword search,
+    /// card view and reordering, and Browser tab with a catalog preview).
     /// </summary>
-    public partial class PluginsOverlay : OsuCcShearedOverlay
+    public partial class PluginsOverlay : OsuCcWaveOverlay
     {
         private readonly FillFlowContainer list;
         private readonly List<PluginCard> cards = new();
         private readonly Bindable<string> filter = new(string.Empty);
-        private OverlayScrollContainer scrollContainer = null!;
+        private readonly Bindable<PluginsOverlaySection> currentSection = new(PluginsOverlaySection.Installed);
+
+        private FillFlowContainer installedContent = null!;
+        private Container browserContent = null!;
         private SearchTextBox searchBox = null!;
         private OsuSpriteText? noResultsText;
+        private PluginsTabControl tabControl = null!;
 
         public PluginsOverlay()
             : base(OverlayColourScheme.Green)
@@ -40,59 +58,142 @@ namespace osucc.UI.Plugins
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 12),
-                Padding = new MarginPadding
-                {
-                    Horizontal = Padding * 2,
-                    Bottom = Padding,
-                },
+                Spacing = new Vector2(0, 10),
             };
         }
-
-        private const float searchRowHeight = 35 + Padding * 2;
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            Header.Title = PluginsOverlayStrings.OverlayTitle;
-            Header.Description = PluginsOverlayStrings.OverlayDescription;
+            Header.TitleText = PluginsOverlayStrings.OverlayTitle;
+            Header.DescriptionText = PluginsOverlayStrings.OverlayDescription;
             Header.HeaderIcon = FontAwesome.Solid.PuzzlePiece;
+
+            tabControl = new PluginsTabControl
+            {
+                Anchor = Anchor.BottomLeft,
+                Origin = Anchor.BottomLeft,
+            };
+            tabControl.Current.BindTo(currentSection);
+
+            Header.ContentRow.Add(tabControl);
 
             MainAreaContent.Add(new Container
             {
-                RelativeSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Children = new Drawable[]
                 {
-                    scrollContainer = new OverlayScrollContainer
+                    installedContent = new FillFlowContainer
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding { Top = searchRowHeight },
-                        Child = list,
-                    },
-                    searchBox = new SearchTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Width = 0.45f,
-                        Margin = new MarginPadding { Top = Padding },
-                        PlaceholderText = PluginsOverlayStrings.SearchPlaceholder,
-                        Current = filter,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 16),
+                        Padding = new MarginPadding { Top = 16 },
+                        Children = new Drawable[]
+                        {
+                            searchBox = new SearchTextBox
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                Width = 0.45f,
+                                PlaceholderText = PluginsOverlayStrings.SearchPlaceholder,
+                                Current = filter,
+                            },
+                            list,
+                        },
+                    },
+                    browserContent = new Container
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Alpha = 0,
+                        Padding = new MarginPadding { Vertical = 40 },
+                        Child = createBrowserStub(),
                     },
                 },
             });
 
+            currentSection.BindValueChanged(e =>
+            {
+                if (e.NewValue == PluginsOverlaySection.Installed)
+                {
+                    installedContent.FadeIn(200, Easing.OutQuint);
+                    browserContent.FadeOut(200, Easing.OutQuint);
+                }
+                else
+                {
+                    installedContent.FadeOut(200, Easing.OutQuint);
+                    browserContent.FadeIn(200, Easing.OutQuint);
+                }
+            }, true);
+
             filter.BindValueChanged(e => applyFilter(e.NewValue), true);
         }
 
-        /// <summary>
-        /// Filters the plugin cards to those matching the query across their name, authors, id and
-        /// tags; re-adds the matching cards to the list in their saved order.
-        /// </summary>
+        private FillFlowContainer createBrowserStub()
+        {
+            return new FillFlowContainer
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 16),
+                Children = new Drawable[]
+                {
+                    new Container
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Size = new Vector2(96),
+                        Masking = true,
+                        CornerRadius = 24,
+                        Children = new Drawable[]
+                        {
+                            new Box
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Colour = ColourProvider.Background4,
+                            },
+                            new SpriteIcon
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Size = new Vector2(48),
+                                Icon = FontAwesome.Solid.Store,
+                                Colour = ColourProvider.Highlight1,
+                            },
+                        },
+                    },
+                    new OsuSpriteText
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Text = PluginsOverlayStrings.BrowserStubTitle,
+                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
+                    },
+                    new OsuTextFlowContainer(t =>
+                    {
+                        t.Font = OsuFont.Default.With(size: 14);
+                        t.Colour = Color4.White.Opacity(0.7f);
+                    })
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Width = 480,
+                        AutoSizeAxes = Axes.Y,
+                        Text = PluginsOverlayStrings.BrowserStubDescription,
+                        TextAnchor = Anchor.TopCentre,
+                    },
+                },
+            };
+        }
+
         private void applyFilter(string query)
         {
-            // Remove cards without disposing them so they can be re-added below; the card set is
-            // owned by `cards` and stays alive between filter passes.
             list.Clear(false);
             noResultsText = null;
 
@@ -109,13 +210,16 @@ namespace osucc.UI.Plugins
 
             applyOrder();
 
-            if (filtered.Count == 0)
+            if (filtered.Count == 0 && cards.Count > 0)
             {
                 list.Add(noResultsText = new OsuSpriteText
                 {
                     Text = PluginsOverlayStrings.SearchNoResults,
                     Font = OsuFont.Default.With(size: 14),
                     Colour = Color4.White.Opacity(0.6f),
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Margin = new MarginPadding { Top = 20 },
                 });
             }
         }
@@ -126,7 +230,6 @@ namespace osucc.UI.Plugins
                 return true;
 
             string[] keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
             var haystacks = new List<string> { entry.Name, entry.Id };
 
             foreach (var author in entry.Authors)
@@ -151,17 +254,29 @@ namespace osucc.UI.Plugins
                     Text = PluginsOverlayStrings.EmptyState,
                     Font = OsuFont.Default.With(size: 14),
                     Colour = Color4.White.Opacity(0.6f),
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Margin = new MarginPadding { Top = 20 },
                 });
                 return;
             }
 
             foreach (var entry in entries)
-                cards.Add(new PluginCard(entry, moveCard));
+            {
+                var card = new PluginCard(entry, moveCard);
+                card.EnabledChanged = (c, isEnabled) =>
+                {
+                    PluginManager.SetPluginEnabled(c.Entry.Id, isEnabled);
+                    ClientNotifications.Info(isEnabled
+                        ? PluginsOverlayStrings.PluginEnabled(PluginCardLayout.LocalisedName(c.Entry))
+                        : PluginsOverlayStrings.PluginDisabled(PluginCardLayout.LocalisedName(c.Entry)));
+                };
+                cards.Add(card);
+            }
 
             applyFilter(filter.Value);
         }
 
-        /// <summary>Refreshes the list layout positions and the up/down availability of every card.</summary>
         private void applyOrder()
         {
             for (int i = 0; i < cards.Count; i++)
@@ -173,7 +288,6 @@ namespace osucc.UI.Plugins
             }
         }
 
-        /// <summary>Swaps a card with its neighbour and persists the new order.</summary>
         private void moveCard(PluginCard card, int delta)
         {
             int index = cards.IndexOf(card);
@@ -188,6 +302,42 @@ namespace osucc.UI.Plugins
 
             PluginManager.SetPluginOrder(cards.Select(c => c.Entry.Id).ToList());
             ClientNotifications.Info(PluginsOverlayStrings.OrderChanged);
+        }
+
+        private sealed partial class PluginsTabControl : OverlayTabControl<PluginsOverlaySection>
+        {
+            private const float bar_height = 2;
+
+            public PluginsTabControl()
+            {
+                RelativeSizeAxes = Axes.None;
+                AutoSizeAxes = Axes.X;
+                Anchor = Anchor.BottomLeft;
+                Origin = Anchor.BottomLeft;
+                Height = 47;
+                BarHeight = bar_height;
+            }
+
+            protected override TabItem<PluginsOverlaySection> CreateTabItem(PluginsOverlaySection value) => new PluginsTabItem(value);
+
+            protected override TabFillFlowContainer CreateTabFlow() => new TabFillFlowContainer
+            {
+                RelativeSizeAxes = Axes.Y,
+                AutoSizeAxes = Axes.X,
+                Direction = FillDirection.Horizontal,
+            };
+
+            private sealed partial class PluginsTabItem : OverlayTabItem
+            {
+                public PluginsTabItem(PluginsOverlaySection value)
+                    : base(value)
+                {
+                    Text.Text = value.GetLocalisableDescription().ToLower();
+                    Text.Font = OsuFont.GetFont(size: 14);
+                    Text.Margin = new MarginPadding { Vertical = 16.5f };
+                    Bar.Margin = new MarginPadding { Bottom = bar_height };
+                }
+            }
         }
     }
 }

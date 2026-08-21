@@ -1,3 +1,4 @@
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -17,6 +18,8 @@ namespace osucc.UI.Plugins
     /// </summary>
     public partial class PluginNameLink : ClickableContainer
     {
+        public static Action<string>? ShowDetailsHandler { get; set; }
+
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
@@ -31,7 +34,7 @@ namespace osucc.UI.Plugins
         public PluginNameLink(string pluginId, LocalisableString fallbackName, float fontSize = 13, FontWeight weight = FontWeight.Medium)
         {
             AutoSizeAxes = Axes.Both;
-            Action = () => PluginsOverlayComponent.Instance?.ShowDetails(pluginId);
+            Action = () => ShowDetailsHandler?.Invoke(pluginId);
 
             Child = text = new OsuSpriteText
             {

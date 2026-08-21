@@ -174,45 +174,22 @@ namespace osucc.Plugin
         private sealed class BlockingOverlayRegistration : IDisposable
         {
             private readonly OverlayContainer overlay;
-            private readonly Scheduler? scheduler;
             private IDisposable? token;
             private bool disposed;
 
             public BlockingOverlayRegistration(OverlayContainer overlay)
             {
                 this.overlay = overlay;
-                scheduler = Reflection.GetScheduler(ClientApi.Game);
+                var scheduler = Reflection.GetScheduler(ClientApi.Game);
 
                 if (scheduler == null)
-                {
-                    TimingLog.Error("PluginHost: no scheduler available to register blocking overlay");
-                    return;
-                }
-
-                scheduler.Add(retryTopMostOverlay);
-            }
-
-            private void retryTopMostOverlay()
-            {
-                if (disposed)
-                    return;
-
-                try
-                {
                     token = Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay);
-
-                    if (token != null)
+                else
+                    scheduler.Add(() =>
                     {
-                        TimingLog.Info("PluginHost: blocking overlay registered");
-                        return;
-                    }
-
-                    scheduler?.Add(retryTopMostOverlay);
-                }
-                catch (Exception ex)
-                {
-                    TimingLog.Error($"PluginHost: failed to register blocking overlay '{overlay.GetType().Name}': {ex}");
-                }
+                        if (!disposed)
+                            token = Reflection.RegisterBlockingOverlay(ClientApi.Game, overlay);
+                    });
             }
 
             public void Dispose()

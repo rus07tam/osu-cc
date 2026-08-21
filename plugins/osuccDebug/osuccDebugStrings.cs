@@ -29,6 +29,10 @@ namespace osuccDebug
 
         public static LocalisableString OverlaysPanelTitle => OsuCcLocalisation.Get(getKey(nameof(OverlaysPanelTitle)), "Overlays");
 
+        public static LocalisableString PluginCardsPanelTitle => OsuCcLocalisation.Get(getKey(nameof(PluginCardsPanelTitle)), "Plugin cards");
+
+        public static LocalisableString PluginCardsSectionSubtitle => OsuCcLocalisation.Get(getKey(nameof(PluginCardsSectionSubtitle)), "Interactive preview of plugin cards in all lifecycle states (Active, PendingEnable, PendingDisable, Disabled, PendingDelete, Error).");
+
         public static LocalisableString CustomTitleLabel => OsuCcLocalisation.Get(getKey(nameof(CustomTitleLabel)), "Custom title");
 
         public static LocalisableString ShowWaveOverlayButton => OsuCcLocalisation.Get(getKey(nameof(ShowWaveOverlayButton)), "Show wave overlay");
@@ -58,6 +62,8 @@ namespace osuccDebug
         public static LocalisableString WaveOverlayOverviewTab => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayOverviewTab)), "Overview");
 
         public static LocalisableString WaveOverlayColoursTab => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayColoursTab)), "Colours");
+
+        public static LocalisableString WaveOverlayCardsTab => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayCardsTab)), "Plugin cards");
 
         public static LocalisableString WaveOverlayWaveBandsLabel => OsuCcLocalisation.Get(getKey(nameof(WaveOverlayWaveBandsLabel)), "Wave band colours");
 

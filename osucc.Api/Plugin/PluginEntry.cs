@@ -45,9 +45,9 @@ namespace osucc.Plugin
         /// Absolute path of the plugin's image icon file in the plugin folder (preferred over
         /// <see cref="IconResource"/>). Updated when the payload moves into the id-folder.
         /// </summary>
-        public string? IconPath { get; internal set; }
+        public string? IconPath { get; set; }
 
-        public int Priority { get; internal set; }
+        public int Priority { get; set; }
 
         /// <summary>
         /// The osu!cc API version the plugin was built against
@@ -62,22 +62,22 @@ namespace osucc.Plugin
         public IReadOnlyList<string> Dependencies { get; init; } = Array.Empty<string>();
 
         /// <summary>Directory the plugin DLL + assets live in. Updated when the payload moves into the id-folder.</summary>
-        public string Directory { get; internal set; } = string.Empty;
+        public string Directory { get; set; } = string.Empty;
 
         /// <summary>The live plugin instance, <c>null</c> if discovery/load failed or the plugin is disabled.</summary>
-        public OsuCcPlugin? Plugin { get; internal set; }
+        public OsuCcPlugin? Plugin { get; set; }
 
         /// <summary>
         /// The discovered <c>[OsuCcPlugin]</c> type, retained even for disabled or version-mismatch
         /// plugins so their metadata can be shown.
         /// </summary>
-        public Type? PluginType { get; internal set; }
+        public Type? PluginType { get; set; }
 
         /// <summary>The host bound to this plugin (kept so its config stays alive).</summary>
-        public PluginHost? Host { get; internal set; }
+        public IOsuCcPluginHost? Host { get; set; }
 
         /// <summary>Set when discovery or load threw.</summary>
-        public Exception? LoadError { get; internal set; }
+        public Exception? LoadError { get; set; }
 
         /// <summary>
         /// Whether the plugin is enabled. Disabled plugins are discovered but not loaded (no
@@ -90,7 +90,7 @@ namespace osucc.Plugin
         public bool Enabled
         {
             get => enabled;
-            internal set
+            set
             {
                 if (enabled == value)
                     return;
@@ -103,7 +103,7 @@ namespace osucc.Plugin
         public bool Loaded => Plugin != null && LoadError == null;
 
         /// <summary>Whether <see cref="OsuCcPlugin.AttachToGame"/> has been called successfully.</summary>
-        public bool Attached { get; internal set; }
+        public bool Attached { get; set; }
 
         /// <summary>
         /// Whether deletion was confirmed. The payload folder is removed on the next launch
@@ -115,7 +115,7 @@ namespace osucc.Plugin
         public bool PendingDelete
         {
             get => pendingDelete;
-            internal set
+            set
             {
                 if (pendingDelete == value)
                     return;
