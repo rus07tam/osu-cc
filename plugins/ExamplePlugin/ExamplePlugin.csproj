@@ -25,6 +25,7 @@
   <ItemGroup>
     <PluginDocument Include="README.md" Title="README" IconGlyph="Book" />
     <PluginDocument Include="CHANGELOG.md" Title="Changelog" IconGlyph="History" />
+    <PluginResource Include="./docs/EXAMPLE_NOTIFICATION.png" />
   </ItemGroup>
 
   <ItemGroup>

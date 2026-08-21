@@ -20,6 +20,8 @@ using osuTK;
 using osuTK.Graphics;
 using System.Diagnostics;
 using System.IO;
+using Markdig.Syntax.Inlines;
+using osu.Framework.Graphics.Cursor;
 
 namespace osucc.UI.Plugins
 {
@@ -583,7 +585,7 @@ namespace osucc.UI.Plugins
                     Spacing = new Vector2(0, 12),
                     Children = new Drawable[]
                     {
-                        new OsuMarkdownContainer
+                        new PluginMarkdownContainer(entry.Directory)
                         {
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
@@ -601,6 +603,114 @@ namespace osucc.UI.Plugins
                     Font = OsuFont.Default.With(size: 13),
                     Colour = OsuCcColours.Error,
                 };
+            }
+        }
+
+        /// <summary>Markdown container resolving local plugin resources for embedded images.</summary>
+        private sealed partial class PluginMarkdownContainer : OsuMarkdownContainer
+        {
+            private readonly string baseDirectory;
+
+            public PluginMarkdownContainer(string baseDirectory)
+            {
+                this.baseDirectory = baseDirectory;
+            }
+
+            public override OsuMarkdownTextFlowContainer CreateTextFlow() => new PluginMarkdownTextFlowContainer(baseDirectory);
+
+            private sealed partial class PluginMarkdownTextFlowContainer : OsuMarkdownTextFlowContainer
+            {
+                private readonly string baseDirectory;
+
+                public PluginMarkdownTextFlowContainer(string baseDirectory)
+                {
+                    this.baseDirectory = baseDirectory;
+                }
+
+                protected override void AddImage(LinkInline linkInline)
+                {
+                    if (linkInline.Url != null && (linkInline.Url.StartsWith("http://", System.StringComparison.OrdinalIgnoreCase) || linkInline.Url.StartsWith("https://", System.StringComparison.OrdinalIgnoreCase)))
+                    {
+                        base.AddImage(linkInline);
+                        return;
+                    }
+
+                    AddDrawable(new PluginLocalMarkdownImage(baseDirectory, linkInline));
+                }
+            }
+
+            private sealed partial class PluginLocalMarkdownImage : CompositeDrawable, IHasTooltip
+            {
+                public LocalisableString TooltipText { get; }
+
+                private readonly string baseDirectory;
+                private readonly LinkInline linkInline;
+
+                public PluginLocalMarkdownImage(string baseDirectory, LinkInline linkInline)
+                {
+                    this.baseDirectory = baseDirectory;
+                    this.linkInline = linkInline;
+                    TooltipText = linkInline.Title ?? string.Empty;
+                    AutoSizeAxes = Axes.Both;
+                }
+
+                [BackgroundDependencyLoader]
+                private void load()
+                {
+                    string rawUrl = linkInline.Url ?? string.Empty;
+                    string relPath = rawUrl.Replace('\\', '/');
+
+                    string fullPath = Path.Combine(baseDirectory, relPath);
+                    if (!File.Exists(fullPath))
+                    {
+                        string resPath = Path.Combine(baseDirectory, "res", relPath);
+                        if (File.Exists(resPath))
+                            fullPath = resPath;
+                        else
+                        {
+                            string fileName = Path.Combine(baseDirectory, Path.GetFileName(relPath));
+                            if (File.Exists(fileName))
+                                fullPath = fileName;
+                        }
+                    }
+
+                    if (File.Exists(fullPath))
+                    {
+                        try
+                        {
+                            using var stream = File.OpenRead(fullPath);
+                            var texture = TextureHelper.FromStream(stream);
+                            if (texture != null)
+                            {
+                                var sprite = new Sprite
+                                {
+                                    Texture = texture,
+                                };
+
+                                if (texture.DisplayWidth > 640)
+                                {
+                                    float scale = 640f / texture.DisplayWidth;
+                                    sprite.Size = new Vector2(640, texture.DisplayHeight * scale);
+                                    sprite.FillMode = FillMode.Fit;
+                                }
+
+                                InternalChild = sprite;
+                                return;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            TimingLog.Error($"PluginLocalMarkdownImage: failed to load '{fullPath}': {ex}");
+                        }
+                    }
+
+                    InternalChild = new OsuSpriteText
+                    {
+                        Text = $"[Image: {rawUrl}]",
+                        Colour = OsuCcColours.Warning,
+                        Font = OsuFont.Default.With(size: 12),
+                    };
+                }
             }
         }
 
