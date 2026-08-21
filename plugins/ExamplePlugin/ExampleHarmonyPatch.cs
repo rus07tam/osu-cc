@@ -1,25 +1,25 @@
 using osucc.Core;
 using osucc.Plugin;
+using System;
 
 namespace ExamplePlugin
 {
     /// <summary>
     /// Demonstrates a plugin-installed Harmony patch. The target is resolved by name against the
-    /// runtime <c>osu.Game</c> assembly, following the same convention the osu!cc client itself
-    /// uses — so this stays correct regardless of the production build. The patch is applied
-    /// through <see cref="osucc.Plugin.OsuCcPlugin.InstallPatches"/>, which tracks it and reverts
-    /// it on live disable.
+    /// runtime <c>osu.Game</c> assembly.
     /// </summary>
-    [OsuCcConstructorPatch("osu.Game.OsuGameBase")]
-    public static class ExampleHarmonyPatch
+    public sealed class ExampleHarmonyPatch : PluginPatch<ExamplePlugin>
     {
-        private static IOsuCcPluginHost host = null!;
+        public ExampleHarmonyPatch(ExamplePlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.OsuGameBase", Type.EmptyTypes)
+        {
+        }
 
         /// <summary>
         /// Runs right after <c>OsuGameBase</c> is constructed — proving the plugin's patch
         /// attached before the game instance existed.
         /// </summary>
-        private static void Postfix(object __instance)
-            => host.Log(LogLevel.Info, $"OsuGameBase constructed: {__instance.GetType().Name}");
+        public static void Postfix(object __instance)
+            => TimingLog.Info($"OsuGameBase constructed: {__instance.GetType().Name}");
     }
 }

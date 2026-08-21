@@ -11,18 +11,18 @@ namespace FakeSupporter
 {
     /// <summary>
     /// Removes the hard-coded <c>Math.Clamp(value, 0, 3)</c> inside
-    /// <c>SupporterIcon.set_SupportLevel</c> so the fake supporter can render more than three
-    /// hearts. The transpiler nops the clamp call and its two bound constants, leaving the raw
-    /// level on the stack for the field store.
+    /// <c>SupporterIcon.set_SupportLevel</c> so the fake supporter can render more than three hearts.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Profile.Header.Components.SupporterIcon", "set_SupportLevel", osucc.Core.MethodType.Transpiler)]
-    internal static class SupporterIconSupportLevelPatch
+    public sealed class SupporterIconSupportLevelPatch : PluginPatch<FakeSupporterPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
         private static readonly MethodInfo clampMethod = typeof(Math).GetMethod(nameof(Math.Clamp), new[] { typeof(int), typeof(int), typeof(int) })!;
 
-        private static List<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        public SupporterIconSupportLevelPatch(FakeSupporterPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Profile.Header.Components.SupporterIcon", "set_SupportLevel", osucc.Core.MethodType.Transpiler)
+        {
+        }
+
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
 
@@ -38,7 +38,7 @@ namespace FakeSupporter
                     codes[i - 2] = new CodeInstruction(OpCodes.Nop);
                     codes[i - 1] = new CodeInstruction(OpCodes.Nop);
                     codes[i] = new CodeInstruction(OpCodes.Nop);
-                    host.Log(LogLevel.Info, "clamp removed");
+                    TimingLog.Info("clamp removed");
                     break;
                 }
             }

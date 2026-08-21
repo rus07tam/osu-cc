@@ -1,35 +1,24 @@
 using osu.Game.Online.API;
 using osucc.Core;
 using osucc.Plugin;
-using System;
 
 namespace FakeSupporter
 {
     /// <summary>
     /// Stamps users as fake supporters inside every API response. Targets the base
-    /// <c>APIRequest.Perform()</c> (non-generic, cannot be overridden) — by postfix time the
-    /// deserialized <c>Response</c> is available on every <c>APIRequest&lt;T&gt;</c>, so
-    /// leaderboards, scores, chat and user lookups all pick up the fake. The /me response is
-    /// excluded (handled by <see cref="LocalUserStateSetLocalUserPatch"/>) so the game's own
-    /// WasSupporter config write keeps the real value.
+    /// <c>APIRequest.Perform()</c>.
     /// </summary>
-    [OsuCcPatch("osu.Game.Online.API.APIRequest", "Perform")]
-    internal static class APIRequestPerformPatch
+    public sealed class APIRequestPerformPatch : PluginPatch<FakeSupporterPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
-        private static void Postfix(APIRequest __instance)
+        public APIRequestPerformPatch(FakeSupporterPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Online.API.APIRequest", "Perform", MethodType.Postfix)
         {
-            try
-            {
-                // Response is declared on the generic APIRequest<T>; read it reflectively.
-                var response = __instance.GetType().GetProperty("Response")?.GetValue(__instance);
-                SupporterFakerApi.Instance.ApplyToResponse(response);
-            }
-            catch (Exception ex)
-            {
-                host.Log(LogLevel.Error, $"failed to stamp API response: {ex}");
-            }
+        }
+
+        public static void Postfix(APIRequest __instance)
+        {
+            var response = __instance.GetType().GetProperty("Response")?.GetValue(__instance);
+            SupporterFakerApi.Instance.ApplyToResponse(response);
         }
     }
 }

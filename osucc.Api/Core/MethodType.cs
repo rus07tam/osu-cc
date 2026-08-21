@@ -5,6 +5,7 @@ namespace osucc.Core
     {
         Prefix,
         Postfix,
-        Transpiler
+        Transpiler,
+        Finalizer,
     }
 }

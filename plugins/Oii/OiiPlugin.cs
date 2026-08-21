@@ -1,3 +1,4 @@
+using osucc.Core;
 using osucc.Plugin;
 using System;
 
@@ -6,9 +7,13 @@ namespace Oii
     /// <summary>
     /// oii: shows the improvement indicator (ii) — the ratio of expected playtime for the user's pp
     /// against their actual playtime — next to total play time on every user profile.
-    /// </summary>
     public class OiiPlugin : OsuCcPlugin
     {
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new TotalPlayTimeLoadPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
             int patched = InstallPatches();

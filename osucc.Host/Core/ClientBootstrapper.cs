@@ -1,5 +1,6 @@
 using osucc.Client;
 using osucc.Patches;
+using System;
 
 namespace osucc.Core
 {
@@ -11,33 +12,33 @@ namespace osucc.Core
     {
         public static void InstallPatches()
         {
-            var patches = new (string Name, Func<bool> Install)[]
+            var patches = new (string Name, OsuCcPatch Patch)[]
             {
-                ("OsuGameBaseCtor", OsuGameBaseCtorPatch.Install),
-                ("OsuGameBaseLoad", OsuGameBaseLoadPatch.Install),
-                ("SettingsOverlay.CreateSections", SettingsOverlayCreateSectionsPatch.Install),
-                ("UserModSelectOverlay.ComputeNewMods", UserModComputeNewModsPatch.Install),
-                ("ModUtils.CheckValidForGameplay", ModUtilsGameplayPatch.Install),
-                ("ModSelectOverlay.createColumns", ModSelectCreateColumnsPatch.Install),
-                ("ModSelectOverlay.filterMods", ModSelectFilterModsPatch.Install),
-                ("ModSelectOverlay.LoadComplete", ModSelectLoadCompletePatch.Install),
-                ("ModSelectFooterContent.CreateButtons", ModSelectFooterCreateButtonsPatch.Install),
-                ("Player.LoadComplete", PlayerBreakSkipPatch.Install),
-                ("Player.ImportScore", PlayerImportScorePatch.Install),
-                ("SoloPlayer.CreateTokenRequest", SoloScoreSubmissionPatch.Install),
-                ("Toolbar.load", ToolbarLoadPatch.Install),
-                ("Panel.PrepareForUse", PanelPrepareForUsePatch.Install),
-                ("PaginatedBeatmapContainer.load", PaginatedBeatmapContainerLoadPatch.Install),
-                ("OverlayColourProvider.getColour/getAccentColour", OverlayColourProviderThemePatch.Install),
-                ("InputManager.Handle", InputManagerHandlePatch.Install),
+                ("OsuGameBaseCtor", new OsuGameBaseCtorPatch()),
+                ("OsuGameBaseLoad", new OsuGameBaseLoadPatch()),
+                ("SettingsOverlay.CreateSections", new SettingsOverlayCreateSectionsPatch()),
+                ("UserModSelectOverlay.ComputeNewMods", new UserModComputeNewModsPatch()),
+                ("ModUtils.CheckValidForGameplay", new ModUtilsGameplayPatch()),
+                ("ModSelectOverlay.createColumns", new ModSelectCreateColumnsPatch()),
+                ("ModSelectOverlay.filterMods", new ModSelectFilterModsPatch()),
+                ("ModSelectOverlay.LoadComplete", new ModSelectLoadCompletePatch()),
+                ("ModSelectFooterContent.CreateButtons", new ModSelectFooterCreateButtonsPatch()),
+                ("Player.LoadComplete", new PlayerBreakSkipPatch()),
+                ("Player.ImportScore", new PlayerImportScorePatch()),
+                ("SoloPlayer.CreateTokenRequest", new SoloScoreSubmissionPatch()),
+                ("Toolbar.load", new ToolbarLoadPatch()),
+                ("Panel.PrepareForUse", new PanelPrepareForUsePatch()),
+                ("PaginatedBeatmapContainer.load", new PaginatedBeatmapContainerLoadPatch()),
+                ("OverlayColourProvider.getColour/getAccentColour", new OverlayColourProviderThemePatch()),
+                ("InputManager.Handle", new InputManagerHandlePatch()),
             };
 
-            foreach (var (name, install) in patches)
+            foreach (var (name, patch) in patches)
             {
                 bool ok;
                 try
                 {
-                    ok = install();
+                    ok = patch.Install(HookDependencies.Main);
                 }
                 catch (Exception ex)
                 {

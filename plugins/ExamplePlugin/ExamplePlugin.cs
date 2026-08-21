@@ -1,5 +1,6 @@
 using osu.Framework.Bindables;
 using osucc.Client;
+using osucc.Core;
 using osucc.Plugin;
 
 namespace ExamplePlugin
@@ -29,6 +30,11 @@ namespace ExamplePlugin
         // plugin's lifetime; the consumer is created in AttachToGame, when the export exists.
         private ExampleUsernameVisualsApiConsumer? usernameVisualsConsumer;
 
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new ExampleHarmonyPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
             // Defaults can be registered before the game exists; persisted values are loaded
@@ -41,7 +47,7 @@ namespace ExamplePlugin
             Host.AddToolbarButton(() => new ExampleToolbarButton(celebrateToggle, Host.Notify));
             Host.AddSettingsSubsection(() => new ExampleSettingsSubsection(settings, Host));
 
-            // The declarative patch in this assembly is applied via InstallPatches().
+            // The patches declared in Patches are applied via InstallPatches().
             if (InstallPatches() > 0)
                 Host.Log("Harmony patch installed");
 

@@ -1,27 +1,27 @@
-using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Online.API;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
 using System.Reflection;
 
 namespace UsernameVisuals
 {
     /// <summary>
-    /// Swaps the toolbar user button's username text (bottom-left toolbar, always the local
-    /// user) with a gradient copy, and rewrites the private field so the scheduled
-    /// <c>userChanged</c> keeps updating the visible text when the local user changes. The swap
-    /// can run before the local user is available, so the gradient text tracks
-    /// <see cref="IAPIProvider.LocalUser"/> itself instead of snapshotting it once.
+    /// Swaps the toolbar user button's username text with a gradient copy, and rewrites the private
+    /// field so the scheduled <c>userChanged</c> keeps updating the visible text when the local user changes.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Toolbar.ToolbarUserButton", "load")]
-    internal static class ToolbarUserButtonPatch
+    public sealed class ToolbarUserButtonPatch : PluginPatch<UsernameVisualsPlugin>
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Overlays.Toolbar.ToolbarUserButton", "usernameText");
-
         private static readonly FieldInfo? localUserField = Reflection.GetField("osu.Game.Overlays.Toolbar.ToolbarUserButton", "localUser");
 
-        private static void Postfix(object __instance)
+        public ToolbarUserButtonPatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(object __instance)
         {
             if (usernameTextField?.GetValue(__instance) is not OsuSpriteText current || current is UsernameVisualsText)
                 return;

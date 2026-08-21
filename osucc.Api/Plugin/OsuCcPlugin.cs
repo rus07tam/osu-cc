@@ -9,6 +9,15 @@ namespace osucc.Plugin
     {
         public IOsuCcPluginHost Host { get; private set; } = null!;
 
+        /// <summary>Whether the plugin is currently enabled.</summary>
+        public bool Enabled => Host?.Enabled ?? false;
+
+        /// <summary>
+        /// Ordered list of patch instances created by this plugin.
+        /// Override in subclasses to declare plugin patches.
+        /// </summary>
+        public virtual IReadOnlyList<OsuCcPatch> Patches => Array.Empty<OsuCcPatch>();
+
         public void Load(IOsuCcPluginHost host)
         {
             Host = host;
@@ -16,13 +25,19 @@ namespace osucc.Plugin
         }
 
         /// <summary>
-        /// Applies every declarative patch in this plugin's assembly (see
-        /// <see cref="OsuCcPatchAttribute"/> / <see cref="OsuCcConstructorPatchAttribute"/>)
-        /// through the scoped host. Handles are tracked by the host and reverted on live disable,
-        /// so no manual bookkeeping is needed. Call from <see cref="OnLoad"/>. Returns the number
-        /// of targets that were actually patched; failures are logged and skipped.
+        /// Installs all patches declared in <see cref="Patches"/> through the scoped host.
+        /// Returns the count of successfully installed patches.
         /// </summary>
-        protected int InstallPatches() => OsuCcPatches.Install(Host, GetType().Assembly);
+        protected int InstallPatches()
+        {
+            int count = 0;
+            foreach (var patch in Patches)
+            {
+                if (Host.AddPatch(patch))
+                    count++;
+            }
+            return count;
+        }
 
         protected abstract void OnLoad();
 

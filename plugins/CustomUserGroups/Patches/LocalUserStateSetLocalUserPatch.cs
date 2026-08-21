@@ -1,29 +1,22 @@
 using osu.Game.Online.API;
 using osucc.Core;
 using osucc.Plugin;
-using System;
 
 namespace CustomUserGroups
 {
     /// <summary>
-    /// Stamps the logged-in user's groups and colour as soon as the real /me response is installed,
-    /// so own-profile and user cards reflect any custom group assigned to the current player.
+    /// Stamps the logged-in user's groups and colour as soon as the real /me response is installed.
     /// </summary>
-    [OsuCcPatch("osu.Game.Online.API.LocalUserState", "SetLocalUser")]
-    internal static class LocalUserStateSetLocalUserPatch
+    public sealed class LocalUserStateSetLocalUserPatch : PluginPatch<CustomUserGroupsPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
-        private static void Postfix(LocalUserState __instance)
+        public LocalUserStateSetLocalUserPatch(CustomUserGroupsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Online.API.LocalUserState", "SetLocalUser", MethodType.Postfix)
         {
-            try
-            {
-                CustomUserGroupsApi.Instance.OnLocalUserSet(__instance.User);
-            }
-            catch (Exception ex)
-            {
-                host.Log(LogLevel.Error, $"failed to stamp local user: {ex}");
-            }
+        }
+
+        public static void Postfix(LocalUserState __instance)
+        {
+            CustomUserGroupsApi.Instance.OnLocalUserSet(__instance.User);
         }
     }
 }

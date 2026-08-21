@@ -12,18 +12,15 @@ namespace Oii
     /// Inserts an <see cref="OiiIndicator"/> into the profile header's main details flow right after
     /// the play time display, binding it to the same user data so it follows user/ruleset changes.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load")]
-    internal static class TotalPlayTimeLoadPatch
+    public sealed class TotalPlayTimeLoadPatch : PluginPatch<OiiPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
         private static readonly ConcurrentBag<WeakReference<OiiIndicator>> inserted = new();
 
-        /// <summary>
-        /// Removes every indicator this plugin inserted from its parent flow, so disabling the
-        /// plugin leaves the header tree as it was. Runs from the plugin's <c>Dispose</c>, on the
-        /// update thread.
-        /// </summary>
+        public TotalPlayTimeLoadPatch(OiiPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Profile.Header.Components.TotalPlayTime", "load", MethodType.Postfix)
+        {
+        }
+
         public static void RemoveIndicators()
         {
             foreach (var reference in inserted)
@@ -35,15 +32,13 @@ namespace Oii
             inserted.Clear();
         }
 
-        private static void Postfix(TotalPlayTime __instance)
+        public void Postfix(TotalPlayTime __instance)
         {
-            // Parent is only assigned after load() returns (CompositeDrawable.loadChild), so the
-            // indicator is inserted on the first update frame, once the whole tree is loaded.
             var scheduler = Reflection.GetScheduler(ClientApi.Game);
             scheduler?.AddOnce(() => insertIndicator(__instance));
         }
 
-        private static void insertIndicator(TotalPlayTime instance)
+        private void insertIndicator(TotalPlayTime instance)
         {
             if (instance.Parent is not FillFlowContainer flow)
                 return;
@@ -53,7 +48,7 @@ namespace Oii
             inserted.Add(new WeakReference<OiiIndicator>(indicator));
             flow.Insert((int)flow.GetLayoutPosition(instance) + 1, indicator);
 
-            host.Log(LogLevel.Info, "total playtime indicator inserted");
+            LogInfo("total playtime indicator inserted");
         }
     }
 }

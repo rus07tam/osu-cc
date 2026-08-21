@@ -1,43 +1,23 @@
-using HarmonyLib;
 using osu.Game.Overlays.Mods;
 using osucc.Client;
 using osucc.Core;
-using System.Reflection;
 
 namespace osucc.Patches
 {
     /// <summary>
     /// Tracks live mod-select overlays so the Specials toggles react immediately. Targets
-    /// <c>ModSelectOverlay.LoadComplete()</c>; the postfix registers the overlay with
-    /// <see cref="ClientMods"/>.
+    /// <c>ModSelectOverlay.LoadComplete()</c>.
     /// </summary>
-    public static class ModSelectLoadCompletePatch
+    public sealed class ModSelectLoadCompletePatch : OsuCcPatch
     {
-        public static bool Install()
+        public ModSelectLoadCompletePatch()
+            : base("osu.Game.Overlays.Mods.ModSelectOverlay", "LoadComplete", MethodType.Postfix)
         {
-            var method = Reflection.GetGameType("osu.Game.Overlays.Mods.ModSelectOverlay")?.GetMethod("LoadComplete", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            if (method == null)
-            {
-                TimingLog.Error("ModSelectLoadCompletePatch: LoadComplete method not found");
-                return false;
-            }
-
-            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectLoadCompletePatch), nameof(Postfix)));
-            TimingLog.Info("ModSelectOverlay.LoadComplete patched (postfix)");
-            return true;
         }
 
-        private static void Postfix(ModSelectOverlay __instance)
+        public static void Postfix(ModSelectOverlay __instance)
         {
-            try
-            {
-                ClientMods.Register(__instance);
-            }
-            catch (Exception ex)
-            {
-                TimingLog.Error($"ModSelectLoadCompletePatch.Postfix: {ex}");
-            }
+            ClientMods.Register(__instance);
         }
     }
 }

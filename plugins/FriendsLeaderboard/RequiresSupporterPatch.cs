@@ -1,21 +1,24 @@
 using osu.Game.Screens.Play.Leaderboards;
 using osucc.Core;
+using osucc.Plugin;
 
 namespace FriendsLeaderboard
 {
     /// <summary>
-    /// Lifts the local osu!supporter gate for the friend leaderboard scope. The shared extension
-    /// <c>ModelExtensions.RequiresSupporter</c> is checked by both <c>LeaderboardManager</c> and
-    /// <c>ScoresContainer</c> before the request is created; the server-side gate is instead
-    /// bypassed by <see cref="GetScoresRequestPatch"/>. All other scopes keep their original logic.
+    /// Lifts the local osu!supporter gate for the friend leaderboard scope.
     /// </summary>
-    [OsuCcPatch("osu.Game.Extensions.ModelExtensions", "RequiresSupporter", MethodType.Prefix)]
-    internal static class RequiresSupporterPatch
+    public sealed class RequiresSupporterPatch : PluginPatch<FriendsLeaderboardPlugin>
     {
-
-        private static bool Prefix(BeatmapLeaderboardScope scope, bool filterMods, ref bool __result)
+        public RequiresSupporterPatch(FriendsLeaderboardPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Extensions.ModelExtensions", "RequiresSupporter", MethodType.Prefix)
         {
-            if (scope != BeatmapLeaderboardScope.Friend || !FriendsScoresAggregator.Enabled)
+        }
+
+        public override bool Condition => base.Condition && FriendsScoresAggregator.Enabled;
+
+        public static bool Prefix(BeatmapLeaderboardScope scope, bool filterMods, ref bool __result)
+        {
+            if (scope != BeatmapLeaderboardScope.Friend)
                 return true;
 
             __result = false;

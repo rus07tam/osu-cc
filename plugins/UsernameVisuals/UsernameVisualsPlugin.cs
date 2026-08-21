@@ -1,4 +1,5 @@
 using osu.Framework.Graphics.Sprites;
+using osucc.Core;
 using osucc.Plugin;
 using System;
 
@@ -19,9 +20,23 @@ namespace UsernameVisuals
         /// <summary>The paint-drip icon, matching the gradient theme.</summary>
         public override IconUsage? Icon => FontAwesome.Solid.FillDrip;
 
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new BeatmapLeaderboardScorePatch(this, Host),
+            new ClickableUsernamePatch(this, Host),
+            new DrawableChatUsernamePatch(this, Host),
+            new DrawableChatUsernameTextPatch(this, Host),
+            new DrawableGameplayLeaderboardScorePatch(this, Host),
+            new LinkFlowContainerPatch(this, Host),
+            new ParticipantPanelPatch(this, Host),
+            new SpriteTextSetTextPatch(this, Host),
+            new ToolbarUserButtonPatch(this, Host),
+            new TopHeaderContainerPatch(this, Host),
+            new UserPanelPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
-
             var settings = Host.GetSettings();
 
             api = new UsernameVisualsApi();
@@ -34,7 +49,7 @@ namespace UsernameVisuals
             Host.AddSettingsSubsection(() => new UsernameVisualsSettingsSubsection(settings, api, Host));
 
             int count = InstallPatches();
-            Host.Log($"patched {count}/10 username hooks");
+            Host.Log($"patched {count}/11 username hooks");
             Host.Log("loaded");
         }
 

@@ -5,43 +5,39 @@ using osu.Game.Localisation;
 using osu.Game.Online.Chat;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
+using System;
 using System.Reflection;
 
 namespace UsernameVisuals
 {
     /// <summary>
     /// Reroutes <c>LinkFlowContainer.AddUserLink()</c> through a gradient text while keeping the
-    /// clickable profile-link behaviour, so usernames embedded in text flows render as
-    /// gradients. Uses the public <c>AddLink(IEnumerable&lt;SpriteText&gt;, ...)</c> overload,
-    /// which internally builds the same <c>createLink</c> link container as the original.
+    /// clickable profile-link behaviour.
     /// </summary>
-    [OsuCcPatch("osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", MethodType.Prefix)]
-    internal static class LinkFlowContainerPatch
+    public sealed class LinkFlowContainerPatch : PluginPatch<UsernameVisualsPlugin>
     {
         private static readonly Lazy<MethodInfo?> applyDefaultParametersMethod = new(() =>
             typeof(TextFlowContainer).GetMethod("ApplyDefaultCreationParameters", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
 
-        private static bool Prefix(LinkFlowContainer __instance, IUser user, Action<SpriteText>? creationParameters)
+        public LinkFlowContainerPatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Graphics.Containers.LinkFlowContainer", "AddUserLink", MethodType.Prefix)
         {
-            try
-            {
-                var gradient = new UsernameVisualsText
-                {
-                    User = user,
-                    Text = user.Username,
-                };
+        }
 
-                applyDefaultParametersMethod.Value?.Invoke(__instance, new object[] { gradient });
-                creationParameters?.Invoke(gradient);
-
-                __instance.AddLink(new[] { gradient }, LinkAction.OpenUserProfile, user, ContextMenuStrings.ViewProfile.ToString());
-                return false;
-            }
-            catch
+        public static bool Prefix(LinkFlowContainer __instance, IUser user, Action<SpriteText>? creationParameters)
+        {
+            var gradient = new UsernameVisualsText
             {
-                // fall back to the original implementation on any reflection failure
-                return true;
-            }
+                User = user,
+                Text = user.Username,
+            };
+
+            applyDefaultParametersMethod.Value?.Invoke(__instance, new object[] { gradient });
+            creationParameters?.Invoke(gradient);
+
+            __instance.AddLink(new[] { gradient }, LinkAction.OpenUserProfile, user, ContextMenuStrings.ViewProfile.ToString());
+            return false;
         }
     }
 }

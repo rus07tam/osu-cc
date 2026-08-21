@@ -1,61 +1,40 @@
-using HarmonyLib;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Overlays.Toolbar;
 using osucc.Core;
 using osucc.Plugin;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace osucc.Patches
 {
     /// <summary>
     /// Injects plugin toolbar buttons once <c>Toolbar.load</c> has run, and again for buttons
-    /// registered later (live plugin enable). Both button groups are located by their stable
-    /// <c>Name = "Left buttons"</c> / <c>Name = "Right buttons"</c> markers, and each registered
-    /// plugin button is added to the matching <see cref="FillFlowContainer"/> with its requested
-    /// layout position. The buttons stay attached to the toolbar (removed only on live disable
-    /// via <see cref="Plugin.ToolbarButtonRegistration.RemoveCreated"/>), since the toolbar is
-    /// built once and never rebuilt mid-session.
+    /// registered later (live plugin enable).
     /// </summary>
-    public static class ToolbarLoadPatch
+    public sealed class ToolbarLoadPatch : OsuCcPatch
     {
-        /// <summary>The last observed Toolbar instance; null until the toolbar has loaded.</summary>
         private static Toolbar? toolbar;
 
-        public static bool Install()
+        public ToolbarLoadPatch()
+            : base("osu.Game.Overlays.Toolbar.Toolbar", "load", m => m.GetParameters().Length == 1, MethodType.Postfix)
         {
-            var load = Reflection.GetMethod("osu.Game.Overlays.Toolbar.Toolbar", "load", m => m.GetParameters().Length == 1);
-            if (load == null)
-            {
-                TimingLog.Error("ToolbarLoadPatch: Toolbar.load(..) method not found");
-                return false;
-            }
-
-            HookDependencies.Main.Patch(load, postfix: Reflection.HarmonyMethod(typeof(ToolbarLoadPatch), nameof(Postfix)));
-            TimingLog.Info("Toolbar.load patched (postfix)");
-            return true;
         }
 
-        private static void Postfix(Toolbar __instance)
+        public static void Postfix(Toolbar __instance)
         {
-            try
-            {
-                toolbar = __instance;
+            toolbar = __instance;
 
-                foreach (var registration in PluginManager.ToolbarButtonRegistrations)
-                    AddPluginButton(registration);
-            }
-            catch (Exception ex)
-            {
-                TimingLog.Error($"ToolbarLoadPatch.Postfix: {ex}");
-            }
+            foreach (var registration in PluginManager.ToolbarButtonRegistrations)
+                AddPluginButton(registration);
         }
 
         /// <summary>
         /// Injects a plugin's button into the live toolbar. No-op until the toolbar has loaded; a
-        /// button registered later (live enable) is injected immediately. Adding the same button
-        /// twice is skipped, and the created button is recorded so it can be removed on disable.
+        /// button registered later (live enable) is injected immediately.
         /// </summary>
         internal static void AddPluginButton(ToolbarButtonRegistration registration)
         {
@@ -110,11 +89,6 @@ namespace osucc.Patches
             }
         }
 
-        /// <summary>
-        /// Walks a drawable's visual children (and a <c>GridContainer</c>'s grid content,
-        /// which is stored separately from its children) looking for a drawable with the
-        /// given <c>Name</c>.
-        /// </summary>
         private static Drawable? findVisualChild(Drawable root, string name)
         {
             foreach (var child in getChildren(root))
@@ -132,7 +106,6 @@ namespace osucc.Patches
 
         private static IEnumerable<Drawable> getChildren(Drawable drawable)
         {
-            // Regular container children (Container<T> exposes Children as IReadOnlyList<Drawable>).
             var childrenProp = drawable.GetType().GetProperty("Children", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             if (childrenProp?.GetValue(drawable) is IEnumerable<Drawable> children)
             {
@@ -140,9 +113,6 @@ namespace osucc.Patches
                     yield return child;
             }
 
-            // GridContainer has no Children of its own; its content lives in the public
-            // `Content` property, whose runtime type is GridContainerContent — an enumerable
-            // of rows (ObservableArray<Drawable>), each row being an enumerable of cells.
             var contentProp = drawable.GetType().GetProperty("Content", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             if (contentProp?.GetValue(drawable) is IEnumerable content)
             {

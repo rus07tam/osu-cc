@@ -1,4 +1,5 @@
 using osu.Framework.Bindables;
+using osucc.Core;
 using osucc.Plugin;
 using System;
 
@@ -12,6 +13,12 @@ namespace FriendsLeaderboard
     public class FriendsLeaderboardPlugin : OsuCcPlugin
     {
         private PluginSettings settings = null!;
+
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new GetScoresRequestPatch(this, Host),
+            new RequiresSupporterPatch(this, Host),
+        };
 
         protected override void OnLoad()
         {

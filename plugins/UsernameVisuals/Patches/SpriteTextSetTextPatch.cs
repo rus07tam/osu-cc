@@ -1,19 +1,21 @@
 using osu.Framework.Graphics.Sprites;
 using osucc.Core;
+using osucc.Plugin;
 
 namespace UsernameVisuals
 {
     /// <summary>
     /// Re-applies the own-username display whenever the game itself writes the text of a
-    /// <see cref="UsernameVisualsText"/> (e.g. the toolbar button's scheduled <c>userChanged</c>
-    /// overwriting a replaced name with the real one). The postfix sits on the non-virtual
-    /// <c>SpriteText.Text</c> setter, so every such write is observed regardless of the caller;
-    /// <see cref="UsernameVisualsText.ReapplyDisplay"/> is a no-op when the value is unchanged.
+    /// <see cref="UsernameVisualsText"/>.
     /// </summary>
-    [OsuCcPatch(typeof(SpriteText), "set_Text")]
-    internal static class SpriteTextSetTextPatch
+    public sealed class SpriteTextSetTextPatch : PluginPatch<UsernameVisualsPlugin>
     {
-        private static void Postfix(SpriteText __instance)
+        public SpriteTextSetTextPatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, typeof(SpriteText), "set_Text", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(SpriteText __instance)
         {
             if (__instance is UsernameVisualsText gradient)
                 gradient.ReapplyDisplay();

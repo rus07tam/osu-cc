@@ -1,31 +1,22 @@
 using osu.Game.Overlays;
 using osucc.Core;
 using osucc.Plugin;
-using System;
 
 namespace FakeSupporter
 {
     /// <summary>
-    /// Captures the toolbar avatar button's <see cref="LoginOverlay"/> once it is resolved
-    /// through dependency injection. The overlay is no longer owned by <c>OsuGame</c> in newer
-    /// production builds (it lives on the main-menu screens), so it cannot be looked up by a
-    /// game field; the button's <c>load</c> parameter is the exact instance the avatar opens.
+    /// Captures the toolbar avatar button's <see cref="LoginOverlay"/> once it is resolved.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Toolbar.ToolbarUserButton", "load")]
-    internal static class ToolbarUserButtonLoadPatch
+    public sealed class ToolbarUserButtonLoadPatch : PluginPatch<FakeSupporterPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
-        private static void Postfix(LoginOverlay login)
+        public ToolbarUserButtonLoadPatch(FakeSupporterPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Toolbar.ToolbarUserButton", "load", MethodType.Postfix)
         {
-            try
-            {
-                SupporterFakerApi.Instance.SetLoginOverlay(login);
-            }
-            catch (Exception ex)
-            {
-                host.Log(LogLevel.Error, $"failed to capture login overlay: {ex}");
-            }
+        }
+
+        public static void Postfix(LoginOverlay login)
+        {
+            SupporterFakerApi.Instance.SetLoginOverlay(login);
         }
     }
 }

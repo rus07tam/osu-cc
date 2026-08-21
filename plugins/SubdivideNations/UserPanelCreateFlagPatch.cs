@@ -1,19 +1,21 @@
 using osu.Game.Users;
 using osu.Game.Users.Drawables;
 using osucc.Core;
+using osucc.Plugin;
 
 namespace SubdivideNations
 {
     /// <summary>
-    /// Swaps the country flag built by <c>UserPanel.CreateFlag()</c> for a <see cref="RegionUserFlag"/>
-    /// composite, adding a region badge to every panel that renders through the shared method
-    /// (rank, list, grid and online panels — including the toolbar mini-card).
+    /// Swaps the country flag built by <c>UserPanel.CreateFlag()</c> for a <see cref="RegionUserFlag"/> composite.
     /// </summary>
-    [OsuCcPatch("osu.Game.Users.UserPanel", "CreateFlag")]
-    internal static class UserPanelCreateFlagPatch
+    public sealed class UserPanelCreateFlagPatch : PluginPatch<SubdivideNationsPlugin>
     {
+        public UserPanelCreateFlagPatch(SubdivideNationsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Users.UserPanel", "CreateFlag", MethodType.Postfix)
+        {
+        }
 
-        private static void Postfix(UserPanel __instance, ref UpdateableFlag __result)
+        public static void Postfix(UserPanel __instance, ref UpdateableFlag __result)
         {
             if (__result == null)
                 return;

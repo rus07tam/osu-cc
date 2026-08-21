@@ -1,23 +1,24 @@
-using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
 using System.Reflection;
 
 namespace UsernameVisuals
 {
     /// <summary>
-    /// Swaps the profile header's username text with a gradient copy each time the displayed
-    /// user is updated. <c>TopHeaderContainer</c> is internal, so the instance is handled
-    /// reflectively; the private <c>usernameText</c> field is rewritten so later updates hit the
-    /// visible gradient text.
+    /// Swaps the profile header's username text with a gradient copy each time the displayed user is updated.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser")]
-    internal static class TopHeaderContainerPatch
+    public sealed class TopHeaderContainerPatch : PluginPatch<UsernameVisualsPlugin>
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "usernameText");
 
-        private static void Postfix(object __instance)
+        public TopHeaderContainerPatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(object __instance)
         {
             var current = usernameTextField?.GetValue(__instance);
 

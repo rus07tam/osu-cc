@@ -5,26 +5,28 @@ using osu.Game.Overlays.Profile;
 using osu.Game.Overlays.Profile.Header;
 using osu.Game.Users.Drawables;
 using osucc.Core;
+using osucc.Plugin;
 using osuTK;
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace SubdivideNations
 {
     /// <summary>
     /// Shows the region on the profile header (<c>TopHeaderContainer</c>): appends the region name
-    /// to the country text ("Spain / Catalonia") and shows the region flag right after the country
-    /// flag. The country/region fields are read reflectively because they are private to the
-    /// container. A per-instance <see cref="HeaderState"/> tracks a single region flag and the
-    /// region text is re-applied on every <c>updateUser</c>, so re-fetches never lose the suffix
-    /// and switching users replaces the flag instead of stacking copies.
+    /// to the country text ("Spain / Catalonia") and shows the region flag right after the country flag.
     /// </summary>
-    [OsuCcPatch("osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser")]
-    internal static class TopHeaderContainerPatch
+    public sealed class TopHeaderContainerPatch : PluginPatch<SubdivideNationsPlugin>
     {
         private static readonly ConditionalWeakTable<TopHeaderContainer, HeaderState> states = new();
 
-        private static void Postfix(TopHeaderContainer __instance, UserProfileData? data)
+        public TopHeaderContainerPatch(SubdivideNationsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Overlays.Profile.Header.TopHeaderContainer", "updateUser", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(TopHeaderContainer __instance, UserProfileData? data)
         {
             var user = data?.User;
             if (user == null)
@@ -101,11 +103,6 @@ namespace SubdivideNations
             });
         }
 
-        /// <summary>
-        /// Per-header state: wraps the country flag once so the region flag can sit directly after
-        /// it, and holds the single currently-displayed region flag. Drawables are kept by weak
-        /// reference — the header's tree owns them, and the state must not outlive its header.
-        /// </summary>
         private sealed class HeaderState
         {
             public int LastUserId;
@@ -113,11 +110,6 @@ namespace SubdivideNations
             private WeakReference<FillFlowContainer>? flagWrap;
             private WeakReference<RegionFlagSprite>? regionFlag;
 
-            /// <summary>
-            /// Replaces the header's <c>userFlag</c> with a horizontal flow holding it, so a region
-            /// flag added to that flow is structurally the element right after the country flag.
-            /// Runs once per header; no-op afterwards.
-            /// </summary>
             public void EnsureFlagContainer(TopHeaderContainer instance)
             {
                 if (flagWrap?.TryGetTarget(out _) == true)
@@ -146,7 +138,6 @@ namespace SubdivideNations
                 flagWrap = new WeakReference<FillFlowContainer>(wrap);
             }
 
-            /// <summary>Replaces the currently displayed region flag (if any).</summary>
             public void SetRegionFlag(RegionFlagSprite sprite)
             {
                 ClearRegionFlag();
@@ -158,7 +149,6 @@ namespace SubdivideNations
                 regionFlag = new WeakReference<RegionFlagSprite>(sprite);
             }
 
-            /// <summary>Removes the currently displayed region flag, if any.</summary>
             public void ClearRegionFlag()
             {
                 if (regionFlag?.TryGetTarget(out var sprite) == true

@@ -25,6 +25,9 @@ namespace osucc.Plugin
         /// <summary>Stable id of the loaded plugin (from <see cref="OsuCcPluginAttribute.Id"/>).</summary>
         string PluginId { get; }
 
+        /// <summary>Whether the plugin is currently enabled.</summary>
+        bool Enabled { get; }
+
         /// <summary>Directory the plugin's DLL and assets live in — its own subfolder under the osu-cc "plugins" directory.</summary>
         string PluginDirectory { get; }
 
@@ -98,12 +101,13 @@ namespace osucc.Plugin
         Storage? GetStorage(string subPath = "");
 
         /// <summary>
-        /// Applies a Harmony patch scoped to this plugin and tracks it so the host can revert it
-        /// on live disable. The target is patched on a per-plugin Harmony instance, so disabling
-        /// this plugin never touches patches of the built-in client or other plugins. Returns
-        /// <c>null</c> when the target could not be patched; disposing the returned handle
-        /// unpatchs it. Prefer the convenience helpers in <see cref="PatchHelper"/> for the
-        /// common name-based shape.
+        /// Installs a strongly-typed <see cref="OsuCcPatch"/> scoped to this plugin.
+        /// Execution is dynamically gated by the plugin's enabled state.
+        /// </summary>
+        bool AddPatch(OsuCcPatch patch);
+
+        /// <summary>
+        /// Applies a Harmony patch scoped to this plugin.
         /// </summary>
         IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, osucc.Core.MethodType type);
 

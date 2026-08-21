@@ -1,4 +1,5 @@
 using osu.Framework.Bindables;
+using osucc.Core;
 using osucc.Plugin;
 using System;
 
@@ -16,9 +17,14 @@ namespace SubdivideNations
         private Bindable<bool> enabled = null!;
         private Bindable<bool> showFlags = null!;
 
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new TopHeaderContainerPatch(this, Host),
+            new UserPanelCreateFlagPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
-
             settings = Host.GetSettings();
             enabled = settings.Bind("enabled", true);
             showFlags = settings.Bind("show_flags", true);

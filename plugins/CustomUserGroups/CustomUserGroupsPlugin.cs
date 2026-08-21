@@ -1,4 +1,5 @@
 using osu.Framework.Graphics.Sprites;
+using osucc.Core;
 using osucc.Plugin;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,15 @@ namespace CustomUserGroups
         /// <summary>The user-group icon, matching the theme.</summary>
         public override IconUsage? Icon => FontAwesome.Solid.Users;
 
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new APIRequestPerformPatch(this, Host),
+            new LocalUserStateClearLocalUserPatch(this, Host),
+            new LocalUserStateSetLocalUserPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
-
             var settings = Host.GetSettings();
 
             api = new CustomUserGroupsApi();

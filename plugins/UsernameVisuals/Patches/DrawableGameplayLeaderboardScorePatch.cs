@@ -1,22 +1,25 @@
-using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Screens.Play.HUD;
 using osucc.Core;
+using osucc.Plugin;
 using System.Reflection;
 
 namespace UsernameVisuals
 {
     /// <summary>
     /// Replaces the in-game HUD leaderboard's username text with a gradient copy after
-    /// <c>load()</c> builds the panel. The <c>usernameText</c> field is rewritten so later colour
-    /// updates (friend / has-quit highlighting) keep targeting the visible gradient text.
+    /// <c>load()</c> builds the panel.
     /// </summary>
-    [OsuCcPatch("osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load")]
-    internal static class DrawableGameplayLeaderboardScorePatch
+    public sealed class DrawableGameplayLeaderboardScorePatch : PluginPatch<UsernameVisualsPlugin>
     {
         private static readonly FieldInfo? usernameTextField = Reflection.GetField("osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "usernameText");
 
-        private static void Postfix(DrawableGameplayLeaderboardScore __instance)
+        public DrawableGameplayLeaderboardScorePatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Screens.Play.HUD.DrawableGameplayLeaderboardScore", "load", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(DrawableGameplayLeaderboardScore __instance)
         {
             if (usernameTextField?.GetValue(__instance) is not OsuSpriteText current || current is UsernameVisualsText)
                 return;

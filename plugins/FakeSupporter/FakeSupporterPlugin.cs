@@ -1,4 +1,5 @@
 using osu.Framework.Graphics.Sprites;
+using osucc.Core;
 using osucc.Plugin;
 using System;
 
@@ -16,9 +17,18 @@ namespace FakeSupporter
         /// <summary>The heart icon, matching the supporter theme.</summary>
         public override IconUsage? Icon => FontAwesome.Solid.Heart;
 
+        public override IReadOnlyList<OsuCcPatch> Patches => new OsuCcPatch[]
+        {
+            new APIRequestPerformPatch(this, Host),
+            new LocalUserStateClearLocalUserPatch(this, Host),
+            new LocalUserStateSetLocalUserPatch(this, Host),
+            new SupporterIconSupportLevelPatch(this, Host),
+            new ToolbarUserButtonLoadPatch(this, Host),
+            new UserPanelLoadPatch(this, Host),
+        };
+
         protected override void OnLoad()
         {
-
             var settings = Host.GetSettings();
 
             var api = new SupporterFakerApi();

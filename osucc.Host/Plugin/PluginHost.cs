@@ -36,6 +36,8 @@ namespace osucc.Plugin
 
         public string PluginId => entry.Id;
 
+        public bool Enabled => entry.Enabled;
+
         public string PluginDirectory => entry.Directory;
 
         public osu.Game.OsuGameBase? Game => ClientApi.Game;
@@ -136,6 +138,12 @@ namespace osucc.Plugin
                 TimingLog.Error($"PluginHost.LoadTextureFromFile ('{entry.Name}'): {ex}");
                 return null;
             }
+        }
+
+        public bool AddPatch(OsuCcPatch patch)
+        {
+            var harmony = patchHarmony ??= HookDependencies.Create($"{entry.Id}.patches");
+            return patch.Install(harmony);
         }
 
         public IDisposable? AddPatch(MethodBase target, Type patchType, string patchMethodName, osucc.Core.MethodType type)

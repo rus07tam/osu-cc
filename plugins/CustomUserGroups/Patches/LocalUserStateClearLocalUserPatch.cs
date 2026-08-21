@@ -1,26 +1,20 @@
 using osu.Game.Online.API;
 using osucc.Core;
 using osucc.Plugin;
-using System;
 
 namespace CustomUserGroups
 {
     /// <summary>Forgets the cached local user on logout (<c>LocalUserState.ClearLocalUser</c>).</summary>
-    [OsuCcPatch("osu.Game.Online.API.LocalUserState", "ClearLocalUser")]
-    internal static class LocalUserStateClearLocalUserPatch
+    public sealed class LocalUserStateClearLocalUserPatch : PluginPatch<CustomUserGroupsPlugin>
     {
-        private static IOsuCcPluginHost host = null!;
-
-        private static void Postfix(LocalUserState __instance)
+        public LocalUserStateClearLocalUserPatch(CustomUserGroupsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Online.API.LocalUserState", "ClearLocalUser", MethodType.Postfix)
         {
-            try
-            {
-                CustomUserGroupsApi.Instance.OnLocalUserCleared();
-            }
-            catch (Exception ex)
-            {
-                host.Log(LogLevel.Error, $"failed to clear cached local user: {ex}");
-            }
+        }
+
+        public static void Postfix(LocalUserState __instance)
+        {
+            CustomUserGroupsApi.Instance.OnLocalUserCleared();
         }
     }
 }

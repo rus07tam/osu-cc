@@ -1,26 +1,27 @@
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Users;
 using osucc.Core;
+using osucc.Plugin;
 using System.Reflection;
 
 namespace UsernameVisuals
 {
     /// <summary>
     /// Swaps the multiplayer participant panel's username sprite with a gradient copy on the
-    /// first <c>updateUser()</c> and refreshes its user on every call. Panels are pooled and
-    /// re-bound to different slots, so the gradient's user must be re-resolved each update; the
-    /// private field is rewritten so the original <c>username.Text = ...</c> hits the gradient.
+    /// first <c>updateUser()</c> and refreshes its user on every call.
     /// </summary>
-    [OsuCcPatch("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser")]
-    internal static class ParticipantPanelPatch
+    public sealed class ParticipantPanelPatch : PluginPatch<UsernameVisualsPlugin>
     {
         private static readonly FieldInfo? usernameField = Reflection.GetField("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "username");
-
         private static readonly FieldInfo? currentField = Reflection.GetField("osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "current");
 
-        private static void Postfix(object __instance)
+        public ParticipantPanelPatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantPanel", "updateUser", MethodType.Postfix)
+        {
+        }
+
+        public static void Postfix(object __instance)
         {
             var username = usernameField?.GetValue(__instance);
 

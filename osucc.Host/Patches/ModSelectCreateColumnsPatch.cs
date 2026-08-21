@@ -1,74 +1,50 @@
-using HarmonyLib;
 using osu.Game.Rulesets.Mods;
 using osucc.Client;
 using osucc.Core;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace osucc.Patches
 {
     /// <summary>
     /// Adds the ModType.System column to the mod selector. Targets the private
-    /// <c>ModSelectOverlay.createColumns()</c>. When the flag is on, the postfix appends a System
-    /// column (via the private <c>createModColumnContent</c>). Live toggling on open overlays is
-    /// handled by <see cref="ClientMods.RefreshOverlays"/>.
+    /// <c>ModSelectOverlay.createColumns()</c>.
     /// </summary>
-    public static class ModSelectCreateColumnsPatch
+    public sealed class ModSelectCreateColumnsPatch : OsuCcPatch
     {
-        // Resolved from the *declaring* type: createModColumnContent is private to
-        // ModSelectOverlay and would not be found when querying a derived type.
-        private static Type? overlayType;
-
-        public static bool Install()
+        public ModSelectCreateColumnsPatch()
+            : base("osu.Game.Overlays.Mods.ModSelectOverlay", "createColumns", MethodType.Postfix)
         {
-            overlayType = Reflection.GetGameType("osu.Game.Overlays.Mods.ModSelectOverlay");
-            var method = overlayType?.GetMethod("createColumns", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-            if (method == null)
-            {
-                TimingLog.Error("ModSelectCreateColumnsPatch: createColumns method not found");
-                return false;
-            }
-
-            HookDependencies.Main.Patch(method, postfix: Reflection.HarmonyMethod(typeof(ModSelectCreateColumnsPatch), nameof(Postfix)));
-            TimingLog.Info("ModSelectOverlay.createColumns patched (postfix)");
-            return true;
         }
 
-        private static void Postfix(object __instance, ref object __result)
+        public override bool Condition => ClientMods.ShowSystemMods;
+
+        public void Postfix(object __instance, ref object __result)
         {
-            if (!ClientMods.ShowSystemMods)
+            var overlayType = Reflection.GetGameType("osu.Game.Overlays.Mods.ModSelectOverlay");
+            var existing = ((IEnumerable)__result).Cast<object>().ToList();
+
+            var createModColumnContent = overlayType?.GetMethod("createModColumnContent", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (createModColumnContent == null)
+            {
+                LogError("createModColumnContent not found");
                 return;
-
-            try
-            {
-                // __result is IEnumerable<ColumnDimContainer>; the type is a private nested
-                // type, so rebuild the enumerable reflectively with the System column appended.
-                var existing = ((IEnumerable)__result).Cast<object>().ToList();
-
-                var createModColumnContent = overlayType?.GetMethod("createModColumnContent", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                if (createModColumnContent == null)
-                {
-                    TimingLog.Error("ModSelectCreateColumnsPatch: createModColumnContent not found");
-                    return;
-                }
-
-                existing.Add(createModColumnContent.Invoke(__instance, new object[] { ModType.System }) ?? throw new InvalidOperationException("createModColumnContent returned null"));
-
-                var containerType = existing[0].GetType();
-                var listType = typeof(List<>).MakeGenericType(containerType);
-                var list = (IList)Activator.CreateInstance(listType)!;
-
-                foreach (var item in existing)
-                    list.Add(item);
-
-                __result = list;
-                TimingLog.Info("ModSelectOverlay System column appended");
             }
-            catch (Exception ex)
-            {
-                TimingLog.Error($"ModSelectCreateColumnsPatch.Postfix: {ex}");
-            }
+
+            existing.Add(createModColumnContent.Invoke(__instance, new object[] { ModType.System }) ?? throw new InvalidOperationException("createModColumnContent returned null"));
+
+            var containerType = existing[0].GetType();
+            var listType = typeof(List<>).MakeGenericType(containerType);
+            var list = (IList)Activator.CreateInstance(listType)!;
+
+            foreach (var item in existing)
+                list.Add(item);
+
+            __result = list;
+            LogInfo("ModSelectOverlay System column appended");
         }
     }
 }
