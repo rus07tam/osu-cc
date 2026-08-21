@@ -23,6 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PluginDocument Include="README.md" Title="README" IconGlyph="Book" />
+    <PluginDocument Include="CHANGELOG.md" Title="Changelog" IconGlyph="History" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PluginDependency Include="username-visuals" />
   </ItemGroup>
 

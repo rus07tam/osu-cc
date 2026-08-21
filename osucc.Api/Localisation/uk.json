@@ -48,5 +48,6 @@
   "osucc.Localisation.Plugins:InstalledTab": "Встановлені",
   "osucc.Localisation.Plugins:BrowserTab": "Каталог плагінів",
   "osucc.Localisation.Plugins:BrowserStubTitle": "Каталог плагінів незабаром з'явиться",
-  "osucc.Localisation.Plugins:BrowserStubDescription": "У майбутніх оновленнях тут можна буде знаходити, переглядати та встановлювати плагіни спільноти безпосередньо з гри."
+  "osucc.Localisation.Plugins:BrowserStubDescription": "У майбутніх оновленнях тут можна буде знаходити, переглядати та встановлювати плагіни спільноти безпосередньо з гри.",
+  "osucc.Localisation.Plugins:DocumentFileNotFound": "Файл документа не знайдено: {0}"
 }

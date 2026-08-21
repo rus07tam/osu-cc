@@ -36,6 +36,21 @@ Tags are free-form lowercase strings. The recommended vocabulary below keeps tag
 
 A plugin usually carries at least one scope tag, plus a classifier and/or a descriptive tag when relevant.
 
+### Resources & Documentation
+
+Plugins can bundle arbitrary resource files in a `./res/` directory (or by declaring `<PluginResource Include="..." />` items in the `.csproj`). All files in `./res/` are automatically packaged into the plugin archive and staged into the plugin directory at runtime.
+
+To provide in-game Markdown documentation (such as a `README.md` or `CHANGELOG.md`), declare `<PluginDocument>` items referencing markdown files in `./res/`:
+
+```xml
+<ItemGroup>
+  <PluginDocument Include="res/README.md" Title="README" IconGlyph="Book" />
+  <PluginDocument Include="res/CHANGELOG.md" Title="Changelog" IconGlyph="History" />
+</ItemGroup>
+```
+
+Declared documents appear as interactive tabs on the right side of the plugin's details view alongside the settings tab, rendered using osu!'s Markdown engine.
+
 Through `IOsuCcPluginHost` a plugin can:
 
 - add toolbar buttons (`AddToolbarButton(factory, placement, layoutPosition)`)

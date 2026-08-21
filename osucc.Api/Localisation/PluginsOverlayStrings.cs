@@ -117,5 +117,8 @@ namespace osucc.Localisation
         public static LocalisableString BrowserStubTitle => OsuCcLocalisation.Get(getKey(nameof(BrowserStubTitle)), "Plugin catalog coming soon");
 
         public static LocalisableString BrowserStubDescription => OsuCcLocalisation.Get(getKey(nameof(BrowserStubDescription)), "In future updates, you will be able to discover, browse and install community plugins directly from here.");
+
+        public static LocalisableString DocumentFileNotFound(string path)
+            => OsuCcLocalisation.Get(getKey(nameof(DocumentFileNotFound)), "Document file not found: {0}", path);
     }
 }

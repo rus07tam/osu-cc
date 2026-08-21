@@ -23,6 +23,8 @@ namespace osucc.Plugin
 
         public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
 
+        public IReadOnlyList<PluginDocument> Documents { get; init; } = Array.Empty<PluginDocument>();
+
         public string? Description { get; init; }
 
         /// <summary>

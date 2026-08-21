@@ -8,6 +8,7 @@ using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Client;
@@ -18,6 +19,7 @@ using osucc.UI.Overlays;
 using osuTK;
 using osuTK.Graphics;
 using System.Diagnostics;
+using System.IO;
 
 namespace osucc.UI.Plugins
 {
@@ -117,7 +119,7 @@ namespace osucc.UI.Plugins
                     new Drawable[]
                     {
                         createLeftColumn(entry),
-                        CreateSettingsSection(entry),
+                        createRightColumn(entry),
                     },
                 },
             });
@@ -492,21 +494,21 @@ namespace osucc.UI.Plugins
             return new DetailsSection { Child = flow };
         }
 
-        private DetailsSection CreateSettingsSection(PluginEntry entry)
-        {
-            var section = new DetailsSection();
+        private DetailsRightPane createRightColumn(PluginEntry entry)
+            => new DetailsRightPane(entry, () => createSettingsContent(entry), doc => createDocumentContent(entry, doc));
 
+        private Drawable createSettingsContent(PluginEntry entry)
+        {
             var factory = PluginManager.GetSettingsSubsectionFactory(entry.Id);
 
             if (factory == null)
             {
-                section.Child = new OsuSpriteText
+                return new OsuSpriteText
                 {
                     Text = PluginsOverlayStrings.NoPluginSettings,
                     Font = OsuFont.Default.With(size: 13),
                     Colour = Color4.White.Opacity(0.55f),
                 };
-                return section;
             }
 
             try
@@ -516,33 +518,284 @@ namespace osucc.UI.Plugins
             catch (Exception ex)
             {
                 TimingLog.Error($"PluginDetailsOverlay: failed to create settings for '{entry.Id}': {ex}");
-                section.Child = new OsuSpriteText
+                return new OsuSpriteText
                 {
                     Text = PluginsOverlayStrings.SettingsOpenFailed(ex.Message),
                     Font = OsuFont.Default.With(size: 13),
                     Colour = OsuCcColours.Error,
                 };
-                return section;
             }
 
-            section.Child = new FillFlowContainer
-            {
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 12),
-                Children = new Drawable[]
-                {
-                    new OsuSpriteText
-                    {
-                        Text = PluginsOverlayStrings.DetailsSettingsTitle,
-                        Font = OsuFont.Torus.With(size: 18, weight: FontWeight.Bold),
-                    },
-                    settingsSubsection,
-                },
-            };
+            return settingsSubsection;
+        }
 
-            return section;
+        private static Drawable createDocumentContent(PluginEntry entry, PluginDocument doc)
+        {
+            string fullPath = Path.Combine(entry.Directory, doc.Path.Replace('\\', '/'));
+
+            if (!File.Exists(fullPath))
+            {
+                string resPath = Path.Combine(entry.Directory, "res", doc.Path.Replace('\\', '/'));
+                if (File.Exists(resPath))
+                    fullPath = resPath;
+                else
+                {
+                    string rootFileName = Path.Combine(entry.Directory, Path.GetFileName(doc.Path));
+                    if (File.Exists(rootFileName))
+                        fullPath = rootFileName;
+                }
+            }
+
+            if (!File.Exists(fullPath))
+            {
+                return new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 8),
+                    Children = new Drawable[]
+                    {
+                        new OsuSpriteText
+                        {
+                            Text = doc.Title,
+                            Font = OsuFont.Torus.With(size: 18, weight: FontWeight.Bold),
+                        },
+                        new OsuSpriteText
+                        {
+                            Text = PluginsOverlayStrings.DocumentFileNotFound(doc.Path),
+                            Font = OsuFont.Default.With(size: 13),
+                            Colour = OsuCcColours.Warning,
+                        },
+                    },
+                };
+            }
+
+            try
+            {
+                string markdown = File.ReadAllText(fullPath);
+
+                return new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 12),
+                    Children = new Drawable[]
+                    {
+                        new OsuMarkdownContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = markdown,
+                        },
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                TimingLog.Error($"PluginDetailsOverlay: failed to read document '{fullPath}': {ex}");
+                return new OsuSpriteText
+                {
+                    Text = ex.Message,
+                    Font = OsuFont.Default.With(size: 13),
+                    Colour = OsuCcColours.Error,
+                };
+            }
+        }
+
+        /// <summary>Tabbed container hosting Settings and Markdown documents on the right pane.</summary>
+        private sealed partial class DetailsRightPane : CompositeDrawable
+        {
+            [Resolved]
+            private OverlayColourProvider colourProvider { get; set; } = null!;
+
+            private readonly PluginEntry entry;
+            private readonly Func<Drawable> createSettings;
+            private readonly Func<PluginDocument, Drawable> createDoc;
+            private readonly Container contentHolder;
+            private readonly List<TabButton> tabButtons = new();
+
+            public DetailsRightPane(PluginEntry entry, Func<Drawable> createSettings, Func<PluginDocument, Drawable> createDoc)
+            {
+                this.entry = entry;
+                this.createSettings = createSettings;
+                this.createDoc = createDoc;
+
+                RelativeSizeAxes = Axes.X;
+                AutoSizeAxes = Axes.Y;
+
+                var tabsFlow = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(8, 0),
+                    Margin = new MarginPadding { Bottom = 10 },
+                };
+
+                // Settings tab button
+                var settingsTab = new TabButton(FontAwesome.Solid.Cog, PluginsOverlayStrings.DetailsSettingsTitle, () => selectTab(0));
+                tabButtons.Add(settingsTab);
+                tabsFlow.Add(settingsTab);
+
+                // Document tab buttons
+                for (int i = 0; i < entry.Documents.Count; i++)
+                {
+                    int docIndex = i;
+                    var doc = entry.Documents[i];
+                    var icon = PluginCardLayout.ResolveFontAwesomeIcon(doc.IconGlyph) ?? FontAwesome.Solid.FileAlt;
+                    var docTab = new TabButton(icon, doc.Title, () => selectTab(docIndex + 1));
+                    tabButtons.Add(docTab);
+                    tabsFlow.Add(docTab);
+                }
+
+                InternalChild = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Children = new Drawable[]
+                    {
+                        tabsFlow,
+                        new DetailsSection
+                        {
+                            Child = contentHolder = new Container
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                            },
+                        },
+                    },
+                };
+            }
+
+            [BackgroundDependencyLoader]
+            private void load()
+            {
+                selectTab(0);
+            }
+
+            private void selectTab(int index)
+            {
+                for (int i = 0; i < tabButtons.Count; i++)
+                    tabButtons[i].Active = (i == index);
+
+                contentHolder.Clear();
+
+                if (index == 0)
+                    contentHolder.Child = createSettings();
+                else
+                {
+                    var doc = entry.Documents[index - 1];
+                    contentHolder.Child = createDoc(doc);
+                }
+            }
+
+            private sealed partial class TabButton : ClickableContainer
+            {
+                [Resolved]
+                private OverlayColourProvider colourProvider { get; set; } = null!;
+
+                private readonly Box background;
+                private readonly SpriteIcon iconSprite;
+                private readonly OsuSpriteText textSprite;
+
+                private bool active;
+
+                public bool Active
+                {
+                    get => active;
+                    set
+                    {
+                        if (active == value)
+                            return;
+
+                        active = value;
+                        updateState();
+                    }
+                }
+
+                public TabButton(IconUsage icon, LocalisableString title, Action onClick)
+                {
+                    Action = onClick;
+                    AutoSizeAxes = Axes.Both;
+                    Masking = true;
+                    CornerRadius = 6;
+
+                    InternalChildren = new Drawable[]
+                    {
+                        background = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Transparent,
+                        },
+                        new FillFlowContainer
+                        {
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(8, 0),
+                            Padding = new MarginPadding { Horizontal = 14, Vertical = 8 },
+                            Children = new Drawable[]
+                            {
+                                iconSprite = new SpriteIcon
+                                {
+                                    Size = new Vector2(14),
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Icon = icon,
+                                },
+                                textSprite = new OsuSpriteText
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Text = title,
+                                    Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold),
+                                },
+                            },
+                        },
+                    };
+                }
+
+                [BackgroundDependencyLoader]
+                private void load()
+                {
+                    updateState();
+                }
+
+                protected override bool OnHover(osu.Framework.Input.Events.HoverEvent e)
+                {
+                    if (!active)
+                        background.FadeColour(colourProvider.Background3.Opacity(0.5f), 100);
+                    return base.OnHover(e);
+                }
+
+                protected override void OnHoverLost(osu.Framework.Input.Events.HoverLostEvent e)
+                {
+                    if (!active)
+                        background.FadeColour(Color4.Transparent, 100);
+                    base.OnHoverLost(e);
+                }
+
+                private void updateState()
+                {
+                    if (colourProvider == null)
+                        return;
+
+                    if (active)
+                    {
+                        background.FadeColour(colourProvider.Background3, 150);
+                        iconSprite.FadeColour(colourProvider.Colour1, 150);
+                        textSprite.FadeColour(Color4.White, 150);
+                    }
+                    else
+                    {
+                        background.FadeColour(Color4.Transparent, 150);
+                        iconSprite.FadeColour(Color4.White.Opacity(0.6f), 150);
+                        textSprite.FadeColour(Color4.White.Opacity(0.6f), 150);
+                    }
+                }
+            }
         }
 
         /// <summary>A rounded container grouping one block of the details card.</summary>

@@ -175,10 +175,7 @@ namespace osucc.Plugin
 
                 try
                 {
-                    Directory.CreateDirectory(target);
-
-                    foreach (string file in Directory.GetFiles(stagingFolder))
-                        File.Move(file, Path.Combine(target, Path.GetFileName(file)), overwrite: true);
+                    moveDirectoryContents(stagingFolder, target);
 
                     foreach (var entry in group)
                     {
@@ -278,6 +275,23 @@ namespace osucc.Plugin
 
             string relative = fullIcon[fullFrom.Length..].TrimStart('\\', '/');
             return Path.Combine(toFolder, relative);
+        }
+
+        private static void moveDirectoryContents(string source, string destination)
+        {
+            Directory.CreateDirectory(destination);
+
+            foreach (string file in Directory.GetFiles(source))
+            {
+                string destFile = Path.Combine(destination, Path.GetFileName(file));
+                File.Move(file, destFile, overwrite: true);
+            }
+
+            foreach (string dir in Directory.GetDirectories(source))
+            {
+                string destDir = Path.Combine(destination, Path.GetFileName(dir));
+                moveDirectoryContents(dir, destDir);
+            }
         }
 
         private static bool isArchive(string path)

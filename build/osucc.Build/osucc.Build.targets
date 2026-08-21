@@ -49,6 +49,7 @@
       <IconResource ParameterType="System.String" />
       <Repository ParameterType="System.String" />
       <Dependencies ParameterType="System.String[]" />
+      <Documents ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
     </ParameterGroup>
     <Task>
       <Code Type="Class" Language="cs"><![CDATA[
@@ -78,6 +79,7 @@
             public string? IconResource { get; set; }
             public string? Repository { get; set; }
             public string[]? Dependencies { get; set; }
+            public Microsoft.Build.Framework.ITaskItem[]? Documents { get; set; }
 
             public override bool Execute()
             {
@@ -227,6 +229,41 @@
                 if (Dependencies is { Length: > 0 })
                     named.Add($"DependsOn = new[] {{ {string.Join(", ", Array.ConvertAll(Dependencies!, Quote))} }}");
 
+                var docPaths = new List<string>();
+                var docTitles = new List<string>();
+                var docIcons = new List<string>();
+
+                if (Documents is { Length: > 0 })
+                {
+                    foreach (Microsoft.Build.Framework.ITaskItem item in Documents)
+                    {
+                        if (string.IsNullOrWhiteSpace(item.ItemSpec))
+                            continue;
+
+                        string path = item.ItemSpec.Replace('\\', '/');
+                        string title = item.GetMetadata("Title");
+                        if (string.IsNullOrWhiteSpace(title))
+                            title = Path.GetFileNameWithoutExtension(path);
+
+                        string icon = item.GetMetadata("IconGlyph");
+                        if (string.IsNullOrWhiteSpace(icon))
+                            icon = item.GetMetadata("Icon");
+                        if (string.IsNullOrWhiteSpace(icon))
+                            icon = string.Empty;
+
+                        docPaths.Add(path);
+                        docTitles.Add(title);
+                        docIcons.Add(icon);
+                    }
+                }
+
+                if (docPaths.Count > 0)
+                {
+                    named.Add($"DocumentPaths = new[] {{ {string.Join(", ", Array.ConvertAll(docPaths.ToArray(), Quote))} }}");
+                    named.Add($"DocumentTitles = new[] {{ {string.Join(", ", Array.ConvertAll(docTitles.ToArray(), Quote))} }}");
+                    named.Add($"DocumentIcons = new[] {{ {string.Join(", ", Array.ConvertAll(docIcons.ToArray(), Quote))} }}");
+                }
+
                 string declaration = "[assembly: OsuCcPlugin(" + string.Join(", ", args)
                     + (named.Count > 0 ? ", " + string.Join(", ", named) : string.Empty)
                     + ")]";
@@ -261,6 +298,8 @@
       <_PluginTags Include="@(Tag)" Condition="'@(Tag)' != ''" />
       <_PluginDependencies Include="@(PluginDependency)" Condition="'@(PluginDependency)' != ''" />
       <_PluginDependencies Include="@(Dependency)" Condition="'@(Dependency)' != ''" />
+      <_PluginDocuments Include="@(PluginDocument)" Condition="'@(PluginDocument)' != ''" />
+      <_PluginDocuments Include="@(Document)" Condition="'@(Document)' != ''" />
     </ItemGroup>
 
     <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_IconOutput)'))" Condition="'$(PackageIcon)' != '' and Exists('$(PackageIcon)')" />
@@ -280,7 +319,8 @@
         IconPath="$(PackageIcon)"
         Icon="$(IconGlyph)"
         Repository="$(RepositoryUrl)"
-        Dependencies="@(_PluginDependencies)" />
+        Dependencies="@(_PluginDependencies)"
+        Documents="@(_PluginDocuments)" />
 
     <ItemGroup>
       <Compile Include="$(_ManifestFile)" />
@@ -297,10 +337,25 @@
     <ItemGroup>
       <_PackageFiles Include="$(OutDir)$(AssemblyName).dll" />
       <_PackageFiles Include="$(_IconOutput)" Condition="'$(PackageIcon)' != '' and Exists('$(_IconOutput)')" />
+
+      <!-- Collect declared PluginDocument items -->
+      <_PluginDocFiles Include="@(PluginDocument)" Condition="'@(PluginDocument)' != '' and Exists('%(Identity)')" />
+      <_PluginDocFiles Include="@(Document)" Condition="'@(Document)' != '' and Exists('%(Identity)')" />
+
+      <!-- Collect declared PluginResource items -->
+      <_PluginResFiles Include="@(PluginResource)" Condition="'@(PluginResource)' != '' and Exists('%(Identity)')" />
+      <_PluginResFiles Include="@(Resource)" Condition="'@(Resource)' != '' and Exists('%(Identity)')" />
+
+      <!-- Collect all files from res folder on disk if it exists -->
+      <_DiskResFiles Include="res\**\*" Condition="Exists('res')" />
     </ItemGroup>
 
     <MakeDir Directories="$(_Staging)" />
-    <Copy SourceFiles="@(_PackageFiles)" DestinationFolder="$(_Staging)" />
+    <Copy SourceFiles="@(_PackageFiles)" DestinationFolder="$(_Staging)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_PluginDocFiles)" DestinationFiles="@(_PluginDocFiles->'$(_Staging)\%(Identity)')" Condition="'@(_PluginDocFiles)' != ''" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_PluginResFiles)" DestinationFiles="@(_PluginResFiles->'$(_Staging)\%(Identity)')" Condition="'@(_PluginResFiles)' != ''" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_DiskResFiles)" DestinationFiles="@(_DiskResFiles->'$(_Staging)\res\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'@(_DiskResFiles)' != ''" SkipUnchangedFiles="true" />
+
     <ZipDirectory SourceDirectory="$(_Staging)" DestinationFile="$(_Archive)" Overwrite="True" />
     <RemoveDir Directories="$(_Staging)" />
   </Target>

@@ -386,8 +386,37 @@ namespace osucc.Plugin
                 Directory = directory,
                 IconPath = iconPath,
                 Dependencies = attribute.DependsOn,
+                Documents = resolveDocuments(attribute),
                 PluginType = pluginType,
             };
+
+        private static PluginDocument[] resolveDocuments(OsuCcPluginAttribute attribute)
+        {
+            if (attribute.DocumentPaths == null || attribute.DocumentPaths.Length == 0)
+                return Array.Empty<PluginDocument>();
+
+            var docs = new PluginDocument[attribute.DocumentPaths.Length];
+
+            for (int i = 0; i < attribute.DocumentPaths.Length; i++)
+            {
+                string path = attribute.DocumentPaths[i];
+                string title = attribute.DocumentTitles != null && i < attribute.DocumentTitles.Length && !string.IsNullOrWhiteSpace(attribute.DocumentTitles[i])
+                    ? attribute.DocumentTitles[i]
+                    : Path.GetFileNameWithoutExtension(path);
+                string? icon = attribute.DocumentIcons != null && i < attribute.DocumentIcons.Length && !string.IsNullOrWhiteSpace(attribute.DocumentIcons[i])
+                    ? attribute.DocumentIcons[i]
+                    : null;
+
+                docs[i] = new PluginDocument
+                {
+                    Title = title,
+                    Path = path,
+                    IconGlyph = icon,
+                };
+            }
+
+            return docs;
+        }
 
         /// <summary>
         /// Maps the attribute's author declaration to a list of <see cref="PluginAuthor"/>.

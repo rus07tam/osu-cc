@@ -84,6 +84,15 @@ namespace osucc.Plugin
         /// </summary>
         public string? Repository { get; set; }
 
+        /// <summary>Relative paths to declared markdown documents (e.g. <c>"res/README.md"</c>).</summary>
+        public string[] DocumentPaths { get; set; } = Array.Empty<string>();
+
+        /// <summary>Display titles for declared documents (e.g. <c>"README"</c>).</summary>
+        public string[] DocumentTitles { get; set; } = Array.Empty<string>();
+
+        /// <summary>Optional FontAwesome icon glyph names for declared documents (e.g. <c>"Book"</c>).</summary>
+        public string[] DocumentIcons { get; set; } = Array.Empty<string>();
+
         public OsuCcPluginAttribute(string id, string name, int priority = 0, int apiVersion = CurrentApiVersion)
         {
             Id = id;
