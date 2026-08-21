@@ -127,69 +127,106 @@ namespace osucc.UI.Plugins
                 {
                     installedContent.FadeOut(200, Easing.OutQuint);
                     browserContent.FadeIn(200, Easing.OutQuint);
+
+                    if (!browserInitialized)
+                    {
+                        browserInitialized = true;
+                        loadBrowserPage();
+                    }
                 }
             }, true);
 
             filter.BindValueChanged(e => applyFilter(e.NewValue), true);
         }
 
+        private FillFlowContainer browserList = null!;
+        private int browserPage;
+        private bool browserLoading;
+        private bool browserInitialized;
+
+        private LoadingSpinner browserSpinner = null!;
+
         private FillFlowContainer createBrowserStub()
         {
             return new FillFlowContainer
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                AutoSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Direction = FillDirection.Vertical,
                 Spacing = new Vector2(0, 16),
+                Padding = new MarginPadding { Horizontal = 40 },
                 Children = new Drawable[]
                 {
-                    new Container
+                    browserList = new FillFlowContainer
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Size = new Vector2(96),
-                        Masking = true,
-                        CornerRadius = 24,
-                        Children = new Drawable[]
-                        {
-                            new Box
-                            {
-                                RelativeSizeAxes = Axes.Both,
-                                Colour = ColourProvider.Background4,
-                            },
-                            new SpriteIcon
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Size = new Vector2(48),
-                                Icon = FontAwesome.Solid.Store,
-                                Colour = ColourProvider.Highlight1,
-                            },
-                        },
-                    },
-                    new OsuSpriteText
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Text = PluginsOverlayStrings.BrowserStubTitle,
-                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
-                    },
-                    new OsuTextFlowContainer(t =>
-                    {
-                        t.Font = OsuFont.Default.With(size: 14);
-                        t.Colour = Color4.White.Opacity(0.7f);
-                    })
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Width = 480,
+                        RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Text = PluginsOverlayStrings.BrowserStubDescription,
-                        TextAnchor = Anchor.TopCentre,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 10),
                     },
-                },
+                    browserSpinner = new LoadingSpinner(true)
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Margin = new MarginPadding { Vertical = 10 },
+                    },
+                    new ShearedButton
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Width = 200,
+                        Text = "Load More",
+                        Action = loadBrowserPage,
+                    }
+                }
             };
+        }
+
+        private void loadBrowserPage()
+        {
+            if (browserLoading) return;
+            browserLoading = true;
+            
+            browserSpinner.Show();
+
+            Task.Run(async () =>
+            {
+                var service = PluginBrowserService.Instance;
+                if (service == null)
+                {
+                    Schedule(() => { browserSpinner.Hide(); browserLoading = false; });
+                    return;
+                }
+                
+                var results = await service.GetPluginsAsync(++browserPage).ConfigureAwait(false);
+                
+                Schedule(() =>
+                {
+                    browserLoading = false;
+                    browserSpinner.Hide();
+                    foreach (var info in results)
+                    {
+                        var dummy = new PluginEntry
+                        {
+                            Id = info.Id,
+                            Name = info.Name,
+                            Description = info.Description,
+                            Version = info.Version,
+                            Icon = info.Icon,
+                            IconPath = info.IconPath,
+                            IconResource = info.IconResource,
+                            Repository = info.Repository,
+                            Authors = info.Authors,
+                            Tags = info.Tags,
+                            Documents = info.Documents,
+                        };
+
+                        var card = new PluginCard(dummy) { IsCatalogMode = true };
+                        card.Clicked = _ => PluginsOverlayComponent.Instance?.ShowRemotePlugin(info);
+                        browserList.Add(card);
+                    }
+                });
+            });
         }
 
         private void applyFilter(string query)

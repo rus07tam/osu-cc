@@ -1,5 +1,5 @@
-using System;
 using osu.Framework.Localisation;
+using System;
 
 namespace osucc.Plugin
 {

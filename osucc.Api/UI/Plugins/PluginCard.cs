@@ -1,4 +1,3 @@
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
@@ -20,6 +19,7 @@ using osucc.Localisation;
 using osucc.Plugin;
 using osuTK;
 using osuTK.Graphics;
+using System;
 
 namespace osucc.UI.Plugins
 {
@@ -56,6 +56,7 @@ namespace osucc.UI.Plugins
         private int moveCount;
 
         public PluginEntry Entry { get; }
+        public bool IsCatalogMode { get; set; }
 
         public Action<PluginCard, bool>? EnabledChanged { get; set; }
         public Action<PluginCard>? Clicked { get; set; }
@@ -328,6 +329,17 @@ namespace osucc.UI.Plugins
         {
             base.LoadComplete();
 
+            if (IsCatalogMode)
+            {
+                statusText.Hide();
+                switchButton.Hide();
+                upButton.Hide();
+                downButton.Hide();
+                statusIndicatorDot.Hide();
+                this.FadeTo(1f, 200);
+                return;
+            }
+
             enabled.Value = Entry.Enabled;
 
             enabled.BindValueChanged(_ =>
@@ -344,7 +356,8 @@ namespace osucc.UI.Plugins
 
         protected override void Dispose(bool isDisposing)
         {
-            Entry.StateChanged -= updateVisualState;
+            if (!IsCatalogMode)
+                Entry.StateChanged -= updateVisualState;
             base.Dispose(isDisposing);
         }
 

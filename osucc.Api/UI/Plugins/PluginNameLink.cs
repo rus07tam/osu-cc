@@ -1,4 +1,3 @@
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -10,6 +9,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osucc.Localisation;
 using osucc.Plugin;
+using System;
 
 namespace osucc.UI.Plugins
 {

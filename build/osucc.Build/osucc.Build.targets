@@ -410,7 +410,7 @@
   <Target Name="PackagePluginArchive" AfterTargets="Build" Condition="'$(IsPlugin)' == 'true'">
     <PropertyGroup>
       <_Staging>$(BaseOutputPath)package\$(Configuration)</_Staging>
-      <_Archive>$(OutDir)$(_PluginId).zip</_Archive>
+      <_Archive>$(OutDir)plugin-$(_PluginId)-$(_PluginVersion).zip</_Archive>
       <_IconOutput>$(OutDir)$(PackageIcon)</_IconOutput>
     </PropertyGroup>
 

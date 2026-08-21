@@ -66,6 +66,9 @@ jobs:
         run: dotnet build osucc.build.proj -c Release --nologo
 
       - name: Pack runtime bundle (Release)
+        run: dotnet build osucc.build.proj -t:PackRuntimeBundle -c Release --nologo
+
+      - name: Pack bootstrap bundle (Release)
         run: dotnet build osucc.build.proj -t:PackBootstrapBundle -c Release --nologo
 
       - name: Format check
@@ -100,14 +103,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: plugin-zips
-          path: plugins/*/bin/Release/net8.0/*.zip
+          path: plugins/*/bin/Release/net8.0/plugin-*.zip
           if-no-files-found: error
 
       - name: Upload runtime bundle
         uses: actions/upload-artifact@v4
         with:
           name: osucc-runtime
-          path: artifacts/runtime/*.zip
+          path: artifacts/runtime/runtime-*.zip
+          if-no-files-found: error
+
+      - name: Upload bootstrap bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: osucc-bootstrap
+          path: artifacts/bootstrap/bootstrap-*.zip
           if-no-files-found: error
 
       - name: Upload launcher (linux-x64)
@@ -175,6 +185,7 @@ jobs:
           files: |
             artifacts/ci/dotnet-packages/*.nupkg
             artifacts/ci/plugin-zips/**/*.zip
-            artifacts/ci/osucc-runtime/osucc-runtime-*.zip
+            artifacts/ci/osucc-runtime/runtime-*.zip
+            artifacts/ci/osucc-bootstrap/bootstrap-*.zip
             artifacts/ci/osucc-linux-x64/osucc
             artifacts/ci/osucc-win-x64/osucc.exe

@@ -38,9 +38,8 @@ namespace osucc.Plugin
 
         private static bool loadAttempted;
         private static bool attached;
-        private static bool liveReloadEnabled;
 
-        public static bool LiveReloadEnabled => liveReloadEnabled;
+        public static bool LiveReloadEnabled { get; private set; }
 
         private static string? pluginsDirectory;
 
@@ -143,7 +142,7 @@ namespace osucc.Plugin
             }
 
             // Before the game attaches or if live reloading is disabled, the change is staged for next launch.
-            if (!gameAttached || entry == null || !liveReloadEnabled)
+            if (!gameAttached || entry == null || !LiveReloadEnabled)
                 return;
 
             // Must run on the update thread (the overlay toggle already is); mutates the live
@@ -779,10 +778,10 @@ namespace osucc.Plugin
                     return;
 
                 attached = true;
-                liveReloadEnabled = ClientConfig.LivePluginReloading.Value;
+                LiveReloadEnabled = ClientConfig.LivePluginReloading.Value;
             }
 
-            TimingLog.Info($"PluginManager: live plugin reloading enabled = {liveReloadEnabled}");
+            TimingLog.Info($"PluginManager: live plugin reloading enabled = {LiveReloadEnabled}");
 
             foreach (var entry in loadOrder)
                 attachEntry(entry);

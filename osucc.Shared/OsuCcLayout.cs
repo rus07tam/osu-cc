@@ -3,8 +3,12 @@ namespace osucc.Common;
 /// <summary>
 /// The canonical on-disk layout of the osu-cc data root: the <c>hook</c> folder holding the
 /// startup-hook payload, the <c>plugins</c> folder holding plugin archives and the transient
-/// <c>staging</c> folder used by the updater plugin. Every osu-cc surface (launcher, hook,
-/// updater plugin, build) agrees on these names.
+/// <c>staging</c> folder used by the launcher. Every osu-cc surface (launcher, hook, build)
+/// agrees on these names.
+/// <para>
+/// Plugin archives follow the naming scheme <c>plugin-{id}-{version}.zip</c>. Runtime bundles
+/// are named <c>runtime-{version}.zip</c> and bootstrap bundles <c>bootstrap-{version}.zip</c>.
+/// </para>
 /// </summary>
 public static class OsuCcLayout
 {
@@ -17,7 +21,7 @@ public static class OsuCcLayout
     /// <summary>Folder (under the data root) scanned for plugin archives.</summary>
     public const string PluginsDirectoryName = "plugins";
 
-    /// <summary>Transient folder (under the data root) where the updater plugin stages the next build before the launcher applies it.</summary>
+    /// <summary>Transient folder (under the data root) where the launcher stages the next build before applying it.</summary>
     public const string StagingDirectoryName = "staging";
 
     /// <summary>Marker file inside <see cref="StagingDirectoryName"/> describing the staged update.</summary>
@@ -37,8 +41,24 @@ public static class OsuCcLayout
     /// <summary>Every file that makes up the hook payload.</summary>
     public static readonly string[] HookFiles = new[] { HookDllName }.Concat(HookRuntimeBlobs).ToArray();
 
-    /// <summary>Relative entry of a staged plugin archive inside the staging <c>plugins</c> folder.</summary>
-    public static string PluginArchiveName(string pluginId) => pluginId + ".zip";
+    /// <summary>Versioned plugin archive name: <c>plugin-{pluginId}-{version}.zip</c>.</summary>
+    public static string PluginArchiveName(string pluginId, string version)
+        => $"plugin-{pluginId}-{version}.zip";
+
+    /// <summary>Prefix shared by all archives of a given plugin: <c>plugin-{pluginId}-</c>.</summary>
+    public static string PluginArchivePrefix(string pluginId) => $"plugin-{pluginId}-";
+
+    /// <summary>Common prefix of all runtime bundle filenames.</summary>
+    public const string RuntimeBundlePrefix = "runtime-";
+
+    /// <summary>Common prefix of all bootstrap bundle filenames.</summary>
+    public const string BootstrapBundlePrefix = "bootstrap-";
+
+    /// <summary>Runtime bundle archive name: <c>runtime-{version}.zip</c>.</summary>
+    public static string RuntimeBundleName(string version) => $"runtime-{version}.zip";
+
+    /// <summary>Bootstrap bundle archive name: <c>bootstrap-{version}.zip</c>.</summary>
+    public static string BootstrapBundleName(string version) => $"bootstrap-{version}.zip";
 
     /// <summary>Path of the <c>staging</c> folder under the given data root.</summary>
     public static string StagingDirectory(string osuCcDirectory) => Path.Combine(osuCcDirectory, StagingDirectoryName);

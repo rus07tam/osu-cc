@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc.Host", "osucc.Host\os
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osuccDebug", "plugins\osuccDebug\osuccDebug.csproj", "{24C2A565-4B44-4008-BA94-A67155F210A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osucc", "osucc\osucc.csproj", "{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{D5247426-E866-4970-9314-D381E8B6BB7B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsernameVisuals", "plugins\UsernameVisuals\UsernameVisuals.csproj", "{F34E2034-533A-4CBE-B1A4-27A860F2256F}"
@@ -48,10 +46,6 @@ Global
 		{24C2A565-4B44-4008-BA94-A67155F210A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24C2A565-4B44-4008-BA94-A67155F210A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24C2A565-4B44-4008-BA94-A67155F210A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D40F08CD-CB9A-42D9-BC3A-1C422D3BD8D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F34E2034-533A-4CBE-B1A4-27A860F2256F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F34E2034-533A-4CBE-B1A4-27A860F2256F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F34E2034-533A-4CBE-B1A4-27A860F2256F}.Release|Any CPU.ActiveCfg = Release|Any CPU

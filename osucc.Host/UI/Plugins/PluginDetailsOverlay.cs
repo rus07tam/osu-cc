@@ -1,14 +1,16 @@
+using Markdig.Syntax.Inlines;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
-using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osucc.Client;
@@ -20,8 +22,9 @@ using osuTK;
 using osuTK.Graphics;
 using System.Diagnostics;
 using System.IO;
-using Markdig.Syntax.Inlines;
-using osu.Framework.Graphics.Cursor;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace osucc.UI.Plugins
 {
@@ -44,7 +47,11 @@ namespace osucc.UI.Plugins
         private IconButton? toggleButton;
         private IconButton? clearDataButton;
         private IconButton? deleteButton;
+        private IconButton? installButton;
+        private IconButton? checkUpdatesButton;
+        private SpriteIcon? updateBadge;
         private PluginEntry? displayedEntry;
+        private RemotePluginInfo? displayedRemoteInfo;
 
         private static IReadOnlyDictionary<string, LocalisableString> localisedNames
             => PluginManager.Plugins.ToDictionary(e => e.Id, e => PluginCardLayout.LocalisedName(e));
@@ -91,6 +98,7 @@ namespace osucc.UI.Plugins
                     displayedEntry.StateChanged -= updateDisplayedEntryUi;
 
                 displayedEntry = entry;
+                displayedRemoteInfo = null;
                 entry.StateChanged += updateDisplayedEntryUi;
             }
 
@@ -101,11 +109,19 @@ namespace osucc.UI.Plugins
             toggleButton = null;
             clearDataButton = null;
             deleteButton = null;
+            installButton = null;
+            checkUpdatesButton = null;
 
             Header.TitleText = PluginCardLayout.LocalisedName(entry);
 
             string? authorSummary = entry.Authors.Count > 0 ? PluginCardLayout.FormatAuthorNames(entry) : null;
             Header.DescriptionText = LocalisableString.Format("{0} \u2022 v{1}", authorSummary ?? (LocalisableString)OsuCcStrings.UnknownAuthor, entry.Version);
+
+            if (updateBadge != null)
+            {
+                Header.Remove(updateBadge, true);
+                updateBadge = null;
+            }
 
             content.Add(new GridContainer
             {
@@ -131,6 +147,363 @@ namespace osucc.UI.Plugins
                 fallbackIcon.Colour = ColourProvider.Content1;
 
             updateEntryUi(entry);
+            checkForPluginUpdateAsync(entry);
+        }
+
+        public void ShowPlugin(RemotePluginInfo info)
+        {
+            Show();
+
+            displayedRemoteInfo = info;
+            if (displayedEntry != null)
+            {
+                displayedEntry.StateChanged -= updateDisplayedEntryUi;
+                displayedEntry = null;
+            }
+
+            content.Clear();
+            settingsSubsection = null;
+            fallbackIcon = null;
+            repositoryButton = null;
+            toggleButton = null;
+            clearDataButton = null;
+            deleteButton = null;
+            installButton = null;
+            checkUpdatesButton = null;
+
+            var dummy = toDummyEntry(info);
+            Header.TitleText = PluginCardLayout.LocalisedName(dummy);
+
+            string? authorSummary = info.Authors.Count > 0 ? PluginCardLayout.FormatAuthorNames(dummy) : null;
+            Header.DescriptionText = LocalisableString.Format("{0} \u2022 v{1}", authorSummary ?? (LocalisableString)OsuCcStrings.UnknownAuthor, info.Version);
+
+            if (updateBadge != null)
+            {
+                Header.Remove(updateBadge, true);
+                updateBadge = null;
+            }
+
+            content.Add(new GridContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                RowDimensions = new[] { new Dimension(GridSizeMode.AutoSize) },
+                ColumnDimensions = new[]
+                {
+                    new Dimension(GridSizeMode.Relative, 0.4f),
+                    new Dimension(GridSizeMode.Relative, 0.6f),
+                },
+                Content = new[]
+                {
+                    new Drawable[]
+                    {
+                        createRemoteLeftColumn(info),
+                        createRemoteRightColumn(info),
+                    },
+                },
+            });
+
+            if (fallbackIcon != null)
+                fallbackIcon.Colour = ColourProvider.Content1;
+        }
+
+        private void checkForPluginUpdateAsync(PluginEntry entry, bool manual = false)
+        {
+            if (manual) ClientNotifications.Info("Checking for updates...");
+
+            Task.Run(async () =>
+            {
+                var service = PluginUpdateService.Instance;
+                if (service == null) return;
+                var versionInfo = await service.CheckUpdateAsync(entry).ConfigureAwait(false);
+                
+                Schedule(() => 
+                {
+                    if (checkUpdatesButton != null) checkUpdatesButton.Enabled.Value = true;
+                    
+                    if (versionInfo != null)
+                    {
+                        showUpdateBadge(entry, versionInfo);
+                        if (manual) ClientNotifications.Success($"Update available: {versionInfo.Version}");
+                    }
+                    else if (manual)
+                    {
+                        ClientNotifications.Info("You have the latest version.");
+                    }
+                });
+            });
+        }
+
+        private void showUpdateBadge(PluginEntry entry, PluginVersionInfo version)
+        {
+            if (updateBadge == null)
+            {
+                updateBadge = new SpriteIcon
+                {
+                    Icon = FontAwesome.Solid.ExclamationCircle,
+                    Size = new Vector2(20),
+                    Colour = OsuCcColours.Warning,
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    Margin = new MarginPadding { Left = 10 }
+                };
+                Header.Add(updateBadge);
+            }
+
+            // Only add button if we don't already have one
+            if (installButton == null && checkUpdatesButton != null)
+            {
+                var actionsFlow = (FillFlowContainer)checkUpdatesButton.Parent!;
+                installButton = PluginCardLayout.CreateActionButton(
+                    FontAwesome.Solid.Download,
+                    PluginsOverlayStrings.UpdateAvailable(version.Version),
+                    () => installUpdate(entry, version));
+                actionsFlow.Add(installButton);
+            }
+        }
+
+        private void startUpdateCheck(PluginEntry entry)
+        {
+            if (checkUpdatesButton != null) checkUpdatesButton.Enabled.Value = false;
+            checkForPluginUpdateAsync(entry, manual: true);
+        }
+
+        private void installUpdate(PluginEntry entry, PluginVersionInfo version)
+        {
+            if (installButton != null) installButton.Enabled.Value = false;
+            Task.Run(async () =>
+            {
+                var service = PluginUpdateService.Instance;
+                if (service == null) return;
+                await service.InstallVersionAsync(entry, version).ConfigureAwait(false);
+                Schedule(() => ClientNotifications.Info(PluginsOverlayStrings.InstallScheduled(PluginCardLayout.LocalisedName(entry))));
+            });
+        }
+
+        private void installPlugin(RemotePluginInfo info)
+        {
+            var dummy = toDummyEntry(info);
+            var existing = PluginManager.Plugins.FirstOrDefault(p => p.Id == info.Id);
+            if (existing != null)
+            {
+                ClientNotifications.Info(PluginsOverlayStrings.AlreadyInstalled(PluginCardLayout.LocalisedName(dummy)));
+                return;
+            }
+
+            if (installButton != null) installButton.Enabled.Value = false;
+
+            Task.Run(async () =>
+            {
+                var service = PluginUpdateService.Instance;
+                if (service == null) return;
+
+                var entry = new PluginEntry { Id = info.Id, Version = "0.0.0", Repository = info.Repository };
+                var versionInfo = await service.CheckUpdateAsync(entry).ConfigureAwait(false);
+                if (versionInfo == null) return;
+
+                await service.InstallVersionAsync(entry, versionInfo).ConfigureAwait(false);
+                Schedule(() => ClientNotifications.Info(PluginsOverlayStrings.InstallScheduled(PluginCardLayout.LocalisedName(dummy))));
+            });
+        }
+
+        private FillFlowContainer createRemoteLeftColumn(RemotePluginInfo info)
+        {
+            var children = new List<Drawable>
+            {
+                CreateRemoteSummarySection(info),
+                CreateRemoteMetadataSection(info),
+                CreateRemoteActionsSection(info),
+            };
+
+            if (!string.IsNullOrEmpty(info.Description))
+            {
+                var flow = new TextFlowContainer { RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y };
+                flow.AddText(info.Description, s => { s.Font = OsuFont.Default.With(size: 13); s.Colour = Color4.White.Opacity(0.7f); });
+                children.Add(new DetailsSection { Child = flow });
+            }
+
+            return new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 16),
+                Padding = new MarginPadding { Right = 16 },
+                Children = children,
+            };
+        }
+
+        private static PluginEntry toDummyEntry(RemotePluginInfo info) => new PluginEntry
+        {
+            Id = info.Id,
+            Name = info.Name,
+            Description = info.Description,
+            Version = info.Version,
+            Icon = info.Icon,
+            IconPath = info.IconPath,
+            IconResource = info.IconResource,
+            Repository = info.Repository,
+            Authors = info.Authors.ToList(),
+            Tags = info.Tags.ToList(),
+            Documents = info.Documents.ToList()
+        };
+
+        private DetailsSection CreateRemoteSummarySection(RemotePluginInfo info)
+        {
+            var dummy = toDummyEntry(info);
+            var icon = PluginCardLayout.CreateIcon(dummy, 48, out fallbackIcon);
+
+            return new DetailsSection
+            {
+                Child = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(16, 0),
+                    Children = new Drawable[]
+                    {
+                        new Container { RelativeSizeAxes = Axes.Y, Width = 48, Child = icon },
+                        new FillFlowContainer
+                        {
+                            RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical, Spacing = new Vector2(0, 4),
+                            Children = new Drawable[]
+                            {
+                                new OsuSpriteText { Text = PluginCardLayout.LocalisedName(dummy), Font = OsuFont.Torus.With(size: 22, weight: FontWeight.Bold) }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private DetailsSection CreateRemoteMetadataSection(RemotePluginInfo info)
+        {
+            var dummy = toDummyEntry(info);
+            var rows = new List<Drawable>
+            {
+                CreateMetadataRow(PluginsOverlayStrings.DetailsId, info.Id),
+                CreateMetadataRow(PluginsOverlayStrings.DetailsAuthor, PluginCardLayout.CreateAuthorValue(dummy)),
+                CreateMetadataRow(PluginsOverlayStrings.DetailsTags, PluginCardLayout.CreateTagsValue(dummy)),
+                CreateMetadataRow(PluginsOverlayStrings.DetailsVersion, info.Version),
+            };
+
+            return new DetailsSection
+            {
+                Child = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 6),
+                    Children = rows
+                }
+            };
+        }
+
+        private DetailsSection CreateRemoteActionsSection(RemotePluginInfo info)
+        {
+            var buttons = new List<Drawable>();
+
+            if (!string.IsNullOrEmpty(info.Repository))
+            {
+                repositoryButton = PluginCardLayout.CreateActionButton(FontAwesome.Brands.Github, PluginsOverlayStrings.OpenRepository, () => openRepository(info.Repository!));
+                buttons.Add(repositoryButton);
+            }
+
+            installButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Download, PluginsOverlayStrings.InstallPlugin, () => installPlugin(info));
+            buttons.Add(installButton);
+
+            return new DetailsSection
+            {
+                Child = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 10),
+                    Children = new Drawable[]
+                    {
+                        new OsuSpriteText { Text = PluginsOverlayStrings.DetailsActionsTitle, Font = OsuFont.Torus.With(size: 18, weight: FontWeight.Bold) },
+                        new FillFlowContainer
+                        {
+                            AutoSizeAxes = Axes.Both, Direction = FillDirection.Horizontal, Spacing = new Vector2(8, 0),
+                            Children = buttons
+                        }
+                    }
+                }
+            };
+        }
+
+        private DetailsRightPane createRemoteRightColumn(RemotePluginInfo info)
+        {
+            // Fallback for settings: no settings in catalog
+            return new DetailsRightPane(
+                new PluginEntry { Documents = info.Documents.ToList() },
+                () => new OsuSpriteText { Text = PluginsOverlayStrings.NoPluginSettings, Font = OsuFont.Default.With(size: 13), Colour = Color4.White.Opacity(0.55f) },
+                doc => createRemoteDocumentContent(info, doc)
+            );
+        }
+
+        private static readonly Lazy<HttpClient> httpClient = new Lazy<HttpClient>(() => new HttpClient());
+
+        private Drawable createRemoteDocumentContent(RemotePluginInfo info, PluginDocument doc)
+        {
+            if (string.IsNullOrEmpty(info.Repository) || !info.Repository.StartsWith("github.com/", StringComparison.OrdinalIgnoreCase))
+                return new OsuSpriteText { Text = "Documents not available in catalog view", Font = OsuFont.Default.With(size: 13), Colour = Color4.White.Opacity(0.55f) };
+
+            string repoFullName = info.Repository.Substring("github.com/".Length);
+            string url = $"https://raw.githubusercontent.com/{repoFullName}/HEAD/{doc.Path.Replace('\\', '/')}";
+
+            var container = new Container
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Child = new OsuSpriteText { Text = "Loading...", Font = OsuFont.Default.With(size: 13), Colour = Color4.White.Opacity(0.55f) }
+            };
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    string markdown = await httpClient.Value.GetStringAsync(url).ConfigureAwait(false);
+                    Schedule(() =>
+                    {
+                        container.Child = new FillFlowContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(0, 12),
+                            Children = new Drawable[]
+                            {
+                                new PluginMarkdownContainer(string.Empty) { RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y, Text = markdown }
+                            }
+                        };
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Schedule(() =>
+                    {
+                        container.Child = new FillFlowContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(0, 8),
+                            Children = new Drawable[]
+                            {
+                                new OsuSpriteText { Text = doc.Title, Font = OsuFont.Torus.With(size: 18, weight: FontWeight.Bold) },
+                                new OsuSpriteText { Text = $"Failed to load document: {ex.Message}", Font = OsuFont.Default.With(size: 13), Colour = OsuCcColours.Warning }
+                            }
+                        };
+                    });
+                }
+            });
+
+            return container;
         }
 
         /// <summary>Builds the narrow left column: summary, metadata, actions and description boxes.</summary>
@@ -257,6 +630,7 @@ namespace osucc.UI.Plugins
                 repositoryButton = PluginCardLayout.CreateActionButton(FontAwesome.Brands.Github, PluginsOverlayStrings.OpenRepository, () => openRepository(entry.Repository!));
             }
 
+            checkUpdatesButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Sync, PluginsOverlayStrings.CheckUpdates, () => startUpdateCheck(entry));
             diagnosticsButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Bug, PluginsOverlayStrings.DetailsDiagnosticsTitle, () => openDiagnostics(entry));
             toggleButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.ToggleOn, PluginsOverlayStrings.ToggleDisabled, () => toggleEnabled(entry));
             clearDataButton = PluginCardLayout.CreateActionButton(FontAwesome.Solid.Eraser, PluginsOverlayStrings.ClearDataTitle, () => clearPluginData(entry));
@@ -267,6 +641,7 @@ namespace osucc.UI.Plugins
             if (repositoryButton != null)
                 buttons.Add(repositoryButton);
 
+            buttons.Add(checkUpdatesButton);
             buttons.Add(diagnosticsButton);
             buttons.Add(toggleButton);
             buttons.Add(clearDataButton);

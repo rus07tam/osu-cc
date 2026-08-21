@@ -170,5 +170,17 @@ namespace osucc.Localisation
 
         public static LocalisableString DependencyBundledVersionMismatch(string dll, string current, string required)
             => OsuCcLocalisation.Get(getKey(nameof(DependencyBundledVersionMismatch)), "Bundled assembly \"{0}\" version {1} is incompatible (expected {2})", dll, current, required);
+        public static LocalisableString InstallPlugin => OsuCcLocalisation.Get(getKey(nameof(InstallPlugin)), "Install plugin");
+
+        public static LocalisableString AlreadyInstalled(LocalisableString name)
+            => OsuCcLocalisation.Get(getKey(nameof(AlreadyInstalled)), "{0} is already installed", name);
+
+        public static LocalisableString InstallScheduled(LocalisableString name)
+            => OsuCcLocalisation.Get(getKey(nameof(InstallScheduled)), "{0} scheduled for installation on next launch", name);
+
+        public static LocalisableString CheckUpdates => OsuCcLocalisation.Get(getKey(nameof(CheckUpdates)), "Check for updates");
+
+        public static LocalisableString UpdateAvailable(string version)
+            => OsuCcLocalisation.Get(getKey(nameof(UpdateAvailable)), "Install update {0}", version);
     }
 }

@@ -1,12 +1,12 @@
+using osu.Game;
+using osucc.Client;
+using osucc.Common;
+using osucc.Localisation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using osu.Game;
-using osucc.Client;
-using osucc.Common;
-using osucc.Localisation;
 
 namespace osucc.Plugin
 {

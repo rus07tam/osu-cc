@@ -62,10 +62,10 @@
       Properties="Configuration=$(Configuration);OsuCcPluginBuildSession=1" />
   </Target>
 
-  <Target Name="PackBootstrapBundle" DependsOnTargets="Build">
+  <Target Name="PackRuntimeBundle" DependsOnTargets="Build">
     <PropertyGroup>
-      <BootstrapStaging>$(OsuCcRoot)artifacts/bootstrap/staging</BootstrapStaging>
-      <BootstrapArchive>$(OsuCcRoot)artifacts/bootstrap/osucc-bootstrap-$(OsuCcHostVersion).zip</BootstrapArchive>
+      <RuntimeStaging>$(OsuCcRoot)artifacts/runtime/staging</RuntimeStaging>
+      <RuntimeArchive>$(OsuCcRoot)artifacts/runtime/runtime-$(OsuCcHostVersion).zip</RuntimeArchive>
       <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
     </PropertyGroup>
 
@@ -75,7 +75,34 @@
       <_HookPayload Include="$(HookOutput)/0Harmony.dll" />
       <_HookPayload Include="$(HookOutput)/SharpCompress.dll" />
       <_HookPayload Include="$(HookOutput)/osucc.Shared.dll" />
-      <_PluginArchive Include="$(OsuCcRoot)plugins/*/bin/$(Configuration)/net8.0/*.zip" />
+      <_ThemeDefinition Include="$(HookOutput)/Themes/*.json" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(RuntimeStaging)" />
+    <MakeDir Directories="$(RuntimeStaging)/hook;$(RuntimeStaging)/data/core/Themes" />
+    <Copy SourceFiles="@(_HookPayload)" DestinationFolder="$(RuntimeStaging)/hook" />
+    <Copy SourceFiles="@(_ThemeDefinition)" DestinationFolder="$(RuntimeStaging)/data/core/Themes" />
+    <ZipDirectory SourceDirectory="$(RuntimeStaging)" DestinationFile="$(RuntimeArchive)"
+      Overwrite="true" />
+    <RemoveDir Directories="$(RuntimeStaging)" />
+    <Message Text="Runtime bundle: $(RuntimeArchive)" Importance="high" />
+  </Target>
+
+  <Target Name="PackBootstrapBundle" DependsOnTargets="PackRuntimeBundle">
+    <PropertyGroup>
+      <BootstrapStaging>$(OsuCcRoot)artifacts/bootstrap/staging</BootstrapStaging>
+      <BootstrapArchive>$(OsuCcRoot)artifacts/bootstrap/bootstrap-$(OsuCcHostVersion).zip</BootstrapArchive>
+      <HookOutput>$(OsuCcRoot)osucc.Host/bin/$(Configuration)/net8.0</HookOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_HookPayload Include="$(HookOutput)/osucc.dll" />
+      <_HookPayload Include="$(HookOutput)/osucc.Api.dll" />
+      <_HookPayload Include="$(HookOutput)/0Harmony.dll" />
+      <_HookPayload Include="$(HookOutput)/SharpCompress.dll" />
+      <_HookPayload Include="$(HookOutput)/osucc.Shared.dll" />
+      <_PluginArchive Include="$(OsuCcRoot)plugins/*/bin/$(Configuration)/net8.0/plugin-*.zip"
+                      Exclude="$(OsuCcRoot)plugins/OsuCcUpdater/**" />
       <_ThemeDefinition Include="$(HookOutput)/Themes/*.json" />
     </ItemGroup>
 
@@ -88,7 +115,7 @@
     <ZipDirectory SourceDirectory="$(BootstrapStaging)" DestinationFile="$(BootstrapArchive)"
       Overwrite="true" />
     <RemoveDir Directories="$(BootstrapStaging)" />
-    <Message Text="Runtime bundle: $(BootstrapArchive)" Importance="high" />
+    <Message Text="Bootstrap bundle: $(BootstrapArchive)" Importance="high" />
   </Target>
 
   <Target Name="DeployLocal" DependsOnTargets="Build">

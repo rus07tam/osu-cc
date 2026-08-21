@@ -6,7 +6,7 @@ namespace osucc.Plugin
     /// Describes a discovered plugin: metadata (from <see cref="OsuCcPluginAttribute"/>), the live
     /// instance and load/attach status. Consumed by the plugins overlay.
     /// </summary>
-    public class PluginEntry
+    public class PluginEntry : IPluginMetadata
     {
         /// <summary>
         /// Raised whenever mutable overlay state (<see cref="Enabled"/>, <see cref="PendingDelete"/>)

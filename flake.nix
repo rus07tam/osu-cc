@@ -14,10 +14,24 @@
       devShells = forAllSystems (pkgs:
         let
           sdk = pkgs.dotnet-sdk_8;
+          runtimeLibs = with pkgs; [
+            libGL
+            vulkan-loader
+            wayland
+            libxkbcommon
+            xorg.libX11
+            xorg.libXcursor
+            xorg.libXext
+            xorg.libXi
+            xorg.libXrandr
+            xorg.libxcb
+            alsa-lib
+            ffmpeg
+          ];
         in
         {
           default = pkgs.mkShell {
-            packages = [ sdk ];
+            packages = [ sdk ] ++ runtimeLibs;
 
             env = {
               DOTNET_ROOT = "${sdk}/share/dotnet";
@@ -28,6 +42,7 @@
             shellHook = ''
               export DOTNET_CLI_HOME="''${XDG_CACHE_HOME:-$HOME/.cache}/dotnet"
               export NUGET_PACKAGES="''${DOTNET_CLI_HOME}/NuGet/packages"
+              export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath runtimeLibs}:$LD_LIBRARY_PATH"
             '';
           };
         });

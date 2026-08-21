@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -14,6 +12,8 @@ using osucc.Plugin;
 using osucc.UI.Plugins;
 using osuTK;
 using osuTK.Graphics;
+using System;
+using System.Collections.Generic;
 
 namespace osuccDebug
 {

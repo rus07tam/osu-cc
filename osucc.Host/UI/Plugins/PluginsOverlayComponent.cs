@@ -41,6 +41,11 @@ namespace osucc.UI.Plugins
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            var pluginsDir = PluginDirectories.ResolvePluginsDirectory();
+            _ = new PluginUpdateService(pluginsDir);
+            _ = new PluginBrowserService();
+
             overlayRegistration = Reflection.RegisterBlockingOverlay(game, overlay);
             detailsRegistration = Reflection.RegisterBlockingOverlay(game, detailsOverlay);
             diagnosticsRegistration = Reflection.RegisterBlockingOverlay(game, diagnosticsOverlay);
@@ -84,6 +89,11 @@ namespace osucc.UI.Plugins
             diagnosticsOverlay.ShowPlugin(entry);
         }
 
+        public void ShowRemotePlugin(RemotePluginInfo info)
+        {
+            detailsOverlay.ShowPlugin(info);
+        }
+
         protected override void Dispose(bool isDisposing)
         {
             base.Dispose(isDisposing);
@@ -91,6 +101,9 @@ namespace osucc.UI.Plugins
             overlayRegistration?.Dispose();
             detailsRegistration?.Dispose();
             diagnosticsRegistration?.Dispose();
+
+            PluginUpdateService.Instance?.Dispose();
+            PluginBrowserService.Instance?.Dispose();
 
             if (ReferenceEquals(Instance, this))
                 Instance = null;
