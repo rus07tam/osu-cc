@@ -39,6 +39,9 @@ namespace osucc.Client
         OsuCcTheme,
 
         /// <summary>Position of the key history overlay, or Disabled if off.</summary>
-        KeyHistoryMode
+        KeyHistoryMode,
+
+        /// <summary>Experimental: enable or disable plugins at runtime without restarting the game. Restart-gated.</summary>
+        LivePluginReloading
     }
 }

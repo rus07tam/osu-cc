@@ -304,10 +304,6 @@ namespace osucc.UI.Plugins
             bool enabled = !entry.Enabled;
 
             PluginManager.SetPluginEnabled(entry.Id, enabled);
-
-            ClientNotifications.Info(enabled
-                ? PluginsOverlayStrings.PluginEnabled(PluginCardLayout.LocalisedName(entry))
-                : PluginsOverlayStrings.PluginDisabled(PluginCardLayout.LocalisedName(entry)));
         }
 
         private static void clearPluginData(PluginEntry entry)

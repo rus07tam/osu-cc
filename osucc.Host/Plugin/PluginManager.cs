@@ -38,6 +38,9 @@ namespace osucc.Plugin
 
         private static bool loadAttempted;
         private static bool attached;
+        private static bool liveReloadEnabled;
+
+        public static bool LiveReloadEnabled => liveReloadEnabled;
 
         private static string? pluginsDirectory;
 
@@ -139,9 +142,8 @@ namespace osucc.Plugin
                     entry.Enabled = enabled;
             }
 
-            // Before the game attaches there is nothing to toggle at runtime; the persisted
-            // state already takes effect on the next launch.
-            if (!gameAttached || entry == null)
+            // Before the game attaches or if live reloading is disabled, the change is staged for next launch.
+            if (!gameAttached || entry == null || !liveReloadEnabled)
                 return;
 
             // Must run on the update thread (the overlay toggle already is); mutates the live
@@ -178,6 +180,8 @@ namespace osucc.Plugin
 
                 // Dependencies were attached at startup or in their own enable call; attach now.
                 attachEntry(entry);
+
+                entry.InitialEnabled = true;
 
                 TimingLog.Info($"PluginManager: '{entry.Name}' enabled at runtime");
             }
@@ -226,6 +230,7 @@ namespace osucc.Plugin
                 entry.Plugin = null;
                 entry.Host = null;
                 entry.Attached = false;
+                entry.InitialEnabled = false;
 
                 // Only still-running plugins count as dependents: a plugin that was itself
                 // disabled no longer calls into this one, so it must not block the disable.
@@ -370,7 +375,10 @@ namespace osucc.Plugin
         /// attribute) and the discovered plugin type.
         /// </summary>
         private static PluginEntry createEntry(OsuCcPluginAttribute attribute, string directory, string? iconPath, Type? pluginType)
-            => new()
+        {
+            bool isEnabled = PluginStateStore.IsEnabled(attribute.Id);
+
+            return new()
             {
                 Id = attribute.Id,
                 Name = attribute.Name,
@@ -388,7 +396,10 @@ namespace osucc.Plugin
                 Dependencies = attribute.DependsOn,
                 Documents = resolveDocuments(attribute),
                 PluginType = pluginType,
+                Enabled = isEnabled,
+                InitialEnabled = isEnabled,
             };
+        }
 
         private static PluginDocument[] resolveDocuments(OsuCcPluginAttribute attribute)
         {
@@ -743,7 +754,10 @@ namespace osucc.Plugin
                     return;
 
                 attached = true;
+                liveReloadEnabled = ClientConfig.LivePluginReloading.Value;
             }
+
+            TimingLog.Info($"PluginManager: live plugin reloading enabled = {liveReloadEnabled}");
 
             foreach (var entry in loadOrder)
                 attachEntry(entry);

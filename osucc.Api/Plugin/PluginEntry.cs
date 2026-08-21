@@ -127,11 +127,12 @@ namespace osucc.Plugin
             }
         }
 
+        /// <summary>Whether the plugin was enabled at the start of the current session or after hot reload.</summary>
+        public bool InitialEnabled { get; set; } = true;
+
         /// <summary>
-        /// Overlay status, resolved in order: pending deletion wins, then errors, then the
-        /// enabled/disabled states. Live toggles are synchronous, so the transient "pending
-        /// enable"/"pending disable" states only surface if a plugin stays half-loaded after a
-        /// failed toggle; a plugin disabled from the start is simply "disabled".
+        /// Overlay status, resolved in order: pending deletion wins, then errors, then
+        /// pending state changes (if toggled during the current session), then active/disabled.
         /// </summary>
         public PluginStatus Status
         {
@@ -143,10 +144,10 @@ namespace osucc.Plugin
                 if (LoadError != null)
                     return PluginStatus.Error;
 
-                if (!Enabled)
-                    return Loaded ? PluginStatus.PendingDisable : PluginStatus.Disabled;
+                if (Enabled != InitialEnabled)
+                    return Enabled ? PluginStatus.PendingEnable : PluginStatus.PendingDisable;
 
-                return Loaded ? PluginStatus.Active : PluginStatus.PendingEnable;
+                return Loaded ? PluginStatus.Active : PluginStatus.Disabled;
             }
         }
     }

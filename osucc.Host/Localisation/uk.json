@@ -41,8 +41,8 @@
   "osucc.Localisation.Plugins:DeleteBody": "\"{0}\" буде видалено під час наступного запуску. Його файли та налаштування буде стерто. Цю дію не можна скасувати.",
   "osucc.Localisation.Plugins:DeleteConfirmed": "Плагін \"{0}\" буде видалено під час наступного запуску",
   "osucc.Localisation.Plugins:StatusActive": "Завантажено та підключено",
-  "osucc.Localisation.Plugins:StatusPendingEnable": "Ввімкнення...",
-  "osucc.Localisation.Plugins:StatusPendingDisable": "Вимкнення...",
+  "osucc.Localisation.Plugins:StatusPendingEnable": "Буде увімкнено (наст. запуск)",
+  "osucc.Localisation.Plugins:StatusPendingDisable": "Буде вимкнено (наст. запуск)",
   "osucc.Localisation.Plugins:StatusPendingDelete": "Буде видалено (під час наступного запуску)",
   "osucc.Localisation.Plugins:StatusDisabled": "Вимкнено",
   "osucc.Localisation.Plugins:StatusFailed": "Не вдалося завантажити",
@@ -91,5 +91,8 @@
   "osucc.Localisation.PersonalBest:Title": "Новий особистий рекорд!",
   "osucc.Localisation.PersonalBest:Score": "{0:N0}",
   "osucc.Localisation.Mods:RandomModsButton": "Випадкові моди",
-  "osucc.Localisation.Mods:ScoreSubmissionDisabled": "Надсилання результатів зараз вимкнено — увімкнути його можна в налаштуваннях osu!cc."
+  "osucc.Localisation.Mods:ScoreSubmissionDisabled": "Надсилання результатів зараз вимкнено — увімкнути його можна в налаштуваннях osu!cc.",
+  "osucc.Localisation.Experiments:SubsectionHeader": "Експерименти",
+  "osucc.Localisation.Experiments:LivePluginReloadingCaption": "Перезавантаження плагінів на льоту",
+  "osucc.Localisation.Experiments:LivePluginReloadingHint": "Дозволяє вмикати та вимикати плагіни під час гри без перезапуску. Нестабільна експериментальна функція. Застосовується після перезапуску гри."
 }

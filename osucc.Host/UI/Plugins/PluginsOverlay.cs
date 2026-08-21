@@ -267,9 +267,6 @@ namespace osucc.UI.Plugins
                 card.EnabledChanged = (c, isEnabled) =>
                 {
                     PluginManager.SetPluginEnabled(c.Entry.Id, isEnabled);
-                    ClientNotifications.Info(isEnabled
-                        ? PluginsOverlayStrings.PluginEnabled(PluginCardLayout.LocalisedName(c.Entry))
-                        : PluginsOverlayStrings.PluginDisabled(PluginCardLayout.LocalisedName(c.Entry)));
                 };
                 cards.Add(card);
             }

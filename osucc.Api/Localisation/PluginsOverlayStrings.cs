@@ -52,9 +52,9 @@ namespace osucc.Localisation
 
         public static LocalisableString StatusActive => OsuCcLocalisation.Get(getKey(nameof(StatusActive)), "Loaded and attached");
 
-        public static LocalisableString StatusPendingEnable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingEnable)), "Enabling...");
+        public static LocalisableString StatusPendingEnable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingEnable)), "Will be enabled (next launch)");
 
-        public static LocalisableString StatusPendingDisable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDisable)), "Disabling...");
+        public static LocalisableString StatusPendingDisable => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDisable)), "Will be disabled (next launch)");
 
         public static LocalisableString StatusPendingDelete => OsuCcLocalisation.Get(getKey(nameof(StatusPendingDelete)), "Will be deleted (next launch)");
 

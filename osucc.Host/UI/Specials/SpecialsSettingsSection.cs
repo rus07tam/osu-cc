@@ -19,6 +19,7 @@ namespace osucc.UI.Specials
         public SpecialsSettingsSection()
         {
             Add(new SpecialsSettingsSubsection());
+            Add(new ExperimentsSettingsSubsection());
         }
     }
 }

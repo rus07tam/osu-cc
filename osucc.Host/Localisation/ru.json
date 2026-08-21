@@ -42,8 +42,8 @@
   "osucc.Localisation.Plugins:DeleteBody": "\"{0}\" будет удалён при следующем запуске. Его файлы и настройки будут стёрты. Это действие необратимо.",
   "osucc.Localisation.Plugins:DeleteConfirmed": "Плагин \"{0}\" будет удалён при следующем запуске",
   "osucc.Localisation.Plugins:StatusActive": "Загружен и подключён",
-  "osucc.Localisation.Plugins:StatusPendingEnable": "Включение...",
-  "osucc.Localisation.Plugins:StatusPendingDisable": "Отключение...",
+  "osucc.Localisation.Plugins:StatusPendingEnable": "Будет включён (след. запуск)",
+  "osucc.Localisation.Plugins:StatusPendingDisable": "Будет отключён (след. запуск)",
   "osucc.Localisation.Plugins:StatusPendingDelete": "Будет удалён (при следующем запуске)",
   "osucc.Localisation.Plugins:StatusDisabled": "Отключён",
   "osucc.Localisation.Plugins:StatusFailed": "Не удалось загрузить",
@@ -92,5 +92,8 @@
   "osucc.Localisation.PersonalBest:Title": "Новый личный рекорд!",
   "osucc.Localisation.PersonalBest:Score": "{0:N0}",
   "osucc.Localisation.Mods:RandomModsButton": "Случайные моды",
-  "osucc.Localisation.Mods:ScoreSubmissionDisabled": "Отправка результатов сейчас отключена — включить её можно в настройках osu!cc."
+  "osucc.Localisation.Mods:ScoreSubmissionDisabled": "Отправка результатов сейчас отключена — включить её можно в настройках osu!cc.",
+  "osucc.Localisation.Experiments:SubsectionHeader": "Эксперименты",
+  "osucc.Localisation.Experiments:LivePluginReloadingCaption": "Перезагрузка плагинов на лету",
+  "osucc.Localisation.Experiments:LivePluginReloadingHint": "Позволяет включать и отключать плагины во время игры без перезапуска. Нестабильная экспериментальная функция. Применяется после перезапуска игры."
 }
