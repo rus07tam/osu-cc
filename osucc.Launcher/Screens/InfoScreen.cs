@@ -31,7 +31,7 @@ namespace osucc.Launcher.Screens
             string osuDir = osucc.Launcher.Core.OsuCcPaths.ResolveOsuDirectory(null) ?? "";
             string ccDataRoot = osucc.Common.OsuCcDataRootResolver.Resolve(osuDir);
             string hookDirectory = osucc.Common.OsuCcDataRootResolver.ResolveHookDirectory(ccDataRoot);
-            
+
             string currentRepo = configManager.Get<string>(osucc.Launcher.Configuration.LauncherSetting.UpdateRepository);
 
             InternalChild = new FillFlowContainer
