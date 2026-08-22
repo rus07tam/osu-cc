@@ -13,7 +13,6 @@
     <PackageProject Include="$(OsuCcRoot)osucc.Host/osucc.Host.csproj" />
     <PackageProject Include="$(OsuCcRoot)osucc.Api/osucc.Api.csproj" />
     <PackageProject Include="$(OsuCcRoot)build/osucc.Build/osucc.Build.csproj" />
-    <PackageProject Include="$(OsuCcRoot)osucc/osucc.csproj" />
     <PackageProject Include="$(OsuCcRoot)templates/osucc.Templates/osucc.Templates.csproj" />
 
     <PluginProject Include="$(OsuCcRoot)plugins/*/*.csproj" />

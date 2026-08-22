@@ -39,7 +39,7 @@ namespace osucc.UI.Overlays
             Colour = ColourProvider.Background6.Opacity(0.75f),
         };
 
-        protected override Drawable CreateHeader() => new OsuCcShearedOverlayHeader { Close = CloseWithRestore };
+        protected override Drawable CreateHeader() => new OsuCcShearedOverlayHeader { Close = Hide };
 
         public override void ChangeColourScheme(OverlayColourScheme scheme)
         {

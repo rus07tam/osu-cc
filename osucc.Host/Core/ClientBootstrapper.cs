@@ -16,6 +16,7 @@ namespace osucc.Core
             {
                 ("OsuGameBaseCtor", new OsuGameBaseCtorPatch()),
                 ("OsuGameBaseLoad", new OsuGameBaseLoadPatch()),
+                ("OsuGame.showOverlayAboveOthers", new OsuGameOverlayPatch()),
                 ("SettingsOverlay.CreateSections", new SettingsOverlayCreateSectionsPatch()),
                 ("UserModSelectOverlay.ComputeNewMods", new UserModComputeNewModsPatch()),
                 ("ModUtils.CheckValidForGameplay", new ModUtilsGameplayPatch()),
