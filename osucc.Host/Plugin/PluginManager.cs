@@ -308,13 +308,25 @@ namespace osucc.Plugin
                 }
             }
 
+            var stagedIds = new HashSet<string>(
+                candidates.Where(c => PluginPackageStore.IsUnderStaging(c.Directory, PluginsDirectory)).Select(c => c.Metadata.Id),
+                StringComparer.OrdinalIgnoreCase);
+
             foreach (string pluginFolder in Directory.GetDirectories(PluginsDirectory))
             {
                 if (PluginPackageStore.IsUnderStaging(pluginFolder, PluginsDirectory))
                     continue;
 
+                string folderName = Path.GetFileName(pluginFolder);
+                if (stagedIds.Contains(folderName))
+                {
+                    TimingLog.Info($"PluginManager: '{folderName}' has a staged update; skipping old folder copy");
+                    continue;
+                }
+
                 foreach (string dll in Directory.GetFiles(pluginFolder, "*.dll", SearchOption.AllDirectories))
                 {
+                    // Keep this for loose dll superseding
                     if (stagedDllNames.Contains(Path.GetFileName(dll)))
                     {
                         TimingLog.Info($"PluginManager: '{Path.GetFileName(dll)}' staged copy supersedes folder copy; skipping");

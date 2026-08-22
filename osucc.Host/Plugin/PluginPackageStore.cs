@@ -175,6 +175,19 @@ namespace osucc.Plugin
 
                 try
                 {
+                    if (Directory.Exists(target))
+                    {
+                        foreach (string file in Directory.GetFiles(target))
+                        {
+                            if (!Path.GetFileName(file).Equals("plugin.ini", StringComparison.OrdinalIgnoreCase))
+                                File.Delete(file);
+                        }
+                        foreach (string dir in Directory.GetDirectories(target))
+                        {
+                            Directory.Delete(dir, true);
+                        }
+                    }
+
                     moveDirectoryContents(stagingFolder, target);
 
                     foreach (var entry in group)
