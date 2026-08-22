@@ -75,7 +75,7 @@ jobs:
         run: dotnet format osucc.sln --verify-no-changes --no-restore
 
       - name: Publish standalone launcher (linux-x64)
-        run: dotnet publish osucc/osucc.csproj -c Release /p:PublishProfile=linux-x64 --nologo
+        run: dotnet publish osucc.Launcher.Desktop/osucc.Launcher.Desktop.csproj -c Release -r linux-x64 --self-contained false -o artifacts/publish/linux-x64/ --nologo
 
       - name: Stage changed NuGet packages
         run: |
@@ -141,7 +141,7 @@ jobs:
         run: mkdir -p artifacts/nuget
 
       - name: Publish standalone launcher (win-x64)
-        run: dotnet publish osucc/osucc.csproj -c Release /p:PublishProfile=win-x64 --nologo
+        run: dotnet publish osucc.Launcher.Desktop/osucc.Launcher.Desktop.csproj -c Release -r win-x64 --self-contained false -o artifacts/publish/win-x64/ --nologo
 
       - name: Upload launcher (win-x64)
         uses: actions/upload-artifact@v4
@@ -187,5 +187,45 @@ jobs:
             artifacts/ci/plugin-zips/**/*.zip
             artifacts/ci/osucc-runtime/runtime-*.zip
             artifacts/ci/osucc-bootstrap/bootstrap-*.zip
-            artifacts/ci/osucc-linux-x64/osucc
-            artifacts/ci/osucc-win-x64/osucc.exe
+            artifacts/ci/osucc-linux-x64/osucc.Launcher.Desktop
+            artifacts/ci/osucc-win-x64/osucc.Launcher.Desktop.exe
+
+  release-nightly:
+    name: Publish Nightly Release
+    needs: [build, build-windows]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/ci
+
+      - name: Update Nightly Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f nightly
+          git push origin -f nightly
+        continue-on-error: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: "Nightly Build"
+          prerelease: true
+          body: |
+            Automatic nightly build from `main`.
+            
+            ## Component versions
+
+            ${{ needs.build.outputs.bump }}
+          files: |
+            artifacts/ci/plugin-zips/**/*.zip
+            artifacts/ci/osucc-runtime/runtime-*.zip
+            artifacts/ci/osucc-bootstrap/bootstrap-*.zip
+            artifacts/ci/osucc-linux-x64/osucc.Launcher.Desktop
+            artifacts/ci/osucc-win-x64/osucc.Launcher.Desktop.exe
