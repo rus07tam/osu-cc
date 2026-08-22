@@ -539,6 +539,10 @@ namespace osucc.Plugin
 
                 candidates.Add(new PluginCandidate(pluginTypes[0], manifest, pluginDirectory, resolveDeclaredIcon(manifest, pluginDirectory)));
             }
+            catch (BadImageFormatException)
+            {
+                TimingLog.Info($"PluginManager: ignoring native or invalid assembly {path}");
+            }
             catch (Exception ex)
             {
                 var errorEntry = new PluginEntry
