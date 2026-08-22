@@ -19,6 +19,7 @@ namespace osucc.Launcher
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
+        private osucc.Launcher.Configuration.LauncherConfigManager configManager = null!;
         private OsuCcUpdateService updateService = null!;
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
@@ -27,15 +28,20 @@ namespace osucc.Launcher
 
             string osuDir = osucc.Launcher.Core.OsuCcPaths.ResolveOsuDirectory(null);
             string ccDataRoot = osucc.Common.OsuCcDataRootResolver.Resolve(osuDir);
-            updateService = new OsuCcUpdateService(ccDataRoot);
 
+            configManager = new osucc.Launcher.Configuration.LauncherConfigManager(Host.Storage);
+            dependencies.CacheAs(configManager);
+
+            updateService = new OsuCcUpdateService(ccDataRoot, configManager.Get<string>(osucc.Launcher.Configuration.LauncherSetting.UpdateRepository));
             dependencies.CacheAs(updateService);
+
             return dependencies;
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
+            configManager.GetBindable<string>(osucc.Launcher.Configuration.LauncherSetting.UpdateRepository).BindValueChanged(v => updateService.Repository = v.NewValue, true);
 
             Child = new Container
             {

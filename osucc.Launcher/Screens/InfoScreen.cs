@@ -22,12 +22,17 @@ namespace osucc.Launcher.Screens
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
+        [Resolved]
+        private osucc.Launcher.Configuration.LauncherConfigManager configManager { get; set; } = null!;
+
         [BackgroundDependencyLoader]
         private void load()
         {
             string osuDir = osucc.Launcher.Core.OsuCcPaths.ResolveOsuDirectory(null) ?? "";
             string ccDataRoot = osucc.Common.OsuCcDataRootResolver.Resolve(osuDir);
             string hookDirectory = osucc.Common.OsuCcDataRootResolver.ResolveHookDirectory(ccDataRoot);
+            
+            string currentRepo = configManager.Get<string>(osucc.Launcher.Configuration.LauncherSetting.UpdateRepository);
 
             InternalChild = new FillFlowContainer
             {
@@ -46,8 +51,8 @@ namespace osucc.Launcher.Screens
                         Margin = new MarginPadding { Bottom = 10 },
                         Font = OsuFont.GetFont(size: 40, weight: FontWeight.Bold)
                     },
-                    createLinkRow("GitHub", "https://github.com/rus07tam/osu-cc"),
-                    createLinkRow("Documentation", "https://github.com/rus07tam/osu-cc#documentation"),
+                    createLinkRow("GitHub", $"https://github.com/{currentRepo}"),
+                    createLinkRow("Documentation", $"https://github.com/{currentRepo}#documentation"),
                     createSectionHeader("Versions"),
                     createValueRow("osucc.Host", readVersion(Path.Combine(hookDirectory, "osucc.dll"))),
                     createValueRow("osucc.Api", readVersion(Path.Combine(hookDirectory, "osucc.Api.dll"))),

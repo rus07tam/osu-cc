@@ -1,4 +1,5 @@
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Screens;
@@ -17,6 +18,9 @@ namespace osucc.Launcher.Screens
 
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
+
+        [Resolved]
+        private osucc.Launcher.Configuration.LauncherConfigManager configManager { get; set; } = null!;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -43,9 +47,42 @@ namespace osucc.Launcher.Screens
                         Margin = new MarginPadding { Bottom = 10 },
                         Font = OsuFont.GetFont(size: 40, weight: FontWeight.Bold)
                     },
+                    createConfigSetting("Update Repository (GitHub)", configManager.GetBindable<string>(osucc.Launcher.Configuration.LauncherSetting.UpdateRepository)),
                     createSetting("Game Folder (where osu! executable is)", osuDir),
                     createSetting("osu! Data Folder", osuDataRoot),
                     createSetting("osu-cc Data Folder", ccDataRoot)
+                }
+            };
+        }
+
+        private FillFlowContainer createConfigSetting(string label, Bindable<string> bindable)
+        {
+            var textBox = new OsuTextBox
+            {
+                RelativeSizeAxes = Axes.X,
+                Current = bindable
+            };
+
+            return new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 5),
+                Children = new Drawable[]
+                {
+                    new OsuSpriteText
+                    {
+                        Text = label,
+                        Colour = colourProvider.Content2,
+                        Font = OsuFont.GetFont(size: 16, weight: FontWeight.SemiBold)
+                    },
+                    new Container
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        Height = 40,
+                        Child = textBox
+                    }
                 }
             };
         }

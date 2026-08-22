@@ -19,12 +19,12 @@ public sealed class OsuCcUpdateService : IDisposable
 
     private readonly GitHubReleasesClient github;
     private readonly string osuCcDirectory;
-    private readonly string repository;
+    public string Repository { get; set; }
 
     public OsuCcUpdateService(string osuCcDirectory, string repository = DefaultRepository)
     {
         this.osuCcDirectory = osuCcDirectory;
-        this.repository = repository;
+        Repository = repository;
         github = new GitHubReleasesClient();
     }
 
@@ -34,7 +34,7 @@ public sealed class OsuCcUpdateService : IDisposable
     public async Task<string?> CheckForUpdateAsync(CancellationToken ct = default)
     {
         GitHubRelease? release = await github.FindReleaseWithAssetAsync(
-            repository,
+            Repository,
             name => name.StartsWith(OsuCcLayout.RuntimeBundlePrefix, StringComparison.Ordinal) && name.EndsWith(".zip", StringComparison.Ordinal),
             ct: ct).ConfigureAwait(false);
 
@@ -56,7 +56,7 @@ public sealed class OsuCcUpdateService : IDisposable
             progress.Report((UpdateStage.Checking, 0f));
 
             GitHubRelease? release = await github.FindReleaseWithAssetAsync(
-                repository,
+                Repository,
                 name => name.StartsWith(OsuCcLayout.RuntimeBundlePrefix, StringComparison.Ordinal) && name.EndsWith(".zip", StringComparison.Ordinal),
                 ct: ct).ConfigureAwait(false);
 
@@ -132,7 +132,7 @@ public sealed class OsuCcUpdateService : IDisposable
             progress.Report((UpdateStage.Checking, 0f));
 
             GitHubRelease? release = await github.FindReleaseWithAssetAsync(
-                repository,
+                Repository,
                 name => name.StartsWith(OsuCcLayout.BootstrapBundlePrefix, StringComparison.Ordinal) && name.EndsWith(".zip", StringComparison.Ordinal),
                 ct: ct).ConfigureAwait(false);
 
