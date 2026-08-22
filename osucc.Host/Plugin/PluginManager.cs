@@ -300,7 +300,7 @@ namespace osucc.Plugin
             {
                 foreach (string stagedFolder in Directory.GetDirectories(stagingRoot))
                 {
-                    foreach (string dll in Directory.GetFiles(stagedFolder, "*.dll"))
+                    foreach (string dll in Directory.GetFiles(stagedFolder, "*.dll", SearchOption.AllDirectories))
                     {
                         stagedDllNames.Add(Path.GetFileName(dll));
                         discoverPluginDll(dll, candidates);
@@ -313,7 +313,7 @@ namespace osucc.Plugin
                 if (PluginPackageStore.IsUnderStaging(pluginFolder, PluginsDirectory))
                     continue;
 
-                foreach (string dll in Directory.GetFiles(pluginFolder, "*.dll"))
+                foreach (string dll in Directory.GetFiles(pluginFolder, "*.dll", SearchOption.AllDirectories))
                 {
                     if (stagedDllNames.Contains(Path.GetFileName(dll)))
                     {
