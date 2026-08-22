@@ -378,7 +378,7 @@ namespace osucc.UI.Plugins
             };
         }
 
-        private DetailsSection CreateRemoteMetadataSection(RemotePluginInfo info)
+        private static DetailsSection CreateRemoteMetadataSection(RemotePluginInfo info)
         {
             var dummy = toDummyEntry(info);
             var rows = new List<Drawable>

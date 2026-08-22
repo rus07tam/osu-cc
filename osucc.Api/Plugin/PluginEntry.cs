@@ -109,11 +109,14 @@ namespace osucc.Plugin
             }
         }
 
+        public event Action<PluginDiagnostic>? DiagnosticAdded;
+
         public void AddDiagnostic(PluginDiagnostic diagnostic)
         {
             lock (diagnosticsLock)
                 diagnostics.Add(diagnostic);
 
+            DiagnosticAdded?.Invoke(diagnostic);
             StateChanged?.Invoke();
         }
 

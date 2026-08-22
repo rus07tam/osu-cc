@@ -8,7 +8,9 @@ using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
+using osucc.Client;
 using osucc.Core;
 using osucc.Localisation;
 using osucc.Plugin;
@@ -26,6 +28,9 @@ namespace osucc.UI.Plugins
     /// </summary>
     public partial class PluginDiagnosticsOverlay : OsuCcWaveOverlay
     {
+        [Resolved]
+        private osu.Framework.Platform.Clipboard? clipboard { get; set; }
+
         private readonly FillFlowContainer content;
         private PluginEntry? displayedEntry;
 
@@ -300,17 +305,21 @@ namespace osucc.UI.Plugins
                             RelativeSizeAxes = Axes.Both,
                             Colour = ColourProvider.Background6,
                         },
-                        new OsuSpriteText
+                        new OsuTextFlowContainer(cp => cp.Font = OsuFont.Default.With(size: 14, fixedWidth: true))
                         {
                             RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
                             Text = detailText,
-                            Font = OsuFont.Default.With(size: 11, fixedWidth: true),
                             Colour = ColourProvider.Content2,
                             Padding = new MarginPadding(10),
                         },
                     },
                 });
             }
+
+            string copyContent = $"[{diag.Level}] {diag.Source}\n{diag.Message}";
+            if (!string.IsNullOrEmpty(detailText))
+                copyContent += $"\n{detailText}";
 
             return new Container
             {
@@ -326,6 +335,20 @@ namespace osucc.UI.Plugins
                         Colour = ColourProvider.Background4,
                     },
                     cardFlow,
+                    new IconButton
+                    {
+                        Icon = FontAwesome.Solid.Copy,
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
+                        Margin = new MarginPadding(8),
+                        Size = new Vector2(30),
+                        TooltipText = "Copy diagnostic details",
+                        Action = () =>
+                        {
+                            clipboard?.SetText(copyContent);
+                            ClientNotifications.Success("Copied diagnostic to clipboard");
+                        }
+                    }
                 },
             };
         }

@@ -162,7 +162,7 @@ namespace osucc.Plugin
             if (entry.PluginType == null)
             {
 
-                TimingLog.Error($"PluginManager: '{entry.Name}' cannot be enabled: {entry.LoadError.Message}");
+                TimingLog.Error($"PluginManager: '{entry.Name}' cannot be enabled: {entry.LoadError?.Message ?? "No plugin type"}");
                 return;
             }
 
@@ -413,6 +413,26 @@ namespace osucc.Plugin
                 PluginType = pluginType,
                 Enabled = isEnabled,
                 InitialEnabled = isEnabled,
+            };
+
+            entry.DiagnosticAdded += diag =>
+            {
+                var level = diag.Level switch
+                {
+                    PluginDiagnosticLevel.Error => osucc.Core.LogLevel.Error,
+                    PluginDiagnosticLevel.Warning => osucc.Core.LogLevel.Warn,
+                    _ => osucc.Core.LogLevel.Info,
+                };
+
+                string msg = $"[Diagnostic:{diag.Source}] {diag.Message}";
+                if (!string.IsNullOrEmpty(diag.Target))
+                    msg += $" (Target: {diag.Target})";
+                if (!string.IsNullOrEmpty(diag.Details))
+                    msg += $"\n{diag.Details}";
+                if (diag.Exception != null)
+                    msg += $"\n{diag.Exception}";
+
+                osucc.Core.PluginLog.Write(entry.Id, level, msg);
             };
 
             if (initialDiagnostics != null)

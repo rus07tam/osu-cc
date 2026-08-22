@@ -250,7 +250,7 @@ namespace osucc.Launcher.Screens
                         var latest = files.Where(f => getTagName(f) == t).OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
                         if (latest != null)
                         {
-                            if (!currentLogFiles.ContainsKey(t) || currentLogFiles[t].FullName != latest.FullName)
+                            if (!currentLogFiles.TryGetValue(t, out var currentLogFile) || currentLogFile.FullName != latest.FullName)
                             {
                                 currentLogFiles[t] = latest;
                                 filePositions[t] = 0;
@@ -263,7 +263,7 @@ namespace osucc.Launcher.Screens
                     var latest = files.Where(f => getTagName(f) == activeTag).OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
                     if (latest != null)
                     {
-                        if (!currentLogFiles.ContainsKey(activeTag) || currentLogFiles[activeTag].FullName != latest.FullName)
+                        if (!currentLogFiles.TryGetValue(activeTag, out var currentLogFile) || currentLogFile.FullName != latest.FullName)
                         {
                             currentLogFiles[activeTag] = latest;
                             filePositions[activeTag] = 0;
@@ -280,7 +280,7 @@ namespace osucc.Launcher.Screens
                 file.Refresh();
                 if (!file.Exists) continue;
 
-                long lastPos = filePositions.ContainsKey(tag) ? filePositions[tag] : 0;
+                long lastPos = filePositions.TryGetValue(tag, out var pos) ? pos : 0;
 
                 if (file.Length > lastPos)
                 {
