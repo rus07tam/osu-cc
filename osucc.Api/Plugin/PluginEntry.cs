@@ -53,9 +53,9 @@ namespace osucc.Plugin
 
         /// <summary>
         /// The osu!cc API version the plugin was built against
-        /// (from <see cref="OsuCcPluginAttribute.ApiVersion"/>).
+
         /// </summary>
-        public int ApiVersion { get; init; }
+
 
         /// <summary>
         /// Stable ids of plugins this plugin depends on (from <see cref="OsuCcPluginAttribute.DependsOn"/>).

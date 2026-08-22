@@ -26,6 +26,6 @@ namespace osucc.Plugin
         /// Whether the plugin will actually load this launch: enabled, not blocked by incompatibilities, and built against a
         /// supported API version. Only loadable candidates take part in dependency ordering.
         /// </summary>
-        public bool IsLoadable => !IsBlocked && PluginStateStore.IsEnabled(Metadata.Id) && Metadata.ApiVersion == OsuCcPluginAttribute.CurrentApiVersion;
+        public bool IsLoadable => !IsBlocked && PluginStateStore.IsEnabled(Metadata.Id);
     }
 }

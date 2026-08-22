@@ -159,9 +159,9 @@ namespace osucc.Plugin
             if (entry.Loaded)
                 return;
 
-            if (entry.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion || entry.PluginType == null)
+            if (entry.PluginType == null)
             {
-                entry.LoadError = new NotSupportedException($"plugin API v{entry.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
+
                 TimingLog.Error($"PluginManager: '{entry.Name}' cannot be enabled: {entry.LoadError.Message}");
                 return;
             }
@@ -404,7 +404,7 @@ namespace osucc.Plugin
                 IconResource = attribute.IconResource,
                 Icon = attribute.Icon,
                 Priority = PluginStateStore.GetPriority(attribute.Id) ?? attribute.Priority,
-                ApiVersion = attribute.ApiVersion,
+
                 Directory = directory,
                 IconPath = iconPath,
                 Dependencies = attribute.DependsOn,
@@ -625,17 +625,6 @@ namespace osucc.Plugin
                 return;
             }
 
-            if (candidate.Metadata.ApiVersion != OsuCcPluginAttribute.CurrentApiVersion)
-            {
-                var versionEntry = createEntry(candidate.Metadata, candidate.Directory, candidate.IconPath, candidate.Type, candidate.Diagnostics);
-                versionEntry.LoadError = new NotSupportedException($"plugin API v{candidate.Metadata.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})");
-                versionEntry.AddDiagnostic(PluginDiagnostic.Error($"plugin API v{candidate.Metadata.ApiVersion} is not supported (current: v{OsuCcPluginAttribute.CurrentApiVersion})", versionEntry.LoadError, source: PluginDiagnosticSource.Lifecycle));
-
-                addEntry(versionEntry);
-
-                TimingLog.Error($"PluginManager: '{candidate.Metadata.Name}' skipped: {versionEntry.LoadError.Message}");
-                return;
-            }
 
             try
             {

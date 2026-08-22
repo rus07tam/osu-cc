@@ -43,7 +43,7 @@
       <Description ParameterType="System.String" />
       <Version ParameterType="System.String" />
       <Priority ParameterType="System.String" />
-      <ApiVersion ParameterType="System.String" />
+
       <IconPath ParameterType="System.String" />
       <Icon ParameterType="System.String" />
       <IconResource ParameterType="System.String" />
@@ -76,7 +76,7 @@
             public string? Description { get; set; }
             public string? Version { get; set; }
             public string? Priority { get; set; }
-            public string? ApiVersion { get; set; }
+
             public string? IconPath { get; set; }
             public string? Icon { get; set; }
             public string? IconResource { get; set; }
@@ -107,11 +107,6 @@
                     return false;
                 }
 
-                if (ApiVersion != null && !int.TryParse(ApiVersion, out _))
-                {
-                    Log.LogError($"Plugin API version must be an integer, got '{ApiVersion}'.");
-                    return false;
-                }
 
                 try
                 {
@@ -142,13 +137,6 @@
                 if (int.TryParse(Priority, out int priority))
                     args.Add(priority.ToString());
 
-                if (int.TryParse(ApiVersion, out int apiVersion))
-                {
-                    if (!int.TryParse(Priority, out _))
-                        args.Add("0");
-
-                    args.Add(apiVersion.ToString());
-                }
 
                 var named = new List<string>();
 

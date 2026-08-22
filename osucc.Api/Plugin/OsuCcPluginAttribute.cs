@@ -12,9 +12,9 @@ namespace osucc.Plugin
         /// <summary>
         /// Version of the plugin API this client supports. Bump on any breaking change to
         /// <see cref="IOsuCcPlugin"/> / <see cref="IOsuCcPluginHost"/>; plugins declaring a
-        /// different <see cref="ApiVersion"/> are skipped with a warning.
+
         /// </summary>
-        public const int CurrentApiVersion = 2;
+
 
         /// <summary>Stable, unique identifier (also used as the plugin's storage folder name).</summary>
         public string Id { get; }
@@ -46,7 +46,7 @@ namespace osucc.Plugin
         public string Version { get; set; } = "1.0.0";
 
         /// <summary>Plugin API version the plugin was built against.</summary>
-        public int ApiVersion { get; }
+
 
         /// <summary>Load order. Lower numbers load first.</summary>
         public int Priority { get; }
@@ -131,12 +131,12 @@ namespace osucc.Plugin
         /// <summary>Optional FontAwesome icon glyph names for declared documents (e.g. <c>"Book"</c>).</summary>
         public string[] DocumentIcons { get; set; } = Array.Empty<string>();
 
-        public OsuCcPluginAttribute(string id, string name, int priority = 0, int apiVersion = CurrentApiVersion)
+        public OsuCcPluginAttribute(string id, string name, int priority = 0)
         {
             Id = id;
             Name = name;
             Priority = priority;
-            ApiVersion = apiVersion;
+
         }
     }
 }

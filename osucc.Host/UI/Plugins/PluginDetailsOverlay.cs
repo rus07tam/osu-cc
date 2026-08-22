@@ -604,7 +604,7 @@ namespace osucc.UI.Plugins
                 CreateMetadataRow(PluginsOverlayStrings.DetailsAuthor, PluginCardLayout.CreateAuthorValue(entry)),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsTags, PluginCardLayout.CreateTagsValue(entry)),
                 CreateMetadataRow(PluginsOverlayStrings.DetailsVersion, entry.Version),
-                CreateMetadataRow(PluginsOverlayStrings.DetailsApiVersion, entry.ApiVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+
                 CreateMetadataRow(PluginsOverlayStrings.DetailsPriority, entry.Priority.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 CreateMetadataRow(PluginsOverlayStrings.DependenciesCaption, CreateDependenciesValue(entry, nameById, unavailableIds)),
                 CreateMetadataRow(PluginsOverlayStrings.UsedByCaption, CreateUsedByValue(entry, nameById, usedBy)),
