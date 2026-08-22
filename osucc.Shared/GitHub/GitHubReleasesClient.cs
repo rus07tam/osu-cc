@@ -29,23 +29,15 @@ public sealed class GitHubReleasesClient : IDisposable
 
     public async Task<GitHubRelease?> GetLatestReleaseAsync(string repo, CancellationToken ct = default)
     {
-        try
-        {
-            using HttpResponseMessage response = await http
-                .GetAsync($"https://api.github.com/repos/{repo}/releases/latest", ct)
-                .ConfigureAwait(false);
+        using HttpResponseMessage response = await http
+            .GetAsync($"https://api.github.com/repos/{repo}/releases/latest", ct)
+            .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return null;
+        response.EnsureSuccessStatusCode();
 
-            string json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(json);
-            return parseRelease(doc.RootElement);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        string json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        using var doc = JsonDocument.Parse(json);
+        return parseRelease(doc.RootElement);
     }
 
     public async Task<GitHubRelease?> FindReleaseWithAssetAsync(
@@ -102,21 +94,16 @@ public sealed class GitHubReleasesClient : IDisposable
         return results;
     }
 
-    public async Task<string?> DownloadAssetAsync(string downloadUrl, CancellationToken ct = default)
+    public async Task<string> DownloadAssetAsync(string downloadUrl, CancellationToken ct = default)
     {
+        string tempFile = Path.GetTempFileName();
         try
         {
-            string tempFile = Path.GetTempFileName();
-
             using HttpResponseMessage response = await http
                 .GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, ct)
                 .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                File.Delete(tempFile);
-                return null;
-            }
+            response.EnsureSuccessStatusCode();
 
             await using (Stream src = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false))
             await using (var dst = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
@@ -126,9 +113,10 @@ public sealed class GitHubReleasesClient : IDisposable
 
             return tempFile;
         }
-        catch (Exception)
+        catch
         {
-            return null;
+            try { File.Delete(tempFile); } catch { }
+            throw;
         }
     }
 
@@ -136,23 +124,15 @@ public sealed class GitHubReleasesClient : IDisposable
 
     private async Task<List<GitHubRelease>> fetchReleasesPageAsync(string repo, int page, CancellationToken ct)
     {
-        try
-        {
-            using HttpResponseMessage response = await http
-                .GetAsync($"https://api.github.com/repos/{repo}/releases?per_page=20&page={page}", ct)
-                .ConfigureAwait(false);
+        using HttpResponseMessage response = await http
+            .GetAsync($"https://api.github.com/repos/{repo}/releases?per_page=20&page={page}", ct)
+            .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new List<GitHubRelease>();
+        response.EnsureSuccessStatusCode();
 
-            string json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            using var doc = JsonDocument.Parse(json);
-            return parseReleases(doc.RootElement);
-        }
-        catch (Exception)
-        {
-            return new List<GitHubRelease>();
-        }
+        string json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        using var doc = JsonDocument.Parse(json);
+        return parseReleases(doc.RootElement);
     }
 
     private static GitHubRelease? parseRelease(JsonElement root)
