@@ -9,15 +9,15 @@ using System.Reflection;
 namespace UsernameVisuals
 {
     /// <summary>
-    /// Patches chat usernames right after construction. The readonly <c>drawableText</c> field is
+    /// Patches chat usernames right after construction. The readonly <c>DrawableText</c> field is
     /// rewritten with a gradient copy.
     /// </summary>
     public sealed class DrawableChatUsernamePatch : PluginPatch<UsernameVisualsPlugin>
     {
         public static class Fields
         {
-            public static readonly FieldInfo? drawableText = Reflection.GetField("osu.Game.Overlays.Chat.DrawableChatUsername", "drawableText");
-            public static readonly FieldInfo? user = Reflection.GetField("osu.Game.Overlays.Chat.DrawableChatUsername", "user");
+            public static readonly FieldInfo? DrawableText = Reflection.GetField("osu.Game.Overlays.Chat.DrawableChatUsername", "drawableText");
+            public static readonly FieldInfo? User = Reflection.GetField("osu.Game.Overlays.Chat.DrawableChatUsername", "user");
         }
 
         public DrawableChatUsernamePatch(UsernameVisualsPlugin plugin, IOsuCcPluginHost host)
@@ -27,12 +27,12 @@ namespace UsernameVisuals
 
         public static void Postfix(DrawableChatUsername __instance)
         {
-            if (Fields.drawableText?.GetValue(__instance) is not OsuSpriteText current || current is UsernameVisualsText)
+            if (Fields.DrawableText?.GetValue(__instance) is not OsuSpriteText current || current is UsernameVisualsText)
                 return;
 
             var gradient = UsernameVisualsText.CopyOf(current);
-            gradient.User = Fields.user?.GetValue(__instance) as IUser;
-            Fields.drawableText!.SetValue(__instance, gradient);
+            gradient.User = Fields.User?.GetValue(__instance) as IUser;
+            Fields.DrawableText!.SetValue(__instance, gradient);
         }
     }
 
@@ -49,7 +49,7 @@ namespace UsernameVisuals
 
         public static void Postfix(DrawableChatUsername __instance)
         {
-            if (DrawableChatUsernamePatch.Fields.drawableText?.GetValue(__instance) is UsernameVisualsText gradient)
+            if (DrawableChatUsernamePatch.Fields.DrawableText?.GetValue(__instance) is UsernameVisualsText gradient)
                 gradient.ReapplyDisplay();
         }
     }

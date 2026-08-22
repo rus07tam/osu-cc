@@ -9,7 +9,7 @@ namespace osucc.Patches
     public sealed class OsuGameOverlayPatch : OsuCcPatch
     {
         public OsuGameOverlayPatch()
-            : base("osu.Game.OsuGame", "showOverlayAboveOthers", null, MethodType.Postfix)
+            : base("osu.Game.OsuGame", "showOverlayAboveOthers", MethodType.Postfix)
         {
         }
 

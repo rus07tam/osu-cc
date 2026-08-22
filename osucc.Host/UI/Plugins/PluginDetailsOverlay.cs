@@ -216,11 +216,11 @@ namespace osucc.UI.Plugins
                 var service = PluginUpdateService.Instance;
                 if (service == null) return;
                 var versionInfo = await service.CheckUpdateAsync(entry).ConfigureAwait(false);
-                
-                Schedule(() => 
+
+                Schedule(() =>
                 {
                     if (checkUpdatesButton != null) checkUpdatesButton.Enabled.Value = true;
-                    
+
                     if (versionInfo != null)
                     {
                         showUpdateBadge(entry, versionInfo);

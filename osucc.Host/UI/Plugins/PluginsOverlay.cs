@@ -186,7 +186,7 @@ namespace osucc.UI.Plugins
         {
             if (browserLoading) return;
             browserLoading = true;
-            
+
             browserSpinner.Show();
 
             Task.Run(async () =>
@@ -197,9 +197,9 @@ namespace osucc.UI.Plugins
                     Schedule(() => { browserSpinner.Hide(); browserLoading = false; });
                     return;
                 }
-                
+
                 var results = await service.GetPluginsAsync(++browserPage).ConfigureAwait(false);
-                
+
                 Schedule(() =>
                 {
                     browserLoading = false;
