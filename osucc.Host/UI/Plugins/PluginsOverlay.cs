@@ -145,6 +145,7 @@ namespace osucc.UI.Plugins
         private bool browserInitialized;
 
         private LoadingSpinner browserSpinner = null!;
+        private ShearedButton loadMoreButton = null!;
 
         private FillFlowContainer createBrowserStub()
         {
@@ -170,7 +171,7 @@ namespace osucc.UI.Plugins
                         Origin = Anchor.TopCentre,
                         Margin = new MarginPadding { Vertical = 10 },
                     },
-                    new ShearedButton
+                    loadMoreButton = new ShearedButton
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -198,34 +199,50 @@ namespace osucc.UI.Plugins
                     return;
                 }
 
-                var results = await service.GetPluginsAsync(++browserPage).ConfigureAwait(false);
-
-                Schedule(() =>
+                try
                 {
-                    browserLoading = false;
-                    browserSpinner.Hide();
-                    foreach (var info in results)
-                    {
-                        var dummy = new PluginEntry
-                        {
-                            Id = info.Id,
-                            Name = info.Name,
-                            Description = info.Description,
-                            Version = info.Version,
-                            Icon = info.Icon,
-                            IconPath = info.IconPath,
-                            IconResource = info.IconResource,
-                            Repository = info.Repository,
-                            Authors = info.Authors,
-                            Tags = info.Tags,
-                            Documents = info.Documents,
-                        };
+                    var results = await service.GetPluginsAsync(++browserPage).ConfigureAwait(false);
 
-                        var card = new PluginCard(dummy) { IsCatalogMode = true };
-                        card.Clicked = _ => PluginsOverlayComponent.Instance?.ShowRemotePlugin(info);
-                        browserList.Add(card);
-                    }
-                });
+                    Schedule(() =>
+                    {
+                        browserLoading = false;
+                        browserSpinner.Hide();
+                        loadMoreButton.Text = "Load More"; // Reset on success
+
+                        foreach (var info in results)
+                        {
+                            var dummy = new PluginEntry
+                            {
+                                Id = info.Id,
+                                Name = info.Name,
+                                Description = info.Description,
+                                Version = info.Version,
+                                Icon = info.Icon,
+                                IconPath = info.IconPath,
+                                IconResource = info.IconResource,
+                                Repository = info.Repository,
+                                Authors = info.Authors,
+                                Tags = info.Tags,
+                                Documents = info.Documents,
+                            };
+
+                            var card = new PluginCard(dummy) { IsCatalogMode = true };
+                            card.Clicked = _ => PluginsOverlayComponent.Instance?.ShowRemotePlugin(info);
+                            browserList.Add(card);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Schedule(() =>
+                    {
+                        browserPage--; // Retry the same page next time
+                        browserLoading = false;
+                        browserSpinner.Hide();
+                        loadMoreButton.Text = "Retry";
+                        osucc.Client.ClientNotifications.Error($"GitHub API Error: {ex.Message}");
+                    });
+                }
             });
         }
 

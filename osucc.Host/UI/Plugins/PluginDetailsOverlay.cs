@@ -438,10 +438,10 @@ namespace osucc.UI.Plugins
 
         private DetailsRightPane createRemoteRightColumn(RemotePluginInfo info)
         {
-            // Fallback for settings: no settings in catalog
+            // Settings tab is hidden in the catalog view (remote plugins).
             return new DetailsRightPane(
                 new PluginEntry { Documents = info.Documents.ToList() },
-                () => new OsuSpriteText { Text = PluginsOverlayStrings.NoPluginSettings, Font = OsuFont.Default.With(size: 13), Colour = Color4.White.Opacity(0.55f) },
+                null,
                 doc => createRemoteDocumentContent(info, doc)
             );
         }
@@ -478,7 +478,7 @@ namespace osucc.UI.Plugins
                             Spacing = new Vector2(0, 12),
                             Children = new Drawable[]
                             {
-                                new PluginMarkdownContainer(string.Empty) { RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y, Text = markdown }
+                                new PluginMarkdownContainer(string.Empty, repoFullName) { RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y, Text = markdown }
                             }
                         };
                     });
@@ -989,27 +989,38 @@ namespace osucc.UI.Plugins
         private sealed partial class PluginMarkdownContainer : OsuMarkdownContainer
         {
             private readonly string baseDirectory;
+            private readonly string? remoteRepoFullName;
 
-            public PluginMarkdownContainer(string baseDirectory)
+            public PluginMarkdownContainer(string baseDirectory, string? remoteRepoFullName = null)
             {
                 this.baseDirectory = baseDirectory;
+                this.remoteRepoFullName = remoteRepoFullName;
             }
 
-            public override OsuMarkdownTextFlowContainer CreateTextFlow() => new PluginMarkdownTextFlowContainer(baseDirectory);
+            public override OsuMarkdownTextFlowContainer CreateTextFlow() => new PluginMarkdownTextFlowContainer(baseDirectory, remoteRepoFullName);
 
             private sealed partial class PluginMarkdownTextFlowContainer : OsuMarkdownTextFlowContainer
             {
                 private readonly string baseDirectory;
+                private readonly string? remoteRepoFullName;
 
-                public PluginMarkdownTextFlowContainer(string baseDirectory)
+                public PluginMarkdownTextFlowContainer(string baseDirectory, string? remoteRepoFullName)
                 {
                     this.baseDirectory = baseDirectory;
+                    this.remoteRepoFullName = remoteRepoFullName;
                 }
 
                 protected override void AddImage(LinkInline linkInline)
                 {
                     if (linkInline.Url != null && (linkInline.Url.StartsWith("http://", System.StringComparison.OrdinalIgnoreCase) || linkInline.Url.StartsWith("https://", System.StringComparison.OrdinalIgnoreCase)))
                     {
+                        base.AddImage(linkInline);
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(remoteRepoFullName) && linkInline.Url != null)
+                    {
+                        linkInline.Url = $"https://raw.githubusercontent.com/{remoteRepoFullName}/HEAD/{linkInline.Url}";
                         base.AddImage(linkInline);
                         return;
                     }
@@ -1100,12 +1111,17 @@ namespace osucc.UI.Plugins
             private OverlayColourProvider colourProvider { get; set; } = null!;
 
             private readonly PluginEntry entry;
-            private readonly Func<Drawable> createSettings;
+            private readonly Func<Drawable>? createSettings;
             private readonly Func<PluginDocument, Drawable> createDoc;
-            private readonly Container contentHolder;
+            private readonly Container contentHolder = new Container
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+            };
             private readonly List<TabButton> tabButtons = new();
+            private readonly List<Action> tabActions = new();
 
-            public DetailsRightPane(PluginEntry entry, Func<Drawable> createSettings, Func<PluginDocument, Drawable> createDoc)
+            public DetailsRightPane(PluginEntry entry, Func<Drawable>? createSettings, Func<PluginDocument, Drawable> createDoc)
             {
                 this.entry = entry;
                 this.createSettings = createSettings;
@@ -1123,20 +1139,28 @@ namespace osucc.UI.Plugins
                     Margin = new MarginPadding { Bottom = 10 },
                 };
 
+                int tabIndex = 0;
+
                 // Settings tab button
-                var settingsTab = new TabButton(FontAwesome.Solid.Cog, PluginsOverlayStrings.DetailsSettingsTitle, () => selectTab(0));
-                tabButtons.Add(settingsTab);
-                tabsFlow.Add(settingsTab);
+                if (createSettings != null)
+                {
+                    int currentIndex = tabIndex++;
+                    var settingsTab = new TabButton(FontAwesome.Solid.Cog, PluginsOverlayStrings.DetailsSettingsTitle, () => selectTab(currentIndex));
+                    tabButtons.Add(settingsTab);
+                    tabsFlow.Add(settingsTab);
+                    tabActions.Add(() => contentHolder.Child = createSettings());
+                }
 
                 // Document tab buttons
                 for (int i = 0; i < entry.Documents.Count; i++)
                 {
-                    int docIndex = i;
+                    int currentIndex = tabIndex++;
                     var doc = entry.Documents[i];
                     var icon = PluginCardLayout.ResolveFontAwesomeIcon(doc.IconGlyph) ?? FontAwesome.Solid.FileAlt;
-                    var docTab = new TabButton(icon, doc.Title, () => selectTab(docIndex + 1));
+                    var docTab = new TabButton(icon, doc.Title, () => selectTab(currentIndex));
                     tabButtons.Add(docTab);
                     tabsFlow.Add(docTab);
+                    tabActions.Add(() => contentHolder.Child = createDoc(doc));
                 }
 
                 InternalChild = new FillFlowContainer
@@ -1149,11 +1173,7 @@ namespace osucc.UI.Plugins
                         tabsFlow,
                         new DetailsSection
                         {
-                            Child = contentHolder = new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                            },
+                            Child = contentHolder
                         },
                     },
                 };
@@ -1162,7 +1182,8 @@ namespace osucc.UI.Plugins
             [BackgroundDependencyLoader]
             private void load()
             {
-                selectTab(0);
+                if (tabButtons.Count > 0)
+                    selectTab(0);
             }
 
             private void selectTab(int index)
@@ -1171,14 +1192,7 @@ namespace osucc.UI.Plugins
                     tabButtons[i].Active = (i == index);
 
                 contentHolder.Clear();
-
-                if (index == 0)
-                    contentHolder.Child = createSettings();
-                else
-                {
-                    var doc = entry.Documents[index - 1];
-                    contentHolder.Child = createDoc(doc);
-                }
+                tabActions[index]();
             }
 
             private sealed partial class TabButton : ClickableContainer

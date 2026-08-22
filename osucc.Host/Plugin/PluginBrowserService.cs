@@ -23,7 +23,7 @@ public sealed class PluginBrowserService : IDisposable
     {
         string searchUrl = $"https://api.github.com/search/repositories?q=topic:osucc-plugin&per_page={perPage}&page={page}";
         using var searchResp = await http.GetAsync(searchUrl, ct).ConfigureAwait(false);
-        if (!searchResp.IsSuccessStatusCode) return new List<RemotePluginInfo>();
+        searchResp.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(await searchResp.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
         var items = doc.RootElement.GetProperty("items");
@@ -51,6 +51,7 @@ public sealed class PluginBrowserService : IDisposable
 
         string treeUrl = $"https://api.github.com/repos/{repoFullName}/git/trees/HEAD?recursive=1";
         using var treeResp = await http.GetAsync(treeUrl, ct).ConfigureAwait(false);
+        if (treeResp.StatusCode == System.Net.HttpStatusCode.Forbidden) treeResp.EnsureSuccessStatusCode();
         if (!treeResp.IsSuccessStatusCode) return plugins;
 
         using var treeDoc = JsonDocument.Parse(await treeResp.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
