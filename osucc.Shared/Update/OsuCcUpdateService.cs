@@ -49,11 +49,11 @@ public sealed class OsuCcUpdateService : IDisposable
         return version;
     }
 
-    public async Task UpdateAsync(IProgress<(UpdateStage Stage, float Progress)> progress, CancellationToken ct = default)
+    public async Task UpdateAsync(IProgress<(UpdateStage Stage, float Progress, string? ErrorReason)> progress, CancellationToken ct = default)
     {
         try
         {
-            progress.Report((UpdateStage.Checking, 0f));
+            progress.Report((UpdateStage.Checking, 0f, null));
 
             GitHubRelease? release = await github.FindReleaseWithAssetAsync(
                 Repository,
@@ -62,7 +62,7 @@ public sealed class OsuCcUpdateService : IDisposable
 
             if (release == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "No release found"));
                 return;
             }
 
@@ -71,23 +71,23 @@ public sealed class OsuCcUpdateService : IDisposable
 
             if (asset == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "No valid asset in release"));
                 return;
             }
 
-            progress.Report((UpdateStage.Downloading, 0f));
+            progress.Report((UpdateStage.Downloading, 0f, null));
 
             string? tempFile = await github.DownloadAssetAsync(asset.DownloadUrl, ct).ConfigureAwait(false);
 
             if (tempFile == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "Download failed"));
                 return;
             }
 
             try
             {
-                progress.Report((UpdateStage.Extracting, 0f));
+                progress.Report((UpdateStage.Extracting, 0f, null));
 
                 string hookDir = Path.Combine(osuCcDirectory, OsuCcLayout.HookDirectoryName);
                 Directory.CreateDirectory(hookDir);
@@ -111,25 +111,25 @@ public sealed class OsuCcUpdateService : IDisposable
                     }
                 }
 
-                progress.Report((UpdateStage.Applying, 0.5f));
-                progress.Report((UpdateStage.Done, 1f));
+                progress.Report((UpdateStage.Applying, 0.5f, null));
+                progress.Report((UpdateStage.Done, 1f, null));
             }
             finally
             {
                 try { File.Delete(tempFile); } catch (Exception) { }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            progress.Report((UpdateStage.Failed, 0f));
+            progress.Report((UpdateStage.Failed, 0f, ex.Message));
         }
     }
 
-    public async Task InstallAsync(IProgress<(UpdateStage Stage, float Progress)> progress, CancellationToken ct = default)
+    public async Task InstallAsync(IProgress<(UpdateStage Stage, float Progress, string? ErrorReason)> progress, CancellationToken ct = default)
     {
         try
         {
-            progress.Report((UpdateStage.Checking, 0f));
+            progress.Report((UpdateStage.Checking, 0f, null));
 
             GitHubRelease? release = await github.FindReleaseWithAssetAsync(
                 Repository,
@@ -138,7 +138,7 @@ public sealed class OsuCcUpdateService : IDisposable
 
             if (release == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "No release found"));
                 return;
             }
 
@@ -147,23 +147,23 @@ public sealed class OsuCcUpdateService : IDisposable
 
             if (asset == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "No valid asset in release"));
                 return;
             }
 
-            progress.Report((UpdateStage.Downloading, 0f));
+            progress.Report((UpdateStage.Downloading, 0f, null));
 
             string? tempFile = await github.DownloadAssetAsync(asset.DownloadUrl, ct).ConfigureAwait(false);
 
             if (tempFile == null)
             {
-                progress.Report((UpdateStage.Failed, 0f));
+                progress.Report((UpdateStage.Failed, 0f, "Download failed"));
                 return;
             }
 
             try
             {
-                progress.Report((UpdateStage.Extracting, 0f));
+                progress.Report((UpdateStage.Extracting, 0f, null));
 
                 if (Directory.Exists(osuCcDirectory))
                     Directory.Delete(osuCcDirectory, recursive: true);
@@ -172,17 +172,17 @@ public sealed class OsuCcUpdateService : IDisposable
 
                 ZipFile.ExtractToDirectory(tempFile, osuCcDirectory, overwriteFiles: true);
 
-                progress.Report((UpdateStage.Applying, 0.5f));
-                progress.Report((UpdateStage.Done, 1f));
+                progress.Report((UpdateStage.Applying, 0.5f, null));
+                progress.Report((UpdateStage.Done, 1f, null));
             }
             finally
             {
                 try { File.Delete(tempFile); } catch (Exception) { }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            progress.Report((UpdateStage.Failed, 0f));
+            progress.Report((UpdateStage.Failed, 0f, ex.Message));
         }
     }
 

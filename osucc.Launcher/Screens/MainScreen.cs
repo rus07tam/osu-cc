@@ -146,7 +146,7 @@ public partial class MainScreen : Screen
     private void runUpdate()
     {
         operationInProgress.Value = true;
-        var progress = new Progress<(UpdateStage, float)>(t => Schedule(() => progressBar.SetProgress(t.Item1, t.Item2)));
+        var progress = new Progress<(UpdateStage, float, string?)>(t => Schedule(() => progressBar.SetProgress(t.Item1, t.Item2, t.Item3)));
         Task.Run(async () =>
         {
             try
@@ -167,7 +167,7 @@ public partial class MainScreen : Screen
     private void runInstall()
     {
         operationInProgress.Value = true;
-        var progress = new Progress<(UpdateStage, float)>(t => Schedule(() => progressBar.SetProgress(t.Item1, t.Item2)));
+        var progress = new Progress<(UpdateStage, float, string?)>(t => Schedule(() => progressBar.SetProgress(t.Item1, t.Item2, t.Item3)));
         Task.Run(async () =>
         {
             try

@@ -56,7 +56,7 @@ public partial class OperationProgressBar : VisibilityContainer
     protected override void PopIn() => this.FadeIn(200, Easing.OutQuint);
     protected override void PopOut() => this.FadeOut(200, Easing.OutQuint);
 
-    public void SetProgress(UpdateStage stage, float progress)
+    public void SetProgress(UpdateStage stage, float progress, string? errorReason = null)
     {
         progressBar.Current.Value = progress;
         stageText.Text = stage switch
@@ -66,7 +66,7 @@ public partial class OperationProgressBar : VisibilityContainer
             UpdateStage.Extracting => "Extracting...",
             UpdateStage.Applying => "Applying update...",
             UpdateStage.Done => "Done!",
-            UpdateStage.Failed => "Update failed",
+            UpdateStage.Failed => string.IsNullOrEmpty(errorReason) ? "Update failed" : $"Update failed: {errorReason}",
             _ => string.Empty,
         };
 
